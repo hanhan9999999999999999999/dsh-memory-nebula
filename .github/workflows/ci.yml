@@ -25,3 +25,26 @@ jobs:
         run: npm test
       - name: Release checks
         run: npm run check
+
+  package:
+    name: Package install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Pack
+        run: npm pack
+      - name: Verify tarball contents
+        run: |
+          tar -tzf dsh-memory-nebula-*.tgz | grep -q 'package/SECURITY.md'
+          tar -tzf dsh-memory-nebula-*.tgz | grep -q 'package/CONTRIBUTING.md'
+          if tar -tzf dsh-memory-nebula-*.tgz | grep -q 'package/dev/'; then exit 1; fi
+      - name: Install from tarball
+        run: |
+          mkdir -p /tmp/pkg-check && cd /tmp/pkg-check
+          npm init -y
+          npm install "$GITHUB_WORKSPACE"/dsh-memory-nebula-*.tgz
+          test "$(node node_modules/dsh-memory-nebula/lib/standalone.mjs --version)" = "$(node -p "require('$GITHUB_WORKSPACE/package.json').version")"
+          node node_modules/dsh-memory-nebula/scripts/doctor.mjs --help > /dev/null
