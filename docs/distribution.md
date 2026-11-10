@@ -6,7 +6,7 @@
 ## 包是什么
 
 - npm 包名：`dsh-memory-nebula`
-- 当前版本：`1.1.1`
+- 当前版本：`1.1.2`
 - 形态：DSH 插件（`cordis.patch.yml` + `lib/client.js`）与独立引擎（`lib/standalone.mjs`）共用一套代码
 - 许可：MIT；没有授权锁、没有遥测、不会把记忆上传到任何服务器
 - 包内容：`lib/`、`scripts/`、`docs/`、`cordis.patch.yml`、`README.md` / `README.en.md`、
@@ -22,7 +22,7 @@
 https://unpkg.com/dsh-memory-nebula@1.1.2/market/index.json
 ```
 
-搜索「记忆星图」安装。索引与详情页都在 npm 包里，由 jsDelivr 提供；不需要第二个站点。
+搜索「记忆星图」安装。索引与详情页都在 npm 包里，由 unpkg 提供；不需要第二个站点。
 条目声明 `engines.dsh >= 0.2.2-rc.1`，更老的 DSH 会显示不兼容而不是装完才崩。
 
 ### 从 tgz（离线/客户机器）
