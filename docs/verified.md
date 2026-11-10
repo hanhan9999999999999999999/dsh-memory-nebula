@@ -2,6 +2,24 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.1.4（2026-11-11）对齐
+
+- **医生能说出「装的是新的、跑的是旧的」**：在真实 desktop profile 上，
+  `node scripts/doctor.mjs --profile … --base http://127.0.0.1:60156/api/memory-nebula`
+  得到 `[warn] version: installed 1.1.3, running host 1.1.0`，提示「重启 DSH 让宿主加载新代码」；
+  汇总 `9 通过 / 1 提醒 / 0 失败`。此前同一场景会给出全绿，掩盖升级未生效。
+- **真机页面**：headless Edge 打开 `http://127.0.0.1:60156/api/memory-nebula/`，
+  页面标题「记忆星图 · Memory Nebula」，顶栏 `1980 记忆 / 9531 连接 / 9 工作区 / 73 会话`，
+  `NebulaAPI.meta.version=1.1.0`（宿主未重启）、`mode=host`、无版本横幅、无 JS 异常；
+  搜索「记忆」12 命中，点第一条详情正文 1995 字。截图 `dev/shot/live-host.png`（工作区探针，不进包）。
+- **CI 安装门**：GitHub Actions run 42879133994 的 `Node 22.13.0` / `Node 24` /
+  `Package install` 三个 job 全部 success；`Package install` 会从 `npm pack` 的 tgz 安装、
+  比对 `--version`、跑 `doctor --help`，并检查包内带 `SECURITY.md` / `CONTRIBUTING.md`、不带 `dev/`。
+- **回归**：88/88 单测；release-check v1.1.4 全绿（含 1.1.4 构件断言：`checkVersionDrift`、
+  CI 安装门、doctor 版本漂移用例）。
+- **打包**：`npm pack` 75 文件 / 约 2.3MB（解开约 2.9MB）；
+  最终 sha256 见同目录 `.tgz.sha256`（不写进包内，避免重打包后自相矛盾）。
+
 ## 1.1.3（2026-11-11）门面
 
 - **包元数据**：`package.json` 有 `repository` / `homepage` / `bugs`，描述中英双句，13 个关键词；`npm pack` 后从 tarball 解出的 manifest 同样带这些字段。

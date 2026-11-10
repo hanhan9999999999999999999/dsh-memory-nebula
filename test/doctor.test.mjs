@@ -11,6 +11,7 @@ import {
   checkRuntime,
   checkPackage,
   checkProfile,
+  checkVersionDrift,
   formatDoctor,
 } from '../lib/host/doctor.js'
 
@@ -105,6 +106,16 @@ test('doctor: profile 完全没声明会失败', () => {
   } finally {
     rmSync(dir, { recursive: true, force: true })
   }
+})
+
+test('doctor: 装的是新代码、跑的是旧宿主会提醒重启', () => {
+  assert.equal(checkVersionDrift('1.1.4', '1.1.4'), null)
+  assert.equal(checkVersionDrift('1.1.4', ''), null)
+  assert.equal(checkVersionDrift('', '1.1.0'), null)
+  const r = checkVersionDrift('1.1.4', '1.1.0')
+  assert.equal(r.status, 'warn')
+  assert.match(r.detail, /installed 1\.1\.4, running host 1\.1\.0/)
+  assert.match(r.hint, /重启 DSH/)
 })
 
 test('doctor: 文本报告带状态与汇总', () => {

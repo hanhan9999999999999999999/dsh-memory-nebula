@@ -53,7 +53,7 @@ Export the whole graph (text included) as one self-contained HTML for offline re
 ## Quick start
 
 From the plugin market (recommended): add the index
-`https://unpkg.com/dsh-memory-nebula@1.1.3/market/index.json` under
+`https://unpkg.com/dsh-memory-nebula@1.1.4/market/index.json` under
 Plugins → Discover, search for “Memory Nebula”, and install. Run the doctor in step 2.5 afterwards.
 
 Or install from this checkout:
@@ -61,7 +61,7 @@ Or install from this checkout:
 ```powershell
 # 1) link the plugin (either way)
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
-npm install <path>\dsh-memory-nebula-1.1.3.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.1.4.tgz --prefix <profile>
 
 # 2) profile package.json: add the dependency AND the bundle
 #    dependencies:        "dsh-memory-nebula": "file:../../plugins/dsh-memory-nebula"
@@ -87,7 +87,7 @@ The page probes `/ping` on both legs and picks the newer `build`; a banner expla
 Self-checks:
 
 ```bash
-npm test                 # 87 unit assertions
+npm test                 # 88 unit assertions
 npm run check            # static release check
 node scripts/smoke.mjs   # 63 contract assertions against a live instance
 ```
@@ -120,7 +120,7 @@ Adapter contract and every `sources.json` field: [docs/adapters.md](docs/adapter
 | [docs/distribution.md](docs/distribution.md) | Install/upgrade/rollback/uninstall, support flow, marketplace copy |
 | [SECURITY.md](SECURITY.md) | Read-only boundary, HTTP protections and vulnerability reporting |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Local development, test commands and contribution rules |
-| [docs/testing.md](docs/testing.md) | 87 unit tests, 63 smoke checks, 21 security probes, browser probes |
+| [docs/testing.md](docs/testing.md) | 88 unit tests, 63 smoke checks, 21 security probes, browser probes |
 | [docs/roadmap.md](docs/roadmap.md) | From 0.5 to 1.0: scoped sharing, first-run guidance, 10k-node performance, i18n and release support |
 | [CHANGELOG.md](CHANGELOG.md) | Version history |
 
@@ -142,7 +142,7 @@ lib/
 scripts/smoke.mjs     63 read-only contract checks
 scripts/release-check.mjs  static release check
 scripts/bench.mjs     10k benchmark (build / recall / hygiene / snapshot / memory)
-test/                 node:test unit suite (87 assertions)
+test/                 node:test unit suite (88 assertions)
 ```
 
 ## Privacy and security
@@ -154,4 +154,4 @@ test/                 node:test unit suite (87 assertions)
 
 ## Version
 
-`1.1.3`, MIT. Front-end changes apply on refresh; everything under `lib/host/` is hot-reloaded, while `http.js` / `index.js` / `live.js` need a DSH restart (or the standalone engine).
+`1.1.4`, MIT. Front-end changes apply on refresh; everything under `lib/host/` is hot-reloaded, while `http.js` / `index.js` / `live.js` need a DSH restart (or the standalone engine).
