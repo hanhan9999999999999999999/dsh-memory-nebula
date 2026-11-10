@@ -121,7 +121,7 @@ Adapter contract and every `sources.json` field: [docs/adapters.md](docs/adapter
 | [SECURITY.md](SECURITY.md) | Read-only boundary, HTTP protections and vulnerability reporting |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Local development, test commands and contribution rules |
 | [docs/testing.md](docs/testing.md) | 90 unit tests, 63 smoke checks, 21 security probes, browser probes |
-| [docs/roadmap.md](docs/roadmap.md) | From 0.5 to 1.0: scoped sharing, first-run guidance, 10k-node performance, i18n and release support |
+| [docs/roadmap.md](docs/roadmap.md) | From 0.5 to 1.2: scoped sharing, first-run guidance, 10k-node performance, i18n and release support |
 | [CHANGELOG.md](CHANGELOG.md) | Version history |
 
 ## Layout
