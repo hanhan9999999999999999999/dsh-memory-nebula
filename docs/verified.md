@@ -17,8 +17,14 @@
   比对 `--version`、跑 `doctor --help`，并检查包内带 `SECURITY.md` / `CONTRIBUTING.md`、不带 `dev/`。
 - **回归**：88/88 单测；release-check v1.1.4 全绿（含 1.1.4 构件断言：`checkVersionDrift`、
   CI 安装门、doctor 版本漂移用例）。
-- **打包**：`npm pack` 75 文件 / 约 2.3MB（解开约 2.9MB）；
-  最终 sha256 见同目录 `.tgz.sha256`（不写进包内，避免重打包后自相矛盾）。
+- **打包**：`npm pack` 75 文件 / 约 2.3MB（解开约 2.9MB），实际 tgz 2,291,737B；
+  sha256 见同目录 `.tgz.sha256`（不写进包内，避免重打包后自相矛盾）。
+- **发布**：npm `latest=1.1.4`，registry shasum `97efe6cf600febe44270ef131aa28cf26fd65790`；
+  registry 安装后 `--version`=1.1.4，doctor 对真实 profile 给出「9 通过 / 1 提醒 / 0 失败」。
+- **远程索引**：`https://unpkg.com/dsh-memory-nebula@1.1.4/market/index.json` 200；
+  `parseMarketIndex` 通过（format 1 / 1 条 / 1.1.4），`marketInstallTarget` 返回
+  `dsh-memory-nebula@1.1.4`。
+- **GitHub Release**：`v1.1.4`（id 440830109），附 tgz 与 `.sha256` 两个资产。
 
 ## 1.1.3（2026-11-11）门面
 
