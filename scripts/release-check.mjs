@@ -263,6 +263,13 @@ if (!read('test/doctor.test.mjs').includes('running host')) fail('doctor 测试�
 if (!read('lib/host/nebula.js').includes("dbPath: this.demo ? ''")) fail('示例 overview 仍会读本机数据库')
 ok('1.1.5 构件：示例不碰盘 / 医生版本漂移 / CI 安装门')
 
+if (!read('lib/host/diagnostics.js').includes('formatDiagnostics(d, opts = {})')) fail('diagnostics 不支持语言选项')
+if (!read('lib/host/diagnostics.js').includes('contains no memory text')) fail('diagnostics 缺英文说明')
+if (!read('lib/host/http.js').includes("url.searchParams.get('format') === 'json'")) fail('/diagnostics 缺 JSON 输出')
+if (!read('lib/standalone.mjs').includes("process.argv.includes('--json')")) fail('standalone 缺 --diagnose --json')
+if (!read('test/diagnostics.test.mjs').includes('英文说明可切换')) fail('缺诊断英文测试')
+ok('1.1.6 构件：诊断 JSON / 英文说明 / CLI 机器可读')
+
 
 
 console.log(`\n发布检查：${pkg.name} v${pkg.version}\n`)

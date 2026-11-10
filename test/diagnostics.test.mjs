@@ -73,3 +73,14 @@ test('diagnostics: 空图/无来源也能格式化', () => {
   assert.match(text, /sources: 0/)
   assert.match(text, /lastError: none/)
 })
+
+test('diagnostics: 英文说明可切换，字段名保持稳定', () => {
+  const d = buildDiagnostics({ version: '1.1.6', build: 1, startedAt: 0, mode: 'host', nebula: {} })
+  const zh = formatDiagnostics(d)
+  const en = formatDiagnostics(d, { lang: 'en' })
+  assert.match(zh, /不含记忆正文/)
+  assert.match(en, /contains no memory text/)
+  assert.doesNotMatch(en, /不含记忆正文/)
+  assert.match(en, /version: 1\.1\.6/)
+  assert.match(en, /lastError: none/)
+})

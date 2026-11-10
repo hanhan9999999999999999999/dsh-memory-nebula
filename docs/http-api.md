@@ -17,7 +17,7 @@
 ```json
 {
   "ok": true,
-  "version": "1.1.5",
+  "version": "1.1.6",
   "build": 1794143336695,
   "startedAt": 1794143336695,
   "mode": "host",
@@ -42,12 +42,13 @@
 给支持用：报告版本、构建、启动时间、模式、Node/系统/架构、PID/运行时长/RSS、
 图规模、建图耗时、来源身份（`key/title/adapter/provider/size/kind`）、能力清单与最近错误。
 
-**不读记忆正文，也不输出 `path` / `dbPath`。** 响应示例：
+**不读记忆正文，也不输出 `path` / `dbPath`。** 支持 `?format=json`（`application/json`，
+字段与纯文本同源，适合工单系统）与 `?lang=en`（英文说明，字段名不变）。响应示例：
 
 ```text
 memory-nebula diagnostics
 # 不含记忆正文；可以整段贴给支持
-version: 1.1.5
+version: 1.1.6
 build: 1794276294467
 started: 2026-11-10T02:20:37.399Z
 mode: standalone

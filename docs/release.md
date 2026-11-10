@@ -21,7 +21,7 @@ cd <plugin>
 # 1. 语法与静态检查（版本一致、UTF-8、import、死文件、CORS、document.write…）
 npm run check
 
-# 2. 单元测试（88 项，纯函数 + 契约）
+# 2. 单元测试（90 项，纯函数 + 契约）
 npm test
 
 # 3. 起一个干净实例，跑接口契约（63 项）
@@ -64,7 +64,7 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 安装包起 7896 实测 `/share?scope=ws:DSHLive2D&hide=level:lesson` → 200、601,177 字节。
 1.1.3 起包内多了 `SECURITY.md` 与 `CONTRIBUTING.md`，`.github/` 不进包；文件数与体积以 `npm pack` 的输出为准（不要手写进文档，否则每次改文档都要重打包）。
 
-1.1.5 实测：**75 个文件**，包约 2.3MB、解开约 2.9MB（精确字节以 `npm pack` 输出为准）。
+1.1.6 实测：**75 个文件**，包约 2.3MB、解开约 2.9MB（精确字节以 `npm pack` 输出为准）。
 清单里应含 `sidecar.ps1`、`scripts/`、`test/` 不含（单测只在仓库里跑）、`dev/` 与截图不含。
 
 装进 DSH profile（与 `docs/operations.md` 的 junction 方式二选一）：
@@ -74,7 +74,7 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.1.2.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.1.6.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：
@@ -133,7 +133,8 @@ node lib/standalone.mjs --port 7890
 - 会话转写解析（`.jsonl.zstd`）是尽力而为：未知帧类型会跳过，不保证每个会话都能解出。
 - 3D 视图依赖 WebGL2；不支持时自动留在 2D，不报错。超过 3,000 条时主动留在 2D，
   手动切 3D 会提示先筛选，避免软件渲染下长时间卡住。
-- 界面文案目前只有中文（`README.en.md` 是英文入口），没有做 i18n 资源表。
+- 界面中英双语（0.9.0 起）：中文是源文，英文查 `lib/web/i18n.js`；首次按浏览器语言，顶栏可切换并记住。
+  服务端错误与日志仍以中文为主，属于面向开发者的诊断边界，不是界面漏翻。
 - 单文件快照是**时间点副本**：生成后真实库再变它也不会更新，也没有增量合并；包含全部正文，
   真实库较大时文件也大（1800 节点约 2.6MB，因为带全部正文）。快照在 `file://` 下运行，浏览器对本地文件的安全策略
   各不相同，但不依赖网络。

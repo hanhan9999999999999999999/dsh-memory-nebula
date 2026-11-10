@@ -186,6 +186,24 @@ test('http: /diagnostics 只给环境与图规模，不带正文/路径', async 
   assert.ok(!res.body.includes('dbPath'))
 })
 
+test('http: /diagnostics?format=json 与 ?lang=en', async () => {
+  const h = await boot()
+  const json = await call(h, '/diagnostics?demo=1&format=json')
+  assert.equal(json.status, 200, json.body)
+  assert.match(json.headers['content-type'], /application\/json/)
+  const report = JSON.parse(json.body)
+  assert.equal(report.product, 'memory-nebula')
+  assert.equal(report.demo, true)
+  assert.equal(report.graph.nodes, 64)
+  assert.equal(report.content, 'none')
+  assert.ok(!json.body.includes('dbPath'))
+
+  const en = await call(h, '/diagnostics?demo=1&lang=en')
+  assert.equal(en.status, 200, en.body)
+  assert.match(en.body, /contains no memory text/)
+  assert.match(en.body, /mode: standalone \(demo\)/)
+})
+
 test('http: 非法 hide 返回 400，空范围返回 404', async () => {
   const h = await boot()
   const bad = await call(h, '/share?demo=1&hide=nope:x')

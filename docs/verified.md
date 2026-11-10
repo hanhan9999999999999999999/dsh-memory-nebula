@@ -2,6 +2,17 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.1.6（2026-11-11）支持接口
+
+- **诊断 JSON**：`GET /diagnostics?format=json&demo=1` 返回 `application/json`，
+  `product=memory-nebula`、`demo=true`、`graph.nodes=64`、`content=none`，无 `dbPath`。
+- **英文说明**：`GET /diagnostics?demo=1&lang=en` 含 `contains no memory text`，
+  `mode: standalone (demo)`；字段名保持英文，便于脚本。
+- **CLI**：`node lib/standalone.mjs --diagnose --json --lang en` 输出单行 JSON；
+  本次实测 2005 记忆 / 9667 连接 / 9 工作区 / 73 会话，建图 513ms，退出 0。
+- **回归**：90/90 单测；`release-check` 含 1.1.6 构件断言。
+- **网页**：诊断说明行走 `T()`，英文界面复制出的报告不再混中文说明。
+
 ## 1.1.5（2026-11-11）不碰盘
 
 - **CI 抓到的真实并发问题**：1.1.4 的 `Node 24` run 42890664896 与 `Package install` run
