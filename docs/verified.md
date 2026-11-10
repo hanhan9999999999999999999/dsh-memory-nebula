@@ -11,6 +11,8 @@
 - **CLI**：`node lib/standalone.mjs --diagnose --json --lang en` 输出单行 JSON；
   本次实测 2005 记忆 / 9667 连接 / 9 工作区 / 73 会话，建图 513ms，退出 0。
 - **回归**：90/90 单测；`release-check` 含 1.1.6 构件断言。
+- **发布后回归**：1.1.6 从源码起 7899，doctor（desktop profile + endpoint）9 通过 / 0 提醒 / 0 失败；
+  `scripts/smoke.mjs` 63/63；`dev/security-probe.mjs` 21/21。
 - **网页**：诊断说明行走 `T()`，英文界面复制出的报告不再混中文说明。
 - **打包**：75 文件 / 2,294,090B；sha256 `55b41bae92a8a0806e1dda4ffe2ded5e83da0b3d8551b1b7ddd50acc2851a6c8`。
 - **发布**：npm `latest=1.1.6`，registry shasum `863e524d8fa71791b963378c512930185d90b575`；
