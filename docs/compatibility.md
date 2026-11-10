@@ -1,6 +1,6 @@
 # 兼容矩阵
 
-最后更新：2026-11-10（1.1.2 市场索引改由 unpkg 托管；运行前提未变）
+最后更新：2026-11-11（1.1.3 补仓库元数据、CI 与安全文档；运行前提未变）
 
 这张表只写**真的跑过**的东西。「预期可用」是依据运行前提做的判断，不是实测；
 没有出现的组合就是没有验证，不应当作支持承诺。
@@ -22,7 +22,7 @@
 | 适配器 | meow / notes / sqlite / ingest | 单测 + `sources`/`ingest` 冒烟 |
 | 独立引擎 | `lib/standalone.mjs`，127.0.0.1:7890/7891 | 0.5–0.9 的 `smoke` 与 `--diagnose` |
 | 安装体检 | 真实 desktop profile + 运行中实例 | 1.1.0：9 项全过（含 endpoint ping） |
-| 市场索引 | `@deepseek-ai/dsh-plugin-market-index` format 1 校验 | 1.1.2：unpkg 索引 200，`parseMarketIndex` 通过，图标/详情/图片可解析 |
+| 市场索引 | `@deepseek-ai/dsh-plugin-market-index` format 1 校验 | 1.1.3：unpkg 索引 200，`parseMarketIndex` 通过，图标/详情/图片可解析 |
 
 ## 预期可用，但未实测
 

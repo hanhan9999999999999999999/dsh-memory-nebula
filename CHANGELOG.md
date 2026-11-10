@@ -2,6 +2,18 @@
 
 本文件记录「记忆星图」每个版本改了什么。日期为落盘日期。
 
+## 1.1.3 — 2026-11-11
+
+主题「门面」：让别人能找得到、看得懂、敢报问题。
+
+- `package.json` 补齐 `repository` / `homepage` / `bugs`，描述改为中英双句，
+  关键词补 `dsh`、`memory-graph`、`knowledge-graph`、`offline-snapshot`。
+- GitHub Actions CI：Node 22.13 与 24 双矩阵，跑 `npm test` 与 `npm run check`。
+- 新增 `SECURITY.md`（只读边界、loopback/Origin/CSP、`/share` 数据出口、
+  private advisory）与 `CONTRIBUTING.md`（无依赖、测试命令、文案/测试/版本约定）。
+- README 与 README.en 顶部加 CI、npm、license badge。
+- 市场索引与 unpkg 地址推到 1.1.3，安装名/TGZ 名同步。
+
 ## 1.1.2 — 2026-11-10
 
 主题「换个门牌」：市场索引从 jsDelivr 换到 unpkg。

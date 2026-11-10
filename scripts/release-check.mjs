@@ -245,6 +245,19 @@ if (!read('docs/market.en.md').includes('https://unpkg.com/')) fail('英文详�
 if (!pkg.files?.includes('market') || !pkg.files?.includes('locale')) fail('package.json files 没带 market/locale')
 ok('1.1.2 构件：市场索引 / unpkg / 双语详情 / 图标')
 
+const ciSrc = read('.github/workflows/ci.yml')
+if (!ciSrc.includes("'22.13.0'") || !ciSrc.includes("'24'")) fail('CI 矩阵缺 Node 22.13/24')
+if (!ciSrc.includes('npm run check')) fail('CI 没跑 release-check')
+if (!pkg.repository?.url?.includes('github.com/hanhan9999999999999999999/dsh-memory-nebula')) fail('package.json 缺 repository')
+if (!pkg.homepage?.includes('github.com/hanhan9999999999999999999/dsh-memory-nebula')) fail('package.json 缺 homepage')
+if (!pkg.bugs?.url?.endsWith('/issues')) fail('package.json 缺 bugs.url')
+if (!read('SECURITY.md').includes('private vulnerability reporting')) fail('SECURITY.md 缺报告入口')
+if (!read('CONTRIBUTING.md').includes('npm run check')) fail('CONTRIBUTING.md 缺检查命令')
+if (!read('README.md').includes('actions/workflows/ci.yml/badge.svg')) fail('README.md 缺 CI badge')
+if (!pkg.files?.includes('SECURITY.md') || !pkg.files?.includes('CONTRIBUTING.md')) fail('package.json files 没带政策文档')
+ok('1.1.3 构件：仓库元数据 / CI / 安全与贡献文档')
+
+
 
 console.log(`\n发布检查：${pkg.name} v${pkg.version}\n`)
 for (const n of notes) console.log(`  ✔ ${n}`)

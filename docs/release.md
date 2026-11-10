@@ -21,7 +21,7 @@ cd <plugin>
 # 1. 语法与静态检查（版本一致、UTF-8、import、死文件、CORS、document.write…）
 npm run check
 
-# 2. 单元测试（84 项，纯函数 + 契约）
+# 2. 单元测试（87 项，纯函数 + 契约）
 npm test
 
 # 3. 起一个干净实例，跑接口契约（63 项）
@@ -62,6 +62,7 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 1.1.2 实测：**72 个文件**，包 2.3 MB、解开 2.9 MB（`docs/assets/` 的预览图与基准脚本占大头）。
 干净目录安装后 `--version` = 1.1.2，导出 `apply,inject,name,version`；
 安装包起 7896 实测 `/share?scope=ws:DSHLive2D&hide=level:lesson` → 200、601,177 字节。
+1.1.3 起包内多了 `SECURITY.md` 与 `CONTRIBUTING.md`，`.github/` 不进包；文件数与体积以 `npm pack` 的输出为准（不要手写进文档，否则每次改文档都要重打包）。
 清单里应含 `sidecar.ps1`、`scripts/`、`test/` 不含（单测只在仓库里跑）、`dev/` 与截图不含。
 
 装进 DSH profile（与 `docs/operations.md` 的 junction 方式二选一）：

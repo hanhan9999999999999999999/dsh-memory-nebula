@@ -1,8 +1,8 @@
 {
   "name": "dsh-memory-nebula",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "private": false,
-  "description": "记忆星图 Memory Nebula —— 把 DSH 里所有记忆插件的记忆只读抽取出来，连成一张可交互的神经元星云；并提供跨项目记忆的扩散检索（spreading activation）。",
+  "description": "Local-first memory nebula for DeepSeek Harness — read-only graph, spreading recall, evidence chains, offline snapshots. 记忆星图：把 DSH 各工作区的记忆只读连成一张可交互星云。",
   "type": "module",
   "main": "lib/index.js",
   "bin": {
@@ -26,7 +26,9 @@
     "scripts",
     "sidecar.ps1",
     "locale",
-    "market"
+    "market",
+    "SECURITY.md",
+    "CONTRIBUTING.md"
   ],
   "scripts": {
     "test": "node --test \"test/*.test.mjs\"",
@@ -64,7 +66,19 @@
     "relational-memory",
     "spreading-activation",
     "memory-adapter",
-    "visualization"
+    "visualization",
+    "dsh",
+    "memory-graph",
+    "knowledge-graph",
+    "offline-snapshot"
   ],
-  "author": "主人 & 小代码酱"
+  "author": "主人 & 小代码酱",
+  "homepage": "https://github.com/hanhan9999999999999999999/dsh-memory-nebula#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hanhan9999999999999999999/dsh-memory-nebula.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hanhan9999999999999999999/dsh-memory-nebula/issues"
+  }
 }

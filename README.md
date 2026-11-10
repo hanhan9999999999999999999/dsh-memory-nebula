@@ -1,5 +1,9 @@
 # 记忆星图 · memory-nebula
 
+[![CI](https://github.com/hanhan9999999999999999999/dsh-memory-nebula/actions/workflows/ci.yml/badge.svg)](https://github.com/hanhan9999999999999999999/dsh-memory-nebula/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/dsh-memory-nebula.svg)](https://www.npmjs.com/package/dsh-memory-nebula)
+[![license](https://img.shields.io/npm/l/dsh-memory-nebula.svg)](LICENSE)
+
 [English](README.en.md) · 在 DSH 里把散落在各个工作区、各个记忆插件里的记忆抽出来，算成一张**带证据的关联星云**，再从这张图上做「神经元式」的连带检索——以及，让别的插件注入了什么，星图就顺着连接补上它没注的那一半。
 
 ![记忆星图：三种视图、左栏筛选、证据链与详情](./docs/assets/preview.png)
@@ -73,7 +77,7 @@
 已经装好的机器上（`profiles/desktop`），只要打开「记忆星图」页面就有一张图；页面每 12 秒比一次 `sig`，别的会话写了新记忆会自动长出新星点。库里还没有记忆时，页面会给三条接入路径，也可以先点「看示例」；`…/memory-nebula/?demo=1` 可直达示例星系，逛完退出不会动真实库。
 
 从插件市场装（推荐）：在 DSH 的「插件 → 发现」里添加索引
-`https://unpkg.com/dsh-memory-nebula@1.1.2/market/index.json`，搜索「记忆星图」安装。
+`https://unpkg.com/dsh-memory-nebula@1.1.3/market/index.json`，搜索「记忆星图」安装。
 装完按下面的 2.5 跑一次 doctor。
 
 也可以从仓库装到 DSH：
@@ -81,7 +85,7 @@
 ```powershell
 # 1) 装进 profile（二选一）
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
-npm install <path>\dsh-memory-nebula-1.1.2.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.1.3.tgz --prefix <profile>
 
 # 2) profile 的 package.json 里加依赖与 bundles（只加 dependencies 不会重组）
 #    dependencies:         "dsh-memory-nebula": "file:../../plugins/dsh-memory-nebula"
@@ -107,7 +111,7 @@ node lib/standalone.mjs --port 7890                          # 其它系统，�
 自检三条命令：
 
 ```bash
-npm test        # 84 项单元测试
+npm test        # 87 项单元测试
 npm run verify  # 单测 + 发布静态检查（npm pack 的 prepack 会自动再跑）
 node scripts/smoke.mjs   # 63 项接口契约（对运行中的实例）
 ```
@@ -140,9 +144,11 @@ node scripts/smoke.mjs   # 63 项接口契约（对运行中的实例）
 | [docs/release.md](docs/release.md) | 发布前检查清单、版本策略、打包/安装/回滚 |
 | [docs/compatibility.md](docs/compatibility.md) | 已验证的平台/Node/浏览器矩阵，以及明确不支持的组合 |
 | [docs/distribution.md](docs/distribution.md) | 安装/升级/回滚/卸载、支持流程、市场文案与发布检查 |
+| [SECURITY.md](SECURITY.md) | 只读边界、HTTP 防护与漏洞报告 |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | 本地开发、测试命令与提交约定 |
 | [docs/verified.md](docs/verified.md) | 每一条结论背后的实测证据 |
 | [docs/architecture.md](docs/architecture.md) | 模块分工、请求路径、不能破的不变量 |
-| [docs/testing.md](docs/testing.md) | 84 项单测、63 项冒烟、21 项安全探针、浏览器探针清单与手工验收 |
+| [docs/testing.md](docs/testing.md) | 87 项单测、63 项冒烟、21 项安全探针、浏览器探针清单与手工验收 |
 | [docs/roadmap.md](docs/roadmap.md) | 从 0.5 到 1.0：切片分享、首访引导、万条性能、国际化与发行支持 |
 | [CHANGELOG.md](CHANGELOG.md) | 版本变更 |
 
@@ -168,7 +174,7 @@ lib/
 scripts/smoke.mjs     只读契约自查（63 项）
 scripts/release-check.mjs  发布静态检查
 scripts/bench.mjs     10k 性能基准（建图 / 检索 / 体检 / 快照 / 内存）
-test/                 node:test 单元测试（84 项）
+test/                 node:test 单元测试（87 项）
 sidecar.ps1           Windows 独立引擎开关
 ```
 
@@ -181,6 +187,6 @@ sidecar.ps1           Windows 独立引擎开关
 
 ## 版本与许可
 
-- 当前版本 `1.1.2`，MIT。
+- 当前版本 `1.1.3`，MIT。
 - 打包内容：`lib/`、`scripts/`、`docs/`、`cordis.patch.yml`、`README.md` / `README.en.md`、`CHANGELOG.md`、`LICENSE`、`sidecar.ps1`（`test/` 与 `dev/` 不进包）。
 - 前端改动刷新页面即生效；`lib/host/` 下所有引擎文件（含 `adapters/`、`bridge.js`、`ledger.js`）由 LiveEngine 热载，`http.js` / `index.js` / `live.js` 改动要重启 DSH 或走独立引擎。
