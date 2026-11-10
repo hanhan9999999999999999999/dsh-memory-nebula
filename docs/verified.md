@@ -12,6 +12,12 @@
   本次实测 2005 记忆 / 9667 连接 / 9 工作区 / 73 会话，建图 513ms，退出 0。
 - **回归**：90/90 单测；`release-check` 含 1.1.6 构件断言。
 - **网页**：诊断说明行走 `T()`，英文界面复制出的报告不再混中文说明。
+- **打包**：75 文件 / 2,294,090B；sha256 `55b41bae92a8a0806e1dda4ffe2ded5e83da0b3d8551b1b7ddd50acc2851a6c8`。
+- **发布**：npm `latest=1.1.6`，registry shasum `863e524d8fa71791b963378c512930185d90b575`；
+  registry 安装 `--version`=1.1.6，doctor 对真实 profile 8 通过 / 0 提醒 / 0 失败。
+- **远程索引**：`https://unpkg.com/dsh-memory-nebula@1.1.6/market/index.json` 200；
+  `parseMarketIndex` 通过（1 条 / 1.1.6），`marketInstallTarget` 返回 `dsh-memory-nebula@1.1.6`。
+- **GitHub Release**：`v1.1.6`（id 440941512），附 tgz 与 `.sha256` 两个资产。
 
 ## 1.1.5（2026-11-11）不碰盘
 
