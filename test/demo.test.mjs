@@ -72,6 +72,11 @@ test('demo: Nebula 走同一套代码路径，不读真实库也不写盘', asyn
   assert.equal(pub.v, 2)
   assert.ok(pub.edges.every((e) => typeof e.s === 'number' && typeof e.d === 'number'))
   assert.ok(pub.nodes.every((x) => !('content' in x)), '公开图不带正文')
+  const ov = n.overview()
+  assert.equal(ov.dbPath, '')
+  assert.equal(ov.lastBuiltAt, '')
+  assert.equal(ov.sources.length, 1)
+  assert.equal(ov.sources[0].key, 'demo')
 })
 
 test('demo: 详情 / 检索 / 证据链都能用', async () => {
