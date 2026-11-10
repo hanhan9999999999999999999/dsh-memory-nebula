@@ -149,7 +149,7 @@ node scripts/smoke.mjs   # 63 项接口契约（对运行中的实例）
 | [docs/verified.md](docs/verified.md) | 每一条结论背后的实测证据 |
 | [docs/architecture.md](docs/architecture.md) | 模块分工、请求路径、不能破的不变量 |
 | [docs/testing.md](docs/testing.md) | 90 项单测、63 项冒烟、21 项安全探针、浏览器探针清单与手工验收 |
-| [docs/roadmap.md](docs/roadmap.md) | 从 0.5 到 1.0：切片分享、首访引导、万条性能、国际化与发行支持 |
+| [docs/roadmap.md](docs/roadmap.md) | 从 0.5 到 1.2：切片分享、首访引导、万条性能、国际化与发行支持 |
 | [CHANGELOG.md](CHANGELOG.md) | 版本变更 |
 
 ## 目录结构
