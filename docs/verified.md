@@ -17,7 +17,8 @@
 - **远程索引**：`https://unpkg.com/dsh-memory-nebula@1.1.7/market/index.json` 200；
   `parseMarketIndex` 通过（format 1 / 1.1.7），`marketInstallTarget` 返回
   `dsh-memory-nebula@1.1.7`；图标、locale、市场详情、demo 图均 200。
-- **GitHub Release**：`v1.1.7`（id 441002370），附 tgz 与 `.sha256`。
+- **GitHub Release**：`v1.1.7`（id 441002370），附 tgz 与 `.sha256`；
+  源码 commit `33717ce`，CI 三 job（run 42915230687）全 success。
 - **包**：75 文件 / 2,295,102B，sha256 `9b17991d7fe4c832641c4e650a7fb0f304a7feb207950bbce0f7e4bc761510aa`。
 
 ## 1.1.6（2026-11-11）支持接口
