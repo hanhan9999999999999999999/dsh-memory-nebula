@@ -82,7 +82,32 @@
   不写「应该可以」。
 - **已落地**：`GET /diagnostics`、`standalone --diagnose`、页面「复制诊断」；
   `docs/compatibility.md` 与 `docs/distribution.md`；1.0.0 包 64 文件、76 单测、63 冒烟。
-- **仍由维护者执行**：`npm publish` / 市场条目提交（本次未替主人发布）。
+- **执行记录**：维护者授权后已完成 npm 公开发布（当前 latest 1.1.7）与 GitHub Release；
+  精选目录 PR 已提交（awesome-dsh-plugin#14065），等仓库满 24 小时后过年龄门。
+
+## 1.1 「装得上」：安装体检与上架（1.1.0–1.1.7 已交付）
+
+**问题**：1.0 解决了「跑起来后怎么支持」，但「还没跑起来怎么排查」仍然靠猜；
+插件装进 profile 后，依赖、bundles、Node 版本、端口四件事任何一个不对，页面都只是打不开。
+
+- `doctor`：只读检查 Node 下界、包文件、profile 的 dependency/bundles/installed、
+  记忆源数量、可选 endpoint；warn 不阻断、fail 退出 1；JSON 与中英文两种输出。
+- 版本漂移：installed 与 running 不一致时给出 warn，并明确「重启 DSH，刷新页面不够」。
+- CI 增加 Package install job：打包后真的装一遍，比对版本并跑 doctor。
+- 示例模式彻底不碰共享 sqlite：修掉并行 CI 下 `/share?demo=1` 的 `database is locked`。
+- 上架：npm 包、GitHub 仓库/CI/Release、unpkg 市场索引、双语详情与图标；
+  精选目录 PR #14065 已提交，等仓库年龄门。
+- 当前发布：1.1.7（90 单测 / 63 冒烟 / 21 安全探针；包 75 文件约 2.3MB）。
+
+## 1.2 「大到能用」：大库模式（未开始）
+
+**问题**：10k 已经过了首屏与建图预算，但 50k 的压力探测暴露出两件事：
+合成词表下关键词边会被 df 上限全部滤掉，且 RSS 到 2GB；真要大库，不能只靠调参。
+
+- df 上限随规模调整，并给「常见词但仍有区分度」留一条路；
+- `/graph` 分页或按视口裁剪，快照按范围分片；
+- 50k 真实词表基准、内存上限与失败降级（先出 2D 摘要，再按需加载）；
+- 验收前不把 5 万条写进支持矩阵。
 
 ## 不做的事
 
