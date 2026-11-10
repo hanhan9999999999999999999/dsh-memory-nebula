@@ -51,7 +51,7 @@ test('http: 能力清单里有 demo 与 share', () => {
 test('http: /graph?demo=1 返回示例图与 demo 标记', async () => {
   const h = await boot()
   const res = await call(h, '/graph?demo=1')
-  assert.equal(res.status, 200)
+  assert.equal(res.status, 200, res.body)
   const g = JSON.parse(res.body)
   assert.equal(g.demo, true)
   assert.equal(g.nodes.length, 64)
@@ -92,7 +92,7 @@ test('http: 跨站写入仍然被挡（CSRF）', async () => {
 test('http: /share 返回可下载的单文件 HTML', async () => {
   const h = await boot()
   const res = await call(h, '/share?demo=1')
-  assert.equal(res.status, 200)
+  assert.equal(res.status, 200, res.body)
   assert.match(res.headers['content-type'], /text\/html/)
   assert.match(res.headers['content-disposition'], /attachment; filename="memory-nebula-snapshot-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}\.html"/)
   assert.ok(res.body.length > 200000)
@@ -103,7 +103,7 @@ test('http: /share 返回可下载的单文件 HTML', async () => {
 test('http: /share?scope=ws 只打包一个工作区', async () => {
   const h = await boot()
   const res = await call(h, '/share?demo=1&scope=ws:xingang')
-  assert.equal(res.status, 200)
+  assert.equal(res.status, 200, res.body)
   assert.match(res.headers['content-disposition'], /memory-nebula-snapshot-ws-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}\.html/)
   assert.ok(res.body.includes('"scope":{"kind":"ws"'))
   assert.ok(res.body.includes('星港产品'))
@@ -162,7 +162,7 @@ test('http: Sec-Fetch-Site: cross-site 的本机 Origin 也拒绝写入', async 
 test('http: /share?hide 只留下可分享的部分', async () => {
   const h = await boot()
   const res = await call(h, '/share?demo=1&hide=ws:日记')
-  assert.equal(res.status, 200)
+  assert.equal(res.status, 200, res.body)
   assert.ok(res.body.includes('"hidden":7'))
   assert.ok(res.body.includes('"nodes":57'))
   assert.ok(!res.body.includes('（内置演示数据，不写盘）'), '来源本机路径不能进快照')
@@ -172,7 +172,7 @@ test('http: /share?hide 只留下可分享的部分', async () => {
 test('http: /diagnostics 只给环境与图规模，不带正文/路径', async () => {
   const h = await boot()
   const res = await call(h, '/diagnostics?demo=1')
-  assert.equal(res.status, 200)
+  assert.equal(res.status, 200, res.body)
   assert.match(res.headers['content-type'], /text\/plain/)
   assert.equal(res.headers['cache-control'], 'no-store')
   assert.equal(res.headers['x-content-type-options'], 'nosniff')
