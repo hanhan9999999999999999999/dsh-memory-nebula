@@ -270,6 +270,20 @@ if (!read('lib/standalone.mjs').includes("process.argv.includes('--json')")) fai
 if (!read('test/diagnostics.test.mjs').includes('英文说明可切换')) fail('缺诊断英文测试')
 ok('1.1.6 构件：诊断 JSON / 英文说明 / CLI 机器可读')
 
+const readZh = read('README.md')
+const readEn = read('README.en.md')
+if (!readZh.includes('raw.githubusercontent.com') || !readEn.includes('raw.githubusercontent.com')) {
+  fail('README 图片必须用绝对地址，否则 npm 页面裂图')
+}
+if (readZh.includes('](./docs/assets/') || readEn.includes('](./docs/assets/')) {
+  fail('README 仍含相对图片路径')
+}
+if (!readZh.includes('/blob/main/README.en.md') || !readZh.includes('/blob/main/LICENSE')) {
+  fail('README 的英文入口 / license 链接不是绝对地址')
+}
+if (!read('CHANGELOG.md').includes('## 1.1.7')) fail('CHANGELOG 缺 1.1.7')
+ok('1.1.7 构件：README 绝对图片 / 外链 / 变更记录')
+
 
 
 console.log(`\n发布检查：${pkg.name} v${pkg.version}\n`)

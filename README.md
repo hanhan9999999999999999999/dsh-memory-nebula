@@ -2,25 +2,25 @@
 
 [![CI](https://github.com/hanhan9999999999999999999/dsh-memory-nebula/actions/workflows/ci.yml/badge.svg)](https://github.com/hanhan9999999999999999999/dsh-memory-nebula/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/dsh-memory-nebula.svg)](https://www.npmjs.com/package/dsh-memory-nebula)
-[![license](https://img.shields.io/npm/l/dsh-memory-nebula.svg)](LICENSE)
+[![license](https://img.shields.io/npm/l/dsh-memory-nebula.svg)](https://github.com/hanhan9999999999999999999/dsh-memory-nebula/blob/main/LICENSE)
 
-[English](README.en.md) · 在 DSH 里把散落在各个工作区、各个记忆插件里的记忆抽出来，算成一张**带证据的关联星云**，再从这张图上做「神经元式」的连带检索——以及，让别的插件注入了什么，星图就顺着连接补上它没注的那一半。
+[English](https://github.com/hanhan9999999999999999999/dsh-memory-nebula/blob/main/README.en.md) · 在 DSH 里把散落在各个工作区、各个记忆插件里的记忆抽出来，算成一张**带证据的关联星云**，再从这张图上做「神经元式」的连带检索——以及，让别的插件注入了什么，星图就顺着连接补上它没注的那一半。
 
-![记忆星图：三种视图、左栏筛选、证据链与详情](./docs/assets/preview.png)
+![记忆星图：三种视图、左栏筛选、证据链与详情](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/preview.png)
 
 第一次打开、库里还没有记忆时，页面不会留一块空白——它给三条接入路径，也可以先进示例星系看看：
 
-![空态：三条接入路径](./docs/assets/empty.jpg)
+![空态：三条接入路径](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/empty.jpg)
 
-![示例星系：64 条虚构记忆，只读，不碰真实库](./docs/assets/demo.jpg)
+![示例星系：64 条虚构记忆，只读，不碰真实库](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/demo.jpg)
 
-![英文界面：顶栏、左栏、看板与详情一起切换](./docs/assets/i18n-en.jpg)
+![英文界面：顶栏、左栏、看板与详情一起切换](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/i18n-en.jpg)
 
-![首访三步：搜一个词、看一条证据、走一条链](./docs/assets/onboard.jpg)
+![首访三步：搜一个词、看一条证据、走一条链](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/onboard.jpg)
 
 看完之后，可以把整张星图（含正文）导出成一个自包含 HTML，双击离线打开，搜索和证据链都还能用：
 
-![单文件快照：离线只读](./docs/assets/snapshot.jpg)
+![单文件快照：离线只读](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/snapshot.jpg)
 
 - 左侧栏一个图标 → 打开就是整片星云（Deep Space 风格，可缩放、可筛选、可搜索）。
 - 不改任何别的插件的记忆库：所有记忆库都以 `readOnly` 打开，只写自己的目录 `$DSH_HOME/memory-nebula/`。
@@ -77,7 +77,7 @@
 已经装好的机器上（`profiles/desktop`），只要打开「记忆星图」页面就有一张图；页面每 12 秒比一次 `sig`，别的会话写了新记忆会自动长出新星点。库里还没有记忆时，页面会给三条接入路径，也可以先点「看示例」；`…/memory-nebula/?demo=1` 可直达示例星系，逛完退出不会动真实库。
 
 从插件市场装（推荐）：在 DSH 的「插件 → 发现」里添加索引
-`https://unpkg.com/dsh-memory-nebula@1.1.6/market/index.json`，搜索「记忆星图」安装。
+`https://unpkg.com/dsh-memory-nebula@1.1.7/market/index.json`，搜索「记忆星图」安装。
 装完按下面的 2.5 跑一次 doctor。
 
 也可以从仓库装到 DSH：
@@ -85,7 +85,7 @@
 ```powershell
 # 1) 装进 profile（二选一）
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
-npm install <path>\dsh-memory-nebula-1.1.6.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.1.7.tgz --prefix <profile>
 
 # 2) profile 的 package.json 里加依赖与 bundles（只加 dependencies 不会重组）
 #    dependencies:         "dsh-memory-nebula": "file:../../plugins/dsh-memory-nebula"
@@ -187,6 +187,6 @@ sidecar.ps1           Windows 独立引擎开关
 
 ## 版本与许可
 
-- 当前版本 `1.1.6`，MIT。
+- 当前版本 `1.1.7`，MIT。
 - 打包内容：`lib/`、`scripts/`、`docs/`、`cordis.patch.yml`、`README.md` / `README.en.md`、`CHANGELOG.md`、`LICENSE`、`sidecar.ps1`（`test/` 与 `dev/` 不进包）。
 - 前端改动刷新页面即生效；`lib/host/` 下所有引擎文件（含 `adapters/`、`bridge.js`、`ledger.js`）由 LiveEngine 热载，`http.js` / `index.js` / `live.js` 改动要重启 DSH 或走独立引擎。

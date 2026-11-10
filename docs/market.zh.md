@@ -78,13 +78,13 @@ Shift 点第二个节点，会找两点之间的**证据链**：每一跳是哪�
 在 DSH 的插件市场里添加索引：
 
 ```text
-https://unpkg.com/dsh-memory-nebula@1.1.6/market/index.json
+https://unpkg.com/dsh-memory-nebula@1.1.7/market/index.json
 ```
 
 然后搜索「记忆星图」安装。也可以直接装 npm 包：
 
 ```bash
-npm install dsh-memory-nebula@1.1.6
+npm install dsh-memory-nebula@1.1.7
 ```
 
 装完先体检：

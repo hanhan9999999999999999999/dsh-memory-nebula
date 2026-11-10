@@ -2,23 +2,23 @@
 
 [![CI](https://github.com/hanhan9999999999999999999/dsh-memory-nebula/actions/workflows/ci.yml/badge.svg)](https://github.com/hanhan9999999999999999999/dsh-memory-nebula/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/dsh-memory-nebula.svg)](https://www.npmjs.com/package/dsh-memory-nebula)
-[![license](https://img.shields.io/npm/l/dsh-memory-nebula.svg)](LICENSE)
+[![license](https://img.shields.io/npm/l/dsh-memory-nebula.svg)](https://github.com/hanhan9999999999999999999/dsh-memory-nebula/blob/main/LICENSE)
 
 A DSH plugin that pulls memories out of every workspace **and every memory plugin**, turns them into a **nebula of evidence-backed connections**, and lets both you and the AI follow those connections the way neurons do.
 
-![Memory Nebula: three views, filters, evidence chains](./docs/assets/preview.png)
+![Memory Nebula: three views, filters, evidence chains](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/preview.png)
 
 No memories yet? The empty state offers three ways in, plus a built-in demo galaxy:
 
-![Empty state and demo galaxy](./docs/assets/demo.jpg)
+![Empty state and demo galaxy](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/demo.jpg)
 
-![English UI: top bar, filters, boards and detail](./docs/assets/i18n-en.jpg)
+![English UI: top bar, filters, boards and detail](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/i18n-en.jpg)
 
-![First-visit guide: search, open one memory, trace one chain](./docs/assets/onboard.jpg)
+![First-visit guide: search, open one memory, trace one chain](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/onboard.jpg)
 
 Export the whole graph (text included) as one self-contained HTML for offline reading:
 
-![Offline single-file snapshot](./docs/assets/snapshot.jpg)
+![Offline single-file snapshot](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/snapshot.jpg)
 
 - One icon in the sidebar opens the whole nebula (deep-space style: zoom, filter, search).
 - Every other memory database is opened **read-only**. The plugin only writes under `$DSH_HOME/memory-nebula/`.
@@ -53,7 +53,7 @@ Export the whole graph (text included) as one self-contained HTML for offline re
 ## Quick start
 
 From the plugin market (recommended): add the index
-`https://unpkg.com/dsh-memory-nebula@1.1.6/market/index.json` under
+`https://unpkg.com/dsh-memory-nebula@1.1.7/market/index.json` under
 Plugins → Discover, search for “Memory Nebula”, and install. Run the doctor in step 2.5 afterwards.
 
 Or install from this checkout:
@@ -61,7 +61,7 @@ Or install from this checkout:
 ```powershell
 # 1) link the plugin (either way)
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
-npm install <path>\dsh-memory-nebula-1.1.6.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.1.7.tgz --prefix <profile>
 
 # 2) profile package.json: add the dependency AND the bundle
 #    dependencies:        "dsh-memory-nebula": "file:../../plugins/dsh-memory-nebula"
@@ -154,4 +154,4 @@ test/                 node:test unit suite (90 assertions)
 
 ## Version
 
-`1.1.6`, MIT. Front-end changes apply on refresh; everything under `lib/host/` is hot-reloaded, while `http.js` / `index.js` / `live.js` need a DSH restart (or the standalone engine).
+`1.1.7`, MIT. Front-end changes apply on refresh; everything under `lib/host/` is hot-reloaded, while `http.js` / `index.js` / `live.js` need a DSH restart (or the standalone engine).

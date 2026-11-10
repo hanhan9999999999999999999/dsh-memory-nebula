@@ -64,7 +64,7 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 安装包起 7896 实测 `/share?scope=ws:DSHLive2D&hide=level:lesson` → 200、601,177 字节。
 1.1.3 起包内多了 `SECURITY.md` 与 `CONTRIBUTING.md`，`.github/` 不进包；文件数与体积以 `npm pack` 的输出为准（不要手写进文档，否则每次改文档都要重打包）。
 
-1.1.6 实测：**75 个文件**，2,294,090B，包约 2.3MB、解开约 3.0MB（精确字节以 `npm pack` 输出为准）。
+1.1.7 实测：**75 个文件**，包约 2.3MB、解开约 3.0MB（精确字节以 `npm pack` 输出为准）。
 清单里应含 `sidecar.ps1`、`scripts/`、`test/` 不含（单测只在仓库里跑）、`dev/` 与截图不含。
 
 装进 DSH profile（与 `docs/operations.md` 的 junction 方式二选一）：

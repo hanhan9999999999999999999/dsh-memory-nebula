@@ -2,6 +2,24 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.1.7（2026-11-11）看得见
+
+- **README 图片**：`README.md` / `README.en.md` 的 6 / 5 张截图全部改为
+  `https://raw.githubusercontent.com/.../main/docs/assets/...` 绝对地址；
+  `release-check` 新增 1.1.7 构件断言（绝对图片、英文入口、license 链接）。
+- **测试**：90/90 单测；`release-check` 全绿（含 1.1.7 构件）。
+- **打包**：75 文件；字节数与 sha256 以同目录 `npm pack` 产物与 `.sha256` 为准
+  （包内文档不写自身哈希，避免重打包后自相矛盾）。
+- **干净安装**：`--version`=1.1.7，`import` 导出 `memory-nebula 1.1.7 function`，
+  `doctor.mjs --help` 正常。
+- **发布**：npm `latest=1.1.7`，dist.shasum `9352688f3ef648740a6e375f2dd3bdf18864d217`；
+  registry 安装 `--version`=1.1.7，doctor 对真实 profile 8 通过 / 0 提醒 / 0 失败。
+- **远程索引**：`https://unpkg.com/dsh-memory-nebula@1.1.7/market/index.json` 200；
+  `parseMarketIndex` 通过（format 1 / 1.1.7），`marketInstallTarget` 返回
+  `dsh-memory-nebula@1.1.7`；图标、locale、市场详情、demo 图均 200。
+- **GitHub Release**：`v1.1.7`（id 441002370），附 tgz 与 `.sha256`。
+- **包**：75 文件 / 2,295,102B，sha256 `9b17991d7fe4c832641c4e650a7fb0f304a7feb207950bbce0f7e4bc761510aa`。
+
 ## 1.1.6（2026-11-11）支持接口
 
 - **诊断 JSON**：`GET /diagnostics?format=json&demo=1` 返回 `application/json`，
