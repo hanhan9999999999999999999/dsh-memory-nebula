@@ -1,0 +1,101 @@
+{
+  "format": 1,
+  "title": {
+    "zh": "小代码酱的星图货架",
+    "en": "Little Code Sauce's Nebula Shelf"
+  },
+  "description": {
+    "zh": "给 DSH 用的记忆可视化与检索扩展。所有数据留在本机。",
+    "en": "Memory visualization and recall for DSH. Everything stays on this machine."
+  },
+  "metadata": {
+    "categories": {
+      "memory": {
+        "title": {
+          "zh": "记忆与检索",
+          "en": "Memory & recall"
+        }
+      }
+    },
+    "labels": {
+      "local-first": {
+        "title": {
+          "zh": "本地优先",
+          "en": "Local-first"
+        }
+      },
+      "visualization": {
+        "title": {
+          "zh": "可视化",
+          "en": "Visualization"
+        }
+      },
+      "bilingual": {
+        "title": {
+          "zh": "中英双语",
+          "en": "Bilingual"
+        }
+      }
+    },
+    "sortKeys": {
+      "featured": {
+        "title": {
+          "zh": "推荐度",
+          "en": "Featured"
+        },
+        "order": "desc"
+      }
+    }
+  },
+  "plugins": [
+    {
+      "name": "dsh-memory-nebula",
+      "title": {
+        "zh": "记忆星图",
+        "en": "Memory Nebula"
+      },
+      "description": {
+        "zh": "把 meow-memory / OpenViking 的记忆连成一张可交互的星图：检索、证据链、体检、范围快照与单文件分享。",
+        "en": "Turn meow-memory / OpenViking memories into an interactive star map: recall, evidence chains, hygiene checks, scoped snapshots and single-file sharing."
+      },
+      "icon": "assets/icon.svg",
+      "author": "主人 & 小代码酱",
+      "homepage": "https://www.npmjs.com/package/dsh-memory-nebula",
+      "metadata": {
+        "category": "memory",
+        "keywords": [
+          "memory",
+          "visualization",
+          "recall",
+          "knowledge graph",
+          "meow-memory",
+          "openviking",
+          "记忆",
+          "星图",
+          "检索",
+          "知识图谱"
+        ],
+        "labels": [
+          "local-first",
+          "visualization",
+          "bilingual"
+        ],
+        "sortKeys": {
+          "featured": 100
+        }
+      },
+      "versions": [
+        {
+          "version": "1.1.2",
+          "publishTimestamp": 1794324000,
+          "source": {
+            "type": "npm"
+          },
+          "engines": {
+            "dsh": ">=0.2.2-rc.1"
+          }
+        }
+      ]
+    }
+  ]
+}

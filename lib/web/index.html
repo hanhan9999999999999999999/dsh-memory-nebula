@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>记忆星图 · Memory Nebula</title>
+<meta name="theme-color" content="#04060c" />
+<meta name="description" content="把散落在各个工作区的记忆抽出来，算成一张带证据的关联星云：看得见、走得通、能带走。" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23070b14'/%3E%3Cg fill='%236ce0ff'%3E%3Ccircle cx='16' cy='15' r='3.2'/%3E%3Ccircle cx='9' cy='11' r='1.6' opacity='.8'/%3E%3Ccircle cx='23' cy='10' r='1.4' opacity='.7'/%3E%3Ccircle cx='21' cy='21' r='1.8' opacity='.75'/%3E%3Ccircle cx='11' cy='22' r='1.3' opacity='.6'/%3E%3C/g%3E%3Cg stroke='%236ce0ff' stroke-opacity='.45' stroke-width='.9'%3E%3Cpath d='M9 11 16 15M23 10 16 15M21 21 16 15M11 22 16 15'/%3E%3C/g%3E%3C/svg%3E" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="stage">
+  <canvas id="sky" aria-hidden="true"></canvas>
+  <canvas id="sky3d" hidden aria-hidden="true"></canvas>
+  <canvas id="sky3dlbl" hidden aria-hidden="true"></canvas>
+  <div id="vignette"></div>
+  <div id="netbar" hidden role="status" aria-live="polite">接口断开了 · 正在重试…</div>
+  <div id="skewbar" hidden role="status">
+    <span id="skew-text"></span>
+    <button id="skew-close" type="button" title="知道了" aria-label="关闭提示">×</button>
+  </div>
+  <!-- 示例星系 / 离线快照：两种「你现在看的不是自己的库」的状态都挂在这一条上 -->
+  <div id="demobar" hidden role="status">
+    <span id="demo-text"></span>
+    <button id="demo-exit" type="button" data-zh="退出示例">退出示例</button>
+  </div>
+
+  <div class="hud" id="topbar">
+    <div class="brand"><b data-zh="记忆星图">记忆星图</b><small>memory nebula</small></div>
+    <div class="stat-row" id="stats"></div>
+    <div class="spacer"></div>
+    <button class="btn ghost only-narrow" id="btn-left" data-zh="筛选" data-zh-title="筛选面板：工作区 / 层级 / 连接类型 / 强度" title="筛选面板：工作区 / 层级 / 连接类型 / 强度">筛选</button>
+    <button class="btn ghost" id="btn-cards" data-zh="项目" data-zh-title="项目卡片：每个工作区的现状、最近变更、下一步与代表记忆" title="项目卡片：每个工作区的现状、最近变更、下一步与代表记忆">项目</button>
+    <button class="btn ghost" id="btn-boards" data-zh="看板" data-zh-title="看板：来源 / 真源 / 体检 / 屏蔽（B）" title="看板：来源 / 真源 / 体检 / 屏蔽（B）">看板</button>
+    <button class="btn ghost" id="btn-mode" data-zh="星云" title="切换布局">星云</button>
+    <button class="btn ghost" id="btn-refresh" data-zh-title="重新提取记忆并重建连接" title="重新提取记忆并重建连接">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+      <span data-zh="重建">重建</span>
+    </button>
+    <button class="btn ghost" id="btn-fit" data-zh="聚焦" data-zh-title="回到全图">聚焦</button>
+    <button class="btn ghost" id="btn-keys" data-zh-title="快捷键一览（?）" data-zh-aria="快捷键一览" title="快捷键一览（?）" aria-label="快捷键一览">?</button>
+    <button class="btn ghost" id="btn-lang" data-zh-title="切换中文 / English" title="切换中文 / English"><span data-lang-label>EN</span></button>
+    <div class="menu-wrap">
+      <button class="btn ghost" id="btn-export" data-zh-title="导出：当前视图 PNG / 可见子图 JSON" title="导出：当前视图 PNG / 可见子图 JSON">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>
+        <span data-zh="导出">导出</span>
+      </button>
+      <div class="menu" id="export-menu" hidden role="menu">
+        <button class="menu-item" data-export="png" data-zh="当前视图 · PNG" role="menuitem">当前视图 · PNG</button>
+        <button class="menu-item" data-export="json" data-zh="可见子图 · JSON" role="menuitem">可见子图 · JSON</button>
+        <button class="menu-item" data-export="html" data-zh="整张星图 · 单文件 HTML" role="menuitem">整张星图 · 单文件 HTML</button>
+        <button class="menu-item" data-export="html-ws" data-zh="当前工作区 · 单文件 HTML" role="menuitem">当前工作区 · 单文件 HTML</button>
+        <button class="menu-item" data-export="html-focus" data-zh="选中节点 2 跳 · 单文件 HTML" role="menuitem">选中节点 2 跳 · 单文件 HTML</button>
+        <label class="menu-check" data-zh-title="只影响导出的快照，不会改动记忆库" title="只影响导出的快照，不会改动记忆库">
+          <input type="checkbox" id="hide-diary" /> <span data-zh="隐去「日记」工作区">隐去「日记」工作区</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="hud" id="searchwrap">
+    <div class="searchbox">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="q" data-zh-ph="搜索记忆 / 神经元扩散检索…" data-zh-aria="搜索记忆" placeholder="搜索记忆 / 神经元扩散检索…" autocomplete="off" spellcheck="false" aria-label="搜索记忆" />
+      <span class="kbd">/</span>
+    </div>
+    <div id="hits"></div>
+  </div>
+
+  <div id="leftcol">
+    <div class="hud" id="sources"><div class="f-title"><span data-zh="记忆概览">记忆概览</span><i class="f-any" id="src-tag"></i></div><div id="src-list"></div></div>
+    <div class="hud" id="filters"></div>
+  </div>
+
+  <aside id="detail">
+    <div class="d-head">
+      <div class="d-meta" id="d-meta"></div>
+      <div class="d-title" id="d-title"></div>
+      <div class="d-imps" id="d-imps"></div>
+    </div>
+    <div class="d-body" id="d-body"></div>
+  </aside>
+
+  <div class="hud" id="legend"></div>
+  <div id="pathbar" hidden>
+    <div class="pb-head">
+      <span id="pb-title" data-zh="证据链">证据链</span>
+      <button id="pb-close" data-zh-title="关闭（Esc）" data-zh-aria="关闭证据链" title="关闭（Esc）" aria-label="关闭证据链">×</button>
+    </div>
+    <div id="pb-body"></div>
+  </div>
+  <div id="boards" hidden role="dialog" aria-label="看板">
+    <div class="cards-head">
+      <span data-zh="看板">看板</span>
+      <div class="board-tabs" id="board-tabs">
+        <button class="btab on" data-tab="src" data-zh="来源">来源</button>
+        <button class="btab" data-tab="truth" data-zh="真源">真源</button>
+        <button class="btab" data-tab="health" data-zh="体检">体检</button>
+        <button class="btab" data-tab="mute" data-zh="屏蔽">屏蔽</button>
+      </div>
+      <button id="boards-close" data-zh-title="关闭（Esc）" data-zh-aria="关闭看板" title="关闭（Esc）" aria-label="关闭看板">×</button>
+    </div>
+    <div id="boards-body"></div>
+  </div>
+  <div id="cmdk" hidden role="dialog" aria-label="命令面板">
+    <input id="cmdk-input" data-zh-ph="搜记忆、切换视图、打开项目卡片…" data-zh-aria="命令面板输入" placeholder="搜记忆、切换视图、打开项目卡片…" autocomplete="off" spellcheck="false" aria-label="命令面板输入" />
+    <div id="cmdk-list"></div>
+    <div class="cmdk-foot"><span data-zh="/ 搜索">/ 搜索</span><span data-zh="↑↓ 选择">↑↓ 选择</span><span data-zh="Enter 执行">Enter 执行</span><span data-zh="Esc 关闭">Esc 关闭</span></div>
+  </div>
+  <div id="linebar" hidden>
+    <div class="pb-head">
+      <span id="lb-title" data-zh="主线">主线</span>
+      <button id="lb-close" data-zh-title="关闭（Esc）" data-zh-aria="关闭主线" title="关闭（Esc）" aria-label="关闭主线">×</button>
+    </div>
+    <div id="lb-body"></div>
+  </div>
+  <div id="timebar" hidden>
+    <span class="tb-label" data-zh="时间回放">时间回放</span>
+    <input id="time-range" type="range" min="0" max="1000" value="1000" step="1" data-zh-aria="时间回放" aria-label="时间回放" />
+    <span class="tb-val" id="time-val" data-zh="全部">全部</span>
+  </div>
+  <div id="cards" hidden role="dialog" aria-label="项目卡片">
+    <div class="cards-head">
+      <span data-zh="项目卡片">项目卡片</span>
+      <small id="cards-sub" data-zh="每个工作区一张交接卡">每个工作区一张交接卡</small>
+      <button id="cards-close" data-zh-title="关闭（Esc）" data-zh-aria="关闭项目卡片" title="关闭（Esc）" aria-label="关闭项目卡片">×</button>
+    </div>
+    <div id="cards-grid"></div>
+  </div>
+  <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+  <div id="hint"><b>这里还没有星星</b>记忆库是空的，或者还没建立连接</div>
+  <div id="boot" role="status" aria-live="polite">
+    <div class="orbs"><i></i><i></i><i></i></div>
+    <div data-zh="正在点亮记忆星云…">正在点亮记忆星云…</div>
+  </div>
+</div>
+<script>
+// 三维视图脚本可能还没被宿主进程认识（宿主跑旧代码时 404）→ 回落到本机独立引擎。
+// 静态文件由服务端 no-store 发出，不需要再拼时间戳。
+(function () {
+  var s = document.createElement('script')
+  s.src = 'space3d.js'
+  s.onerror = function () {
+    var t = document.createElement('script')
+    t.src = 'http://127.0.0.1:7890/api/memory-nebula/space3d.js'
+    document.head.appendChild(t)
+  }
+  document.head.appendChild(s)
+})()
+</script>
+<script src="i18n.js"></script>
+<script src="api.js"></script>
+<script src="render.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

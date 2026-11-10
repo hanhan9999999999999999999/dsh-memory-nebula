@@ -1,0 +1,70 @@
+{
+  "name": "dsh-memory-nebula",
+  "version": "1.1.2",
+  "private": false,
+  "description": "记忆星图 Memory Nebula —— 把 DSH 里所有记忆插件的记忆只读抽取出来，连成一张可交互的神经元星云；并提供跨项目记忆的扩散检索（spreading activation）。",
+  "type": "module",
+  "main": "lib/index.js",
+  "bin": {
+    "memory-nebula": "lib/standalone.mjs",
+    "memory-nebula-doctor": "scripts/doctor.mjs"
+  },
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "README.en.md",
+    "docs",
+    "CHANGELOG.md",
+    "LICENSE",
+    "scripts",
+    "sidecar.ps1",
+    "locale",
+    "market"
+  ],
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\"",
+    "smoke": "node scripts/smoke.mjs",
+    "bench": "node --expose-gc scripts/bench.mjs",
+    "check": "node scripts/release-check.mjs",
+    "standalone": "node lib/standalone.mjs",
+    "start": "node lib/standalone.mjs",
+    "verify": "npm test && npm run check",
+    "prepack": "npm run verify",
+    "doctor": "node scripts/doctor.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": []
+    }
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh-plugin",
+    "memory",
+    "nebula",
+    "graph",
+    "relational-memory",
+    "spreading-activation",
+    "memory-adapter",
+    "visualization"
+  ],
+  "author": "主人 & 小代码酱"
+}

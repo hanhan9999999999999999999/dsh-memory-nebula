@@ -1,0 +1,15 @@
+# working artifacts — not part of the plugin
+dev/
+dev-*.mjs
+*.tgz
+*.tgz.sha256
+
+# dependencies and local state
+node_modules/
+.npm/
+*.log
+.DS_Store
+Thumbs.db
+
+# local snapshots / exports
+*.snapshot.html
