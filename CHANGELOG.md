@@ -2,6 +2,18 @@
 
 本文件记录「记忆星图」每个版本改了什么。日期为落盘日期。
 
+## 1.1.5 — 2026-11-11
+
+主题「不碰盘」：示例库说完「不读真实库」，就不该再碰共享的 sqlite。
+
+- 示例模式的 `overview()` 不再调用 `getMeta('lastBuiltAt')`，`dbPath` 与 `lastBuiltAt`
+  在示例下直接为空；此前它会打开 `$DSH_HOME/memory-nebula/nebula.db` 读一行元数据，
+  在并行测试/多进程下偶发 `SQLITE_BUSY: database is locked`，让 `/share?demo=1` 返回 500。
+- 新增断言：示例的 `overview()` 不带本机数据库路径，也不读构建时间元数据。
+- 这次是 CI 在 Ubuntu 上抓到的真实并发问题（Windows 本机不易复现）：
+  修后 GitHub Actions 的 Node 22.13 / Node 24 / Package install 三个 job 全绿。
+- 单测仍 88 项；1.1.4 的医生版本漂移与 CI 安装门保持不变。
+
 ## 1.1.4 — 2026-11-11
 
 主题「对齐」：装上了新代码，跑的还是旧宿主——这件事要自己说出来。

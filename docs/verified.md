@@ -2,6 +2,22 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.1.5（2026-11-11）不碰盘
+
+- **CI 抓到的真实并发问题**：1.1.4 的 `Node 24` run 42890664896 与 `Package install` run
+  42888730783 上，`/share?demo=1` 偶发 500，响应体 `{"error":"database is locked"}`；
+  根因是示例模式 `overview()` 仍调用 `getMeta('lastBuiltAt')`，打开了共享的
+  `$DSH_HOME/memory-nebula/nebula.db`，并行测试进程互相抢锁。
+- **修复**：示例下 `dbPath=''`、`lastBuiltAt=''`，不读 sqlite；新增示例 overview 断言
+  「不带本机路径、不读构建元数据」。
+- **回归**：本机连续跑 3 次 `npm test` 均 88/88；GitHub Actions run 42893079925 的
+  `Node 22.13.0` / `Node 24` / `Package install` 三个 job 全部 success。
+- **打包**：75 文件 / 约 2.3MB（解开约 2.9MB），实际 2,292,696B；sha256 见同目录 `.tgz.sha256`。
+- **发布**：npm `latest=1.1.5`，registry shasum `8bff4822ae07af65b1d857263aecfef6085f316f`；
+  registry 安装后 `--version`=1.1.5，doctor 对真实 profile 给出「9 通过 / 1 提醒 / 0 失败」。
+- **远程索引**：`https://unpkg.com/dsh-memory-nebula@1.1.5/market/index.json` 200；
+  `parseMarketIndex` 通过（format 1 / 1.1.5），`marketInstallTarget` 返回 `dsh-memory-nebula@1.1.5`。
+
 ## 1.1.4（2026-11-11）对齐
 
 - **医生能说出「装的是新的、跑的是旧的」**：在真实 desktop profile 上，

@@ -260,7 +260,8 @@ ok('1.1.3 构件：仓库元数据 / CI / 安全与贡献文档')
 if (!read('lib/host/doctor.js').includes('checkVersionDrift')) fail('doctor 缺版本漂移检查')
 if (!ciSrc.includes('Package install')) fail('CI 缺打包安装 job')
 if (!read('test/doctor.test.mjs').includes('running host')) fail('doctor 测试缺版本漂移用例')
-ok('1.1.4 构件：医生版本漂移 / CI 安装门')
+if (!read('lib/host/nebula.js').includes("dbPath: this.demo ? ''")) fail('示例 overview 仍会读本机数据库')
+ok('1.1.5 构件：示例不碰盘 / 医生版本漂移 / CI 安装门')
 
 
 
