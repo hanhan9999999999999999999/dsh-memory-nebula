@@ -5,9 +5,12 @@
 ## 1.1.3（2026-11-11）门面
 
 - **包元数据**：`package.json` 有 `repository` / `homepage` / `bugs`，描述中英双句，13 个关键词；`npm pack` 后从 tarball 解出的 manifest 同样带这些字段。
-- **CI**：`.github/workflows/ci.yml` 矩阵 Node 22.13.0 / 24，跑 `npm test` 与 `npm run check`；本机等价命令通过（87/87、release-check 全绿），GitHub 首次运行在推送后确认。
+- **CI**：`.github/workflows/ci.yml` 矩阵 Node 22.13.0 / 24，跑 `npm test` 与 `npm run check`；首次运行 `aed5605` 在 GitHub 上 **completed / success**，本机等价命令 87/87。
 - **政策文件**：`SECURITY.md`（只读边界、loopback/Origin/CSP、`/share` 是正文出口、private advisory）与 `CONTRIBUTING.md`（无依赖、测试命令、文案/测试/版本约定）已进包。
 - **回归**：87/87 单测；release-check v1.1.3 全绿（143 文本 / 69 脚本 / 23 Markdown 链接，含 1.1.3 构件断言）。
+- **发布**：`npm pack` 75 文件 / 2,289,894B，sha256 `e5aea7789b600ab49c3171dff72ecdd892f435fa61b8bb97ca2f0d1b823a7ce7`；`npm latest` = 1.1.3（registry shasum `23d31ddea801518bbc2ef20ff440b864534a8402`），registry 安装后 `--version` = 1.1.3、doctor 8 通过。
+- **远程索引**：`https://unpkg.com/dsh-memory-nebula@1.1.3/market/index.json` 200，`parseMarketIndex` 通过（format 1 / 1.1.3），`marketInstallTarget` 返回 `dsh-memory-nebula@1.1.3`；icon/locale/详情/图片均 200。
+- **GitHub Release**：`v1.1.3` 附 tgz 与 `.sha256` 两个资产。
 - **README**：中英顶部都有 CI / npm / license badge，文档表补 SECURITY/CONTRIBUTING 两行。
 
 ## 1.1.2（2026-11-10）换个门牌
