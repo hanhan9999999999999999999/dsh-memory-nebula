@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { Nebula } from '../lib/host/nebula.js'
-import { registerRoutes, CAPABILITIES, PREFIX, isLoopbackOrigin, corsHeaders } from '../lib/host/http.js'
+import { registerRoutes, CAPABILITIES, PREFIX, isLoopbackOrigin, isLoopbackHost, corsHeaders } from '../lib/host/http.js'
 
 let handler = null
 async function boot() {
@@ -213,3 +213,31 @@ test('http: 非法 hide 返回 400，空范围返回 404', async () => {
   assert.equal(empty.status, 404)
   assert.match(empty.body, /都被 hide 排除了/)
 })
+
+test('http: Host 只接受回环名，挡 DNS rebinding', async () => {
+  const h = await boot()
+  assert.equal(isLoopbackHost('127.0.0.1:7891'), true)
+  assert.equal(isLoopbackHost('localhost:60156'), true)
+  assert.equal(isLoopbackHost('[::1]:7891'), true)
+  assert.equal(isLoopbackHost('evil.example'), false)
+  assert.equal(isLoopbackHost('127.0.0.1.evil.example:7891'), false)
+  assert.equal(isLoopbackHost(''), false)
+
+  const evil = await call(h, '/graph?demo=1', { headers: { host: 'evil.example' } })
+  assert.equal(evil.status, 403)
+  assert.match(evil.body, /只接受来自本机/)
+  const missing = await call(h, '/graph?demo=1', { headers: { host: '' } })
+  assert.equal(missing.status, 403)
+})
+
+test('http: 宿主连接围栏拒绝时先返回 401/403', async () => {
+  const fake = { register({ handler: h }) { fake.handler = h } }
+  registerRoutes(fake, {}, () => {}, {
+    mode: 'host',
+    connection: { requestRejection: () => 401 },
+  })
+  const res = await call(fake.handler, '/')
+  assert.equal(res.status, 401)
+  assert.match(res.body, /需要从 DSH 里打开/)
+})
+

@@ -221,7 +221,7 @@ if (!JSON_ONLY) {
 
 const result = {
   nodes: NODES,
-  graph: { ms: built.ms, nodes: graph.nodes.length, edges: graph.edges.length },
+  graph: { ms: built.ms, nodes: graph.nodes.length, edges: graph.edges.length, orphans: graph.stats.orphans, avgDegree: graph.stats.avgDegree },
   recall: { ms: recallMs, queries: queries.length },
   hygiene: { ms: hy.ms, total: hy.out.total },
   path: { ms: pathMs, hops: found },

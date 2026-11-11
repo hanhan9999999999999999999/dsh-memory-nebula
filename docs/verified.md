@@ -2,6 +2,23 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.1.8（2026-11-11）钉住 Host
+
+- **Host 围栏**：`isLoopbackHost` 接受 `127.0.0.1[:port]` / `localhost[:port]` / `[::1][:port]`；
+  `evil.example`、`127.0.0.1.evil.example`、空 Host 均 403，且响应不含 `"ok":true`。
+- **宿主围栏**：`registerRoutes(..., {connection})` 在读写入口调用
+  `ctx.connection.requestRejection(req)`；401 提示「需要从 DSH 里打开」，403 提示 Host/Origin 不在可信范围。
+  `lib/index.js` 的 `inject` 增加 `connection`，宿主版本拿得到这个服务。
+- **测试**：92/92 单测（新增 Host 3 项 + 宿主 401 1 项）；
+  `release-check` 全绿（含 1.1.8 构件断言）；`dev/security-probe.mjs` **25/25** 全过
+  （新增非回环 Host / 伪造回环前缀 / localhost 可用）。
+- **包**：75 文件 / 2,298,856B，sha256 `deddf7a569ab7251e3a077fa83354ad0122cd4d603d2d58dd822a27578ef29cc`；
+  干净安装 `--version`=1.1.8、`doctor --help` 正常；包内文档不写自身哈希。
+- **发布**：npm `latest=1.1.8`，dist.shasum `5a2228d72c092c599788dcedbbcbf1bd0faa607b`；
+  registry 安装 1.1.8。
+- **边界变化**：把端口通过反向代理/内网穿透暴露出去时，Host 不是回环名会被 403；
+  这是有意收紧，星图不为该场景设计。
+
 ## 1.1.7（2026-11-11）看得见
 
 - **README 图片**：`README.md` / `README.en.md` 的 6 / 5 张截图全部改为

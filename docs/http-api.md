@@ -8,6 +8,8 @@
 - 读接口：`GET`；写接口：`POST`（JSON body，上限 256KB）。
 - 跨站规则见 `docs/security.md`：本机 Origin 回显 CORS；公网 Origin 读不到、写 403；
   无 `Origin` 的本机脚本可写（curl / 自动化）。
+- **Host 必须是 `127.0.0.1[:port]` / `localhost[:port]` / `[::1][:port]`**；其它 Host 一律 403，
+  用来挡 DNS rebinding。宿主内还会再过一遍 `ctx.connection.requestRejection(req)`（401/403）。
 - 错误体：`{ "error": "人话说明" }`；参数错误 400，找不到 404，请求体过大 413，未预期异常 500。
 - 版本与构建：`/ping` 的 `version` 来自 `package.json`，`build` 是 `lib` 下全部 `.m?js` 的 mtime 最大值
   （改任何模块都会推进）。
@@ -17,7 +19,7 @@
 ```json
 {
   "ok": true,
-  "version": "1.1.7",
+  "version": "1.1.8",
   "build": 1794143336695,
   "startedAt": 1794143336695,
   "mode": "host",
@@ -48,7 +50,7 @@
 ```text
 memory-nebula diagnostics
 # 不含记忆正文；可以整段贴给支持
-version: 1.1.7
+version: 1.1.8
 build: 1794276294467
 started: 2026-11-10T02:20:37.399Z
 mode: standalone

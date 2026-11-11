@@ -284,6 +284,14 @@ if (!readZh.includes('/blob/main/README.en.md') || !readZh.includes('/blob/main/
 if (!read('CHANGELOG.md').includes('## 1.1.7')) fail('CHANGELOG 缺 1.1.7')
 ok('1.1.7 构件：README 绝对图片 / 外链 / 变更记录')
 
+if (!read('lib/host/http.js').includes('export function isLoopbackHost')) fail('缺 Host 围栏')
+if (!read('lib/host/http.js').includes('connection.requestRejection(req)')) fail('宿主路由没接 requestRejection')
+if (!read('lib/index.js').includes("'connection'")) fail('index.js inject 缺 connection')
+if (!read('test/http.test.mjs').includes('DNS rebinding')) fail('缺 Host 围栏测试')
+if (!read('docs/security.md').includes('Host 围栏')) fail('安全文档缺 Host 围栏')
+ok('1.1.8 构件：Host 围栏 / 宿主 requestRejection / 测试与文档')
+
+
 
 
 console.log(`\n发布检查：${pkg.name} v${pkg.version}\n`)

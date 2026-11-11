@@ -2,6 +2,17 @@
 
 本文件记录「记忆星图」每个版本改了什么。日期为落盘日期。
 
+## 1.1.8 — 2026-11-11
+
+主题「钉住 Host」：读接口也不能被 DNS rebinding 借道。
+
+- 所有请求先校验 `Host`：只接受 `127.0.0.1[:port]` / `localhost[:port]` / `[::1][:port]`；
+  `evil.example`、`127.0.0.1.evil.example`、空 Host 均 403，静态页与数据接口一致。
+- 宿主挂载时再过一遍 `ctx.connection.requestRejection(req)`（Host/Origin + 已认证 Peer）；
+  401 提示从 DSH 里打开，403 提示 Host/Origin 不在可信范围；`inject` 增加 `connection`。
+- `/export`、`/share`、`/diagnostics` 这些读接口不再仅靠 Origin 判断。
+- 单测 90 → 92；安全探针 21 → 25（新增 Host 三项）。文档补 Host 围栏与反向代理边界。
+
 ## 1.1.7 — 2026-11-11
 
 主题「看得见」：README 的图在 npm 页面上也要看得见。

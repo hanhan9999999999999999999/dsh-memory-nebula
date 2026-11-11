@@ -39,6 +39,18 @@
 「本机」= `http://127.0.0.1[:port]`、`http://localhost[:port]`、`http://[::1][:port]`。
 实现见 `lib/host/http.js` 的 `isLoopbackOrigin` / `corsHeaders` / `allowWrite`。
 
+### Host 围栏（1.1.8）
+
+读接口同样不能只靠 Origin：GET 通常不带 `Origin`，恶意域名解析到 `127.0.0.1` 后浏览器会把
+请求发到本机端口，Host 仍是被攻击者控制的域名（DNS rebinding）。
+
+- 所有请求先过 `isLoopbackHost(req.headers.host)`：只接受 `127.0.0.1[:port]`、`localhost[:port]`、
+  `[::1][:port]`；其它 Host（包括 `127.0.0.1.evil.example`）一律 **403**，静态页也一样。
+- 宿主挂载的那一份再调用 `ctx.connection.requestRejection(req)`：由 DSH 做 Host/Origin 与
+  已认证 Peer 的围栏；被拒时返回 401/403。独立引擎没有这个服务，只走 Host 白名单。
+- 因此把端口通过反向代理、内网穿透暴露出去不再等于「只读页面可用」：Host 不是回环名就会被拒，
+  星图也不为该场景设计。
+
 > 这条边界的前提是「浏览器按 Origin 隔离」。如果把端口通过反向代理、内网穿透暴露出去，
 > 代理会改写或剥掉 `Origin`，这套判断就失效了——星图也不为该场景设计。
 
@@ -85,7 +97,7 @@
 
 | 攻击者 | 能否得手 | 说明 |
 | --- | --- | --- |
-| 恶意网页（同浏览器） | 读：不能（无 CORS）；写：不能（Origin/写保护 403） | 除非本机被 DNS 劫持成 `localhost` 指向外部——那是系统级问题 |
+| 恶意网页（同浏览器） | 读：不能（无 CORS + Host 围栏）；写：不能（Origin/写保护 403） | DNS rebinding 的 Host 不是回环名，1.1.8 起直接 403 |
 | 局域网其它设备 | 不能 | 只绑 127.0.0.1 |
 | 本机其它进程 / 同一用户 | **能** | 本机单用户模型，没有鉴权；能读文件就能读记忆库，星图不额外加锁 |
 | 记忆内容里的 HTML/脚本 | 不能执行 | 文本一律转义 + CSP；但仍会被当作普通文字显示 |
