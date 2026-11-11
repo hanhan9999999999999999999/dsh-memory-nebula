@@ -10,6 +10,11 @@
 - `dev/check-i18n.mjs`：430 键 / 437 处使用 / missing 0。
 - `npm test` 92/92；`npm run check` 全绿；7903 冒烟 63/63、安全探针 25/25、
   doctor 8/0/0；包 77 文件 / 约 2.4MB。
+- **发布**：npm latest 1.2.1，`dist.shasum` `8cc8487a486efe5aebb66eb4642168ee048d4078`；
+  registry 干净安装 `--version`=1.2.1、doctor 8/0/0；unpkg `@1.2.1/market/index.json`
+  200，`parseMarketIndex` 通过，`marketInstallTarget`=`dsh-memory-nebula@1.2.1`。
+- GitHub commit `74c7e903…`（CI 三 job success）；Release v1.2.1（id 441218432）
+  已上传 tgz 与 `.sha256`。
 
 ## 1.2.0（2026-11-11）两万条
 
