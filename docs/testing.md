@@ -4,7 +4,7 @@
 
 三层自动检查 + 一层人工验收。前三层都能在干净仓库里跑，不依赖 DSH 正在运行。
 
-## 一、单元测试：`test/`（90 项）
+## 一、单元测试：`test/`（92 项）
 
 ```bash
 npm test
@@ -19,11 +19,11 @@ node --test "test/*.test.mjs"
 | `text.test.mjs` | 9 | 中文 bigram 分词、停用词、关键词归一化与解析、实体抽取（path/url/uuid/ref/file/email/ip/version/code/quote）、`clip`、`idf`、集合工具 |
 | `graph.test.mjs` | 11 | 节点下标与边形状、相似度连边、孤岛、手工策展边权重 1、mute、空输入、`findNode`、体检六类、source 层不参与体检 |
 | `path.test.mjs` | 6 | 同点 0 跳、优先高权重直连、绕行、跳数上限、不存在节点、无边图返回 `null` |
-| `http.test.mjs` | 15 | loopback Origin 识别、公网/伪协议拒绝、CORS 回显与 `Vary`、`?demo=1` 只读与 ETag 304、`/share` 响应头与范围/隐藏参数、`/diagnostics` 纯文本与无路径、前缀/版本/能力清单 |
+| `http.test.mjs` | 18 | loopback Origin 识别、公网/伪协议拒绝、CORS 回显与 `Vary`、`?demo=1` 只读与 ETag 304、`/share` 响应头与范围/隐藏参数、`/diagnostics` 纯文本与无路径、前缀/版本/能力清单 |
 | `demo.test.mjs` | 5 | 示例图规模与跨区桥、手工边/实体边、体检样本、Nebula 不读盘、详情/检索/证据链 |
 | `share.test.mjs` | 14 | 单文件自包含、正文与 `</script>` 防护、尖括号转义、`$&` 保留、`<noscript>`/只读元信息、ws/project/focus 切片、hide 白名单与脱敏 |
 | `i18n.test.mjs` | 7 | 字典非空、回退中文、语言优先级、applyDom、T/静态 key 全覆盖 |
-| `diagnostics.test.mjs` | 2 | 报告结构、无 path/dbPath、文本不含盘符与库名、空图格式化 |
+| `diagnostics.test.mjs` | 3 | 报告结构、无 path/dbPath、文本不含盘符与库名、空图格式化 |
 | `doctor.test.mjs` | 9 | 版本下界、包文件、profile 依赖/bundles/已安装、版本漂移提醒、warn 不阻断、文本/JSON 报告 |
 | `market.test.mjs` | 3 | 市场索引版本/分类/标签、双语详情与图标存在、详情图片路径可解析 |
 | `package.test.mjs` | 7 | 包身份与导出、`files` 不夹带测试、清单文件存在、死文件不再进包、CHANGELOG 与版本一致、Cordis patch、相对 import 可解析 |
@@ -57,7 +57,7 @@ node scripts/smoke.mjs http://127.0.0.1:7890/api/memory-nebula
 | `/export` | `format=json` 结构完整；`format=md` 含 `# 记忆星图导出` 且有正文 |
 | `/ingest` | 缺 `provider` 时返回 400 |
 
-## 三、安全探针（21 项，开发机脚本，不进包）
+## 三、安全探针（25 项，开发机脚本，不进包）
 
 `dev/security-probe.mjs`，对运行中的实例验证本机服务边界：
 

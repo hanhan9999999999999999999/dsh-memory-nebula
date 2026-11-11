@@ -291,6 +291,14 @@ if (!read('test/http.test.mjs').includes('DNS rebinding')) fail('缺 Host 围栏
 if (!read('docs/security.md').includes('Host 围栏')) fail('安全文档缺 Host 围栏')
 ok('1.1.8 构件：Host 围栏 / 宿主 requestRejection / 测试与文档')
 
+if (!read('lib/host/graph.js').includes('const entityPairCap = n > 12000 ? 60 : 120')) {
+  fail('缺 2 万条实体配对上限')
+}
+if (!read('lib/host/graph.js').includes('kwCount')) fail('关键词候选仍保存字符串数组')
+if (!read('docs/benchmarks.md').includes('2.53s')) fail('基准文档缺 20k 实测')
+if (!read('CHANGELOG.md').includes('## 1.2.0')) fail('CHANGELOG 缺 1.2.0')
+ok('1.2.0 构件：2 万条实体配对上限 / 关键词候选瘦身 / 基准与变更记录')
+
 
 
 

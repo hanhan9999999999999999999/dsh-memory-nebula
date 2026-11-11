@@ -21,7 +21,7 @@ cd <plugin>
 # 1. 语法与静态检查（版本一致、UTF-8、import、死文件、CORS、document.write…）
 npm run check
 
-# 2. 单元测试（90 项，纯函数 + 契约）
+# 2. 单元测试（92 项，纯函数 + 契约）
 npm test
 
 # 3. 起一个干净实例，跑接口契约（63 项）
@@ -29,7 +29,7 @@ node lib/standalone.mjs --port 7893 --root <一个包含记忆库的目录>
 node scripts/smoke.mjs http://127.0.0.1:7893/api/memory-nebula
 npm run verify          # 单测 + 静态发布检查；npm pack 会通过 prepack 自动再跑一遍
 
-# 4. 安全边界（21 项）
+# 4. 安全边界（25 项）
 node dev/security-probe.mjs http://127.0.0.1:7893
 
 # 5. 打包清单：只带该带的
@@ -65,6 +65,7 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 1.1.3 起包内多了 `SECURITY.md` 与 `CONTRIBUTING.md`，`.github/` 不进包；文件数与体积以 `npm pack` 的输出为准（不要手写进文档，否则每次改文档都要重打包）。
 
 1.1.8 实测：**75 个文件**，包约 2.3MB、解开约 3.0MB（精确字节以 `npm pack` 输出为准）。
+1.2.0 实测：**75 个文件**，包约 2.3MB、解开约 3.0MB（精确字节以 `npm pack` 输出为准）；20k 基准 2.53s / heap 248MB，见 `benchmarks.md`。
 清单里应含 `sidecar.ps1`、`scripts/`、`test/` 不含（单测只在仓库里跑）、`dev/` 与截图不含。
 
 装进 DSH profile（与 `docs/operations.md` 的 junction 方式二选一）：

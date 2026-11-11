@@ -19,7 +19,7 @@
 ```json
 {
   "ok": true,
-  "version": "1.1.8",
+  "version": "1.2.0",
   "build": 1794143336695,
   "startedAt": 1794143336695,
   "mode": "host",
@@ -50,7 +50,7 @@
 ```text
 memory-nebula diagnostics
 # 不含记忆正文；可以整段贴给支持
-version: 1.1.8
+version: 1.2.0
 build: 1794276294467
 started: 2026-11-10T02:20:37.399Z
 mode: standalone
