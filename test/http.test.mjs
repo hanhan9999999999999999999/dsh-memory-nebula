@@ -241,3 +241,31 @@ test('http: 宿主连接围栏拒绝时先返回 401/403', async () => {
   assert.match(res.body, /需要从 DSH 里打开/)
 })
 
+
+test('http: /export 尊重 scope 与 focus 跳数', async () => {
+  const h = await boot()
+  const all = await call(h, '/export?demo=1&format=json')
+  assert.equal(all.status, 200)
+  const allBody = JSON.parse(all.body)
+  assert.equal(allBody.scope.kind, 'all')
+  assert.ok(allBody.nodes.length > 0)
+
+  const ws = await call(h, '/export?demo=1&format=json&scope=ws:xingang')
+  assert.equal(ws.status, 200)
+  const wsBody = JSON.parse(ws.body)
+  assert.equal(wsBody.scope.kind, 'ws')
+  assert.equal(wsBody.stats.nodes, 32)
+  assert.equal(wsBody.stats.edges, 31)
+  assert.equal(wsBody.stats.workspaces, 1)
+
+  const focus = await call(h, '/export?demo=1&format=json&scope=focus:xg-weekly&hops=1')
+  assert.equal(focus.status, 200)
+  const focusBody = JSON.parse(focus.body)
+  assert.equal(focusBody.scope.kind, 'focus')
+  assert.ok(focusBody.stats.nodes <= 14)
+  assert.ok(focusBody.stats.nodes >= 10)
+
+  const bad = await call(h, '/export?demo=1&format=json&scope=ws:nope')
+  assert.equal(bad.status, 400)
+  assert.match(JSON.parse(bad.body).error, /这个范围里没有记忆/)
+})

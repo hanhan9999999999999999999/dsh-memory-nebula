@@ -44,6 +44,7 @@ Export the whole graph (text included) as one self-contained HTML for offline re
 | Single-file snapshot: the whole graph (with text) as one offline HTML | Export → “whole graph · single HTML”, `GET /share` |
 | Scoped share: one workspace, one project, or a node’s 2-hop neighbourhood | Export menu, `GET /share?scope=ws:<workspace>` |
 | CLI snapshot: write the HTML from CI or a cron job without starting a server | `node lib/standalone.mjs --share <file> [--scope …]` |
+| CLI report: write the same scoped graph as md/json for automation | `node lib/standalone.mjs --export <file> [--format md\|json]` |
 | Privacy filter: drop the diary workspace, a level, a project or a status before export | Export menu, `GET /share?hide=ws:diary` |
 | **Bilingual UI**: interface and offline snapshots in English, untranslated strings fall back to Chinese | top-bar language button, `?lang=en` |
 | **One-click diagnostics**: version, environment, graph size and last error, with no memory text or paths | `?` → “Copy diagnostics”, `GET /diagnostics`, `--diagnose` |
@@ -54,7 +55,7 @@ Export the whole graph (text included) as one self-contained HTML for offline re
 ## Quick start
 
 From the plugin market (recommended): add the index
-`https://unpkg.com/dsh-memory-nebula@1.4.1/market/index.json` under
+`https://unpkg.com/dsh-memory-nebula@1.5.0/market/index.json` under
 Plugins → Discover, search for “Memory Nebula”, and install. Run the doctor in step 2.5 afterwards.
 
 Or install from this checkout:
@@ -62,7 +63,7 @@ Or install from this checkout:
 ```powershell
 # 1) link the plugin (either way)
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
-npm install <path>\dsh-memory-nebula-1.4.1.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.5.0.tgz --prefix <profile>
 
 # 2) profile package.json: add the dependency AND the bundle
 #    dependencies:        "dsh-memory-nebula": "file:../../plugins/dsh-memory-nebula"
@@ -88,9 +89,11 @@ Write a snapshot from the command line without starting a server:
 ```powershell
 node lib/standalone.mjs --demo --share .\snapshot.html
 node lib/standalone.mjs --share .\work.html --scope ws:xingang --hide level:lesson
+node lib/standalone.mjs --export ./nebula.json --scope project:memory-nebula
+node lib/standalone.mjs --export ./nebula.md --format md
 ```
 
-`--share` builds once and exits; `--scope` accepts `all`, `ws:<workspace>`, `project:<project>` or
+`--share` / `--export` build once and exit; `--scope` accepts `all`, `ws:<workspace>`, `project:<project>` or
 `focus:<node id>`; `--hops` sets the focus radius (1–5, default 2); `--hide` takes comma-separated rules.
 
 The page probes `/ping` on both legs and picks the newer `build`; a banner explains when the host lacks endpoints.
@@ -132,7 +135,7 @@ Adapter contract and every `sources.json` field: [docs/adapters.md](docs/adapter
 | [docs/troubleshooting.md](docs/troubleshooting.md) | Start here when something breaks: doctor, version drift, empty graph, 3D/snapshot limits, privacy, ticket material |
 | [SECURITY.md](SECURITY.md) | Read-only boundary, HTTP protections and vulnerability reporting |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Local development, test commands and contribution rules |
-| [docs/testing.md](docs/testing.md) | 95 unit tests, 63 smoke checks, 25 security probes, browser probes |
+| [docs/testing.md](docs/testing.md) | 98 unit tests, 63 smoke checks, 25 security probes, browser probes |
 | [docs/roadmap.md](docs/roadmap.md) | From 0.5 to 1.2: scoped sharing, first-run guidance, 10k-node performance, i18n and release support |
 | [CHANGELOG.md](CHANGELOG.md) | Version history |
 
@@ -166,4 +169,4 @@ test/                 node:test unit suite (90 assertions)
 
 ## Version
 
-`1.4.1`, MIT. Front-end changes apply on refresh; everything under `lib/host/` is hot-reloaded, while `http.js` / `index.js` / `live.js` need a DSH restart (or the standalone engine).
+`1.5.0`, MIT. Front-end changes apply on refresh; everything under `lib/host/` is hot-reloaded, while `http.js` / `index.js` / `live.js` need a DSH restart (or the standalone engine).

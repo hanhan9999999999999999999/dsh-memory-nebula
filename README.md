@@ -78,7 +78,7 @@
 已经装好的机器上（`profiles/desktop`），只要打开「记忆星图」页面就有一张图；页面每 12 秒比一次 `sig`，别的会话写了新记忆会自动长出新星点。库里还没有记忆时，页面会给三条接入路径，也可以先点「看示例」；`…/memory-nebula/?demo=1` 可直达示例星系，逛完退出不会动真实库。
 
 从插件市场装（推荐）：在 DSH 的「插件 → 发现」里添加索引
-`https://unpkg.com/dsh-memory-nebula@1.4.1/market/index.json`，搜索「记忆星图」安装。
+`https://unpkg.com/dsh-memory-nebula@1.5.0/market/index.json`，搜索「记忆星图」安装。
 装完按下面的 2.5 跑一次 doctor。
 
 也可以从仓库装到 DSH：
@@ -86,7 +86,7 @@
 ```powershell
 # 1) 装进 profile（二选一）
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
-npm install <path>\dsh-memory-nebula-1.4.1.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.5.0.tgz --prefix <profile>
 
 # 2) profile 的 package.json 里加依赖与 bundles（只加 dependencies 不会重组）
 #    dependencies:         "dsh-memory-nebula": "file:../../plugins/dsh-memory-nebula"
@@ -111,18 +111,25 @@ node lib/standalone.mjs --port 7890                          # 其它系统，�
 
 ```powershell
 node lib/standalone.mjs --demo --share .\snapshot.html
-node lib/standalone.mjs --share .\work.html --scope ws:星港 --hide level:lesson
+node lib/standalone.mjs --share .\work.html --scope ws:星港产品 --hide level:lesson
+
+# 报告也能带走：md 或 json，范围语义与快照一致
+node lib/standalone.mjs --export .
+ebula.json --scope project:memory-nebula
+node lib/standalone.mjs --export .
+ebula.md --format md
 ```
 
-`--share` 只建一次图就退出：`--scope` 支持 `all` / `ws:<工作区>` / `project:<项目>` /
-`focus:<节点 id>`，`--hops` 控制 focus 的跳数（1–5，默认 2），`--hide` 可逗号分隔多条规则。
+`--share` / `--export` 都只建一次图就退出：`--scope` 支持 `all` / `ws:<工作区>` /
+`project:<项目>` / `focus:<节点 id>`，`--hops` 控制 focus 的跳数（1–5，默认 2），
+`--hide` 可逗号分隔多条规则（仅 `--share`）。
 
 页面会并行探宿主与独立引擎的 `/ping`，自动选 `build` 较新的那条；宿主缺接口时顶部有横幅说明。
 
 自检三条命令：
 
 ```bash
-npm test        # 95 项单元测试
+npm test        # 98 项单元测试
 npm run verify  # 单测 + 发布静态检查（npm pack 的 prepack 会自动再跑）
 node scripts/smoke.mjs   # 63 项接口契约（对运行中的实例）
 ```
@@ -160,7 +167,7 @@ node scripts/smoke.mjs   # 63 项接口契约（对运行中的实例）
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 本地开发、测试命令与提交约定 |
 | [docs/verified.md](docs/verified.md) | 每一条结论背后的实测证据 |
 | [docs/architecture.md](docs/architecture.md) | 模块分工、请求路径、不能破的不变量 |
-| [docs/testing.md](docs/testing.md) | 95 项单测、63 项冒烟、25 项安全探针、浏览器探针清单与手工验收 |
+| [docs/testing.md](docs/testing.md) | 98 项单测、63 项冒烟、25 项安全探针、浏览器探针清单与手工验收 |
 | [docs/roadmap.md](docs/roadmap.md) | 从 0.5 到 1.2：切片分享、首访引导、万条性能、国际化与发行支持 |
 | [CHANGELOG.md](CHANGELOG.md) | 版本变更 |
 
@@ -186,7 +193,7 @@ lib/
 scripts/smoke.mjs     只读契约自查（63 项）
 scripts/release-check.mjs  发布静态检查
 scripts/bench.mjs     10k 性能基准（建图 / 检索 / 体检 / 快照 / 内存）
-test/                 node:test 单元测试（95 项）
+test/                 node:test 单元测试（98 项）
 sidecar.ps1           Windows 独立引擎开关
 ```
 
@@ -199,6 +206,6 @@ sidecar.ps1           Windows 独立引擎开关
 
 ## 版本与许可
 
-- 当前版本 `1.4.1`，MIT。
+- 当前版本 `1.5.0`，MIT。
 - 打包内容：`lib/`、`scripts/`、`docs/`、`cordis.patch.yml`、`README.md` / `README.en.md`、`CHANGELOG.md`、`LICENSE`、`sidecar.ps1`（`test/` 与 `dev/` 不进包）。
 - 前端改动刷新页面即生效；`lib/host/` 下所有引擎文件（含 `adapters/`、`bridge.js`、`ledger.js`）由 LiveEngine 热载，`http.js` / `index.js` / `live.js` 改动要重启 DSH 或走独立引擎。

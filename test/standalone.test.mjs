@@ -35,3 +35,33 @@ test('standalone --share 拒绝非法 scope 并以 2 退出', () => {
     rmSync(dir, { recursive: true, force: true })
   }
 })
+
+test('standalone --export 按工作区导出结构化 JSON', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'nebula-export-'))
+  const out = join(dir, 'scope.json')
+  try {
+    const r = spawnSync(process.execPath, [cli, '--demo', '--export', out, '--scope', 'ws:星港产品'], { encoding: 'utf8' })
+    assert.equal(r.status, 0, r.stderr)
+    const report = JSON.parse(readFileSync(out, 'utf8'))
+    assert.equal(report.scope.kind, 'ws')
+    assert.equal(report.scope.value, '星港产品')
+    assert.equal(report.stats.nodes, 32)
+    assert.equal(report.stats.edges, 31)
+    assert.equal(report.stats.workspaces, 1)
+    assert.ok(report.nodes.length <= 200)
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})
+
+test('standalone --export 拒绝空范围并以 2 退出', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'nebula-export-bad-'))
+  const out = join(dir, 'scope.json')
+  try {
+    const r = spawnSync(process.execPath, [cli, '--demo', '--export', out, '--scope', 'ws:不存在'], { encoding: 'utf8' })
+    assert.equal(r.status, 2)
+    assert.match(r.stderr, /这个范围里没有记忆/)
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})

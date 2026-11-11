@@ -2,6 +2,24 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.5.0（2026-11-11）命令行导出
+
+- `node lib/standalone.mjs --demo --export <file> --scope ws:星港产品`
+  写出 JSON：`scope.kind=ws`、32 节点 / 31 连接 / 1 工作区，退出 0。
+- `--scope focus:xg-weekly --hops 1`：12 节点 / 12 连接，`scope.kind=focus`；
+  未知范围退出 2，stderr「这个范围里没有记忆」。
+- `GET /export?demo=1&format=json&scope=ws:xingang`：200，32/31；
+  `scope=ws:nope`：400 `{error:"这个范围里没有记忆…"}`，不再把错误包在 200 里。
+- 测试 **98/98**（`standalone.test.mjs` 4 项、`http.test.mjs` 19 项）；
+  `npm run check` 全绿。
+- 真实库：`GET /export?scope=ws:DSHLive2D` → 463 节点 / 1,344 连接 / 1 工作区；
+  `scope=ws:nope` → 400。CLI `--export --scope project:memory-nebula` → 235 节点 /
+  557 连接 / 93,871 字节。
+- 打包 **81 个文件 / 2,921,242B**，sha256 `579e34fd6679e7f514feb9c18b8ce6df9ac95225103a40866e898bdf7ffdcad9`；
+  干净安装 `--version`=1.5.0，`--demo --export --scope ws:xingang` 输出 32/31。
+- 兼容：`--export` 不传 `--format` 时按 `.json` / 其它扩展名推断；不传 `--scope`
+  与旧 `/export` 全图行为一致。
+
 ## 1.4.1（2026-11-11）英文门面
 
 - `README.en.md` 与 `docs/market.en.md` 的截图改为英文界面：

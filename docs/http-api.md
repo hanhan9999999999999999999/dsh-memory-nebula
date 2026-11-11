@@ -19,7 +19,7 @@
 ```json
 {
   "ok": true,
-  "version": "1.4.1",
+  "version": "1.5.0",
   "build": 1794143336695,
   "startedAt": 1794143336695,
   "mode": "host",
@@ -50,7 +50,7 @@
 ```text
 memory-nebula diagnostics
 # 不含记忆正文；可以整段贴给支持
-version: 1.4.1
+version: 1.5.0
 build: 1794276294467
 started: 2026-11-10T02:20:37.399Z
 mode: standalone
@@ -138,8 +138,14 @@ body：`{ v: 2, version, build, demo, nodes: [...], edges: [{s,d,w,t,curated}], 
 
 ## `GET /export?format=md|json`
 
-- `md`：给人看的报告（规模、工作区表、层级表、枢纽、最强关联、孤岛）；
-- `json`：给 AI 看的结构（节点按 degree 截断，边为 `[idA, idB, w, type]`）。
+- `md`：给人看的报告（范围、规模、工作区表、层级表、枢纽、最强关联、孤岛）；
+- `json`：给 AI 看的结构（`scope`、`stats`、`clusters`、节点按 degree 截断、边为 `[idA, idB, w, type]`、孤岛）。
+- **范围**（1.5.0 起真正生效）：`scope=all`（默认）/ `ws:<工作区>` / `project:<项目>` /
+  `focus:<节点 id>`；`hops=1..5` 只用于 focus，默认 2。切片后节点、边、度数、孤岛、
+  `stats` 与 `clusters` 都按切片重算，不是把全图数字原样带出。
+- 工作区/项目名大小写敏感，`scope` 不会整体转小写；空范围返回 **400**
+  `{ "error": "这个范围里没有记忆：…" }`，未知节点同理。
+- CLI 等价物：`node lib/standalone.mjs --export <file> --format md|json [--scope …] [--hops N]`。
 
 ## `GET /share`
 

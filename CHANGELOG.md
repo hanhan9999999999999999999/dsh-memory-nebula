@@ -2,6 +2,20 @@
 
 本文件记录「记忆星图」每个版本改了什么。日期为落盘日期。
 
+## 1.5.0 — 2026-11-11
+
+主题「把报告也带走」：命令行不只能写 HTML，也能写 md / json；`/export` 的
+`scope` 不再被静默忽略。
+
+- `lib/standalone.mjs` 新增 `--export <file>`，`--format md|json`（按扩展名推断），
+  复用 `--scope` / `--hops` / `--demo`；成功退出 0，非法范围退出 2。
+- `Nebula.exportReport()` 真正支持 `scope=all|ws:<工作区>|project:<项目>|focus:<id>`
+  与 `hops`：节点、边、度数、孤岛、统计都按切片重算，focus 走无向 BFS。
+- `GET /export` 不再把整个 scope 转小写（避免破坏大小写敏感的工作区/项目名），
+  透传 `hops`，空范围返回 400，不再把 `{error}` 包在 200 里。
+- 新增 2 项 CLI 测试与 1 项 HTTP 测试；总测试 95→98。
+- README / docs 增加命令行导出示例；`/export` 文档补 scope 语义。
+
 ## 1.4.1 — 2026-11-11
 
 主题「英文门面」：README 与市场详情页不再用中文截图。

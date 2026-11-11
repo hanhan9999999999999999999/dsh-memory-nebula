@@ -331,6 +331,15 @@ if (!read('docs/market.en.md').includes('assets/snapshot-en.jpg')) fail('英文�
 if (!read('CHANGELOG.md').includes('## 1.4.1')) fail('CHANGELOG 缺 1.4.1')
 ok('1.4.1 构件：英文截图 / 英文 README / 市场详情 / 变更记录')
 
+if (!read('lib/standalone.mjs').includes('--export <file>')) fail('standalone 缺 --export')
+if (!read('lib/standalone.mjs').includes("format !== 'md' && format !== 'json'")) fail('--export 没有格式校验')
+if (!read('lib/host/nebula.js').includes('exportReport(opts = {})')) fail('缺 exportReport')
+if (!read('lib/host/nebula.js').includes("scopeKind === 'focus'")) fail('exportReport 缺 focus 范围')
+if (!read('lib/host/http.js').includes("src.exportReport({ format, scope, hops })")) fail('/export 未透传 scope/hops')
+if (!read('README.md').includes('--export')) fail('README 未写 --export')
+if (!read('CHANGELOG.md').includes('## 1.5.0')) fail('CHANGELOG 缺 1.5.0')
+ok('1.5.0 构件：命令行导出 / 范围过滤 / HTTP 400 / 变更记录')
+
 
 
 

@@ -82,7 +82,7 @@
   不写「应该可以」。
 - **已落地**：`GET /diagnostics`、`standalone --diagnose`、页面「复制诊断」；
   `docs/compatibility.md` 与 `docs/distribution.md`；1.0.0 包 64 文件、76 单测、63 冒烟。
-- **执行记录**：维护者授权后已完成 npm 公开发布（当前 latest 1.4.1）与 GitHub Release；
+- **执行记录**：维护者授权后已完成 npm 公开发布（当前 latest 1.5.0）与 GitHub Release；
   精选目录 PR 已提交（awesome-dsh-plugin#14065），等仓库满 24 小时后过年龄门。
 
 ## 1.1 「装得上」：安装体检与上架（1.1.0–1.1.7 已交付）
@@ -132,7 +132,18 @@
 - 打包时抓到 `package.json` 把自己列成依赖，删掉并加测试锁住「运行时依赖为空」。
 - 77 文件 / 2,461,678B；95 单测 / 63 冒烟；npm latest 1.4.0，Release v1.4.0。
 
-## 1.5 待定：5 万条与目录合并后的真实验证
+## 1.5 「把报告也带走」：命令行导出（1.5.0 已交付）
+
+**问题**：快照能带走，但结构化数据仍要起服务、调 `/export`；CI 和脚本没有等价入口。
+
+- `node lib/standalone.mjs --export <file>`：md 或 json（按扩展名推断），复用
+  `--scope` / `--hops` / `--demo`；不启端口。
+- 顺手修掉一个静默 bug：HTTP `/export` 一直把 `scope` 传进 `exportReport`，但方法
+  从未使用它——范围参数被吞掉。现在节点、边、度数、孤岛、统计、cluster 都按切片重算，
+  focus 走无向 BFS；空范围 400，不再 200 包错误。
+- 98 单测 / 63 冒烟 / 25 探针；HTTP 与 CLI 共用同一实现，避免两条导出路径漂移。
+
+## 1.6 待定：5 万条与目录合并后的真实验证
 
 不先承诺版本号。两件已知的事：
 
