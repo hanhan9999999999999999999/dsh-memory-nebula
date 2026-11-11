@@ -17,6 +17,10 @@
   干净安装 `--version`=1.3.0；npm publish 后 `dist.shasum=8534682a0a95ae16701951bc26bbd9fc490a76b5`，
   unpacked 3,143,396B / 77 文件。
 - 旧快照兼容：无 `nodeColumns`/`edgeColumns` 的对象格式原样返回，不展开。
+- GitHub commit `f094ff9093fc6a3d9a1f68a6833ca238986dcfe9` 的三 job（Node 22.13 / 24 / Package install）全 success；
+  Release `v1.3.0` id **441254549**，tgz 与 `.sha256` 均上传成功。
+- unpkg `https://unpkg.com/dsh-memory-nebula@1.3.0/market/index.json` 200；
+  `parseMarketIndex` 返回 format 1 / 1 插件 / 1.3.0，`marketInstallTarget` = `dsh-memory-nebula@1.3.0`。
 
 ## 1.2.1（2026-11-11）英文空态兜底
 
