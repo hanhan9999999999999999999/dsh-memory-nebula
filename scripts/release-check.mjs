@@ -340,6 +340,10 @@ if (!read('README.md').includes('--export')) fail('README 未写 --export')
 if (!read('CHANGELOG.md').includes('## 1.5.0')) fail('CHANGELOG 缺 1.5.0')
 ok('1.5.0 构件：命令行导出 / 范围过滤 / HTTP 400 / 变更记录')
 
+if (!read('lib/host/nebula.js').includes('c.members || []')) fail('范围导出没按 members 重算簇')
+if (!read('CHANGELOG.md').includes('## 1.5.1')) fail('CHANGELOG 缺 1.5.1')
+ok('1.5.1 构件：切片簇 / 变更记录')
+
 
 
 

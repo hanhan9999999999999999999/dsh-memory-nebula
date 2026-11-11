@@ -2,6 +2,14 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.5.1（2026-11-11）切片簇
+
+- 1.5.0 的 `scope` 已按节点重算，但 `clusters` 仍按节点上不存在的 `cluster` 字段过滤，
+  范围导出里的簇为空。改为按 `clusters[].members` 与切片集合求交，重算 `size` /
+  `workspaces` / `title`。
+- 实测 demo `scope=ws:xingang`：2 个簇，size `[3,1]`；全图仍 2 个簇 `[3,3]`。
+- 测试 **98/98**，`GET /export?scope` 断言簇非空且 size>0；`npm run check` 全绿。
+
 ## 1.5.0（2026-11-11）命令行导出
 
 - `node lib/standalone.mjs --demo --export <file> --scope ws:星港产品`

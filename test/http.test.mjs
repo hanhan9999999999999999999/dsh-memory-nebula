@@ -257,6 +257,8 @@ test('http: /export 尊重 scope 与 focus 跳数', async () => {
   assert.equal(wsBody.stats.nodes, 32)
   assert.equal(wsBody.stats.edges, 31)
   assert.equal(wsBody.stats.workspaces, 1)
+  assert.ok(wsBody.clusters.length > 0)
+  assert.ok(wsBody.clusters.every((c) => c.size > 0))
 
   const focus = await call(h, '/export?demo=1&format=json&scope=focus:xg-weekly&hops=1')
   assert.equal(focus.status, 200)

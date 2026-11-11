@@ -70,7 +70,7 @@ memory-nebula --help          # 装成 bin 之后
 
 ## 发布信息
 
-- 版本 `1.5.0`，`license: MIT`，无运行时依赖。
+- 版本 `1.5.1`，`license: MIT`，无运行时依赖。
 - `files`：`lib/`、`cordis.patch.yml`、`README.md`、`README.en.md`、`docs/`、`CHANGELOG.md`、
   `LICENSE`、`scripts/`、`sidecar.ps1`。
 - 装完先体检：`node scripts/doctor.mjs --profile <profile> [--root DIR] [--base URL] [--json]`；
