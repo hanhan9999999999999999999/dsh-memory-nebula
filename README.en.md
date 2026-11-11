@@ -53,7 +53,7 @@ Export the whole graph (text included) as one self-contained HTML for offline re
 ## Quick start
 
 From the plugin market (recommended): add the index
-`https://unpkg.com/dsh-memory-nebula@1.2.0/market/index.json` under
+`https://unpkg.com/dsh-memory-nebula@1.2.1/market/index.json` under
 Plugins → Discover, search for “Memory Nebula”, and install. Run the doctor in step 2.5 afterwards.
 
 Or install from this checkout:
@@ -61,7 +61,7 @@ Or install from this checkout:
 ```powershell
 # 1) link the plugin (either way)
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
-npm install <path>\dsh-memory-nebula-1.2.0.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.2.1.tgz --prefix <profile>
 
 # 2) profile package.json: add the dependency AND the bundle
 #    dependencies:        "dsh-memory-nebula": "file:../../plugins/dsh-memory-nebula"
@@ -155,4 +155,4 @@ test/                 node:test unit suite (90 assertions)
 
 ## Version
 
-`1.2.0`, MIT. Front-end changes apply on refresh; everything under `lib/host/` is hot-reloaded, while `http.js` / `index.js` / `live.js` need a DSH restart (or the standalone engine).
+`1.2.1`, MIT. Front-end changes apply on refresh; everything under `lib/host/` is hot-reloaded, while `http.js` / `index.js` / `live.js` need a DSH restart (or the standalone engine).

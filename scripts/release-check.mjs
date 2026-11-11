@@ -299,6 +299,15 @@ if (!read('docs/benchmarks.md').includes('2.53s')) fail('基准文档缺 20k 实
 if (!read('CHANGELOG.md').includes('## 1.2.0')) fail('CHANGELOG 缺 1.2.0')
 ok('1.2.0 构件：2 万条实体配对上限 / 关键词候选瘦身 / 基准与变更记录')
 
+if (!read('lib/web/index.html').includes('data-zh="这里还没有星星"')) {
+  fail('空库兜底缺 data-zh')
+}
+if (!read('lib/web/i18n.js').includes('"这里还没有星星": "No stars here yet"')) {
+  fail('i18n 缺空库兜底英文')
+}
+if (!read('CHANGELOG.md').includes('## 1.2.1')) fail('CHANGELOG 缺 1.2.1')
+ok('1.2.1 构件：英文空态兜底 / i18n 文案 / 变更记录')
+
 
 
 
