@@ -144,6 +144,7 @@ node scripts/smoke.mjs   # 63 项接口契约（对运行中的实例）
 | [docs/release.md](docs/release.md) | 发布前检查清单、版本策略、打包/安装/回滚 |
 | [docs/compatibility.md](docs/compatibility.md) | 已验证的平台/Node/浏览器矩阵，以及明确不支持的组合 |
 | [docs/distribution.md](docs/distribution.md) | 安装/升级/回滚/卸载、支持流程、市场文案与发布检查 |
+| [docs/troubleshooting.md](docs/troubleshooting.md) | 出问题时先看这里：doctor、版本漂移、空图、3D/快照边界、隐私与工单材料 |
 | [SECURITY.md](SECURITY.md) | 只读边界、HTTP 防护与漏洞报告 |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 本地开发、测试命令与提交约定 |
 | [docs/verified.md](docs/verified.md) | 每一条结论背后的实测证据 |

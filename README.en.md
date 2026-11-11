@@ -118,6 +118,7 @@ Adapter contract and every `sources.json` field: [docs/adapters.md](docs/adapter
 | [docs/release.md](docs/release.md) | Release checklist, versioning, packaging, rollback |
 | [docs/compatibility.md](docs/compatibility.md) | Verified OS/Node/browser matrix, explicit non-support |
 | [docs/distribution.md](docs/distribution.md) | Install/upgrade/rollback/uninstall, support flow, marketplace copy |
+| [docs/troubleshooting.md](docs/troubleshooting.md) | Start here when something breaks: doctor, version drift, empty graph, 3D/snapshot limits, privacy, ticket material |
 | [SECURITY.md](SECURITY.md) | Read-only boundary, HTTP protections and vulnerability reporting |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Local development, test commands and contribution rules |
 | [docs/testing.md](docs/testing.md) | 92 unit tests, 63 smoke checks, 25 security probes, browser probes |
