@@ -15,6 +15,15 @@
 - **实现**：`entityPairCap = n > 12000 ? 60 : 120`；关键词候选只累计 `kwCount`，
   `parts/why` 只在确定产出边时分配。
 - **测试**：92/92 单测；release-check 全绿（含 1.2.0 构件）；smoke 63/63；安全探针 25/25。
+- **包**：75 文件 / 2,300,396B，sha256 `da47b3675482473779ee1d3ed5b2d1c763beb1a3974bf8c15c528702bcb60a60`；
+  干净安装 `--version`=1.2.0、`doctor --help`、`import` 导出正常。
+- **发布**：npm `latest=1.2.0`，dist.shasum `28229ac76e5dea3efcc8bdee26d6be0941eda6de`；
+  fresh-cache 安装 1.2.0、doctor 8/0/0。
+- **索引**：`https://unpkg.com/dsh-memory-nebula@1.2.0/market/index.json` 200，
+  `parseMarketIndex` 通过（1 条 / 1.2.0），install target `dsh-memory-nebula@1.2.0`；
+  icon / locale / 详情 / demo 图均 200。
+- **GitHub**：commit `77a2ff53922b06a52b4a24a13539db3d1db2f72e`（88 文件），CI 三 job 全 success；
+  Release `v1.2.0`（id 441159340）附 tgz 与 `.sha256`。
 
 ## 1.1.8（2026-11-11）钉住 Host
 
