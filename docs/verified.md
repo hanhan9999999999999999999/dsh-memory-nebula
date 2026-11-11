@@ -9,6 +9,10 @@
   `workspaces` / `title`。
 - 实测 demo `scope=ws:xingang`：2 个簇，size `[3,1]`；全图仍 2 个簇 `[3,3]`。
 - 测试 **98/98**，`GET /export?scope` 断言簇非空且 size>0；`npm run check` 全绿。
+- 发布：npm `dsh-memory-nebula@1.5.1`（dist.shasum `8dabdf5d69e641fba8a8ed6c88b0d8e1bd21b4ce`）；
+  registry 安装 `--version`=1.5.1，doctor 8 通过 / 0 提醒 / 0 失败；unpkg
+  `@1.5.1/market/index.json` 返回 format 1 / 1.5.1，icon/locale/详情/图片均 200；
+  GitHub Release v1.5.1（id 441883424）附 tgz 与 `.sha256`；源同步 commit `ddc82c6…`。
 
 ## 1.5.0（2026-11-11）命令行导出
 
