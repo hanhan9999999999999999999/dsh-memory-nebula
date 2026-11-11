@@ -6,7 +6,7 @@
 ## 包是什么
 
 - npm 包名：`dsh-memory-nebula`
-- 当前版本：`1.3.0`
+- 当前版本：`1.4.0`
 - 形态：DSH 插件（`cordis.patch.yml` + `lib/client.js`）与独立引擎（`lib/standalone.mjs`）共用一套代码
 - 许可：MIT；没有授权锁、没有遥测、不会把记忆上传到任何服务器
 - 包内容：`lib/`、`scripts/`、`docs/`、`cordis.patch.yml`、`README.md` / `README.en.md`、
@@ -19,7 +19,7 @@
 在「插件 → 发现」里添加索引：
 
 ```text
-https://unpkg.com/dsh-memory-nebula@1.3.0/market/index.json
+https://unpkg.com/dsh-memory-nebula@1.4.0/market/index.json
 ```
 
 搜索「记忆星图」安装。索引与详情页都在 npm 包里，由 unpkg 提供；不需要第二个站点。
@@ -29,16 +29,16 @@ https://unpkg.com/dsh-memory-nebula@1.3.0/market/index.json
 
 ```powershell
 # Windows PowerShell
-Get-FileHash .\dsh-memory-nebula-1.3.0.tgz -Algorithm SHA256
+Get-FileHash .\dsh-memory-nebula-1.4.0.tgz -Algorithm SHA256
 # 对照同目录的 .sha256 文件；不一致就停，不要装
 
-npm install .\dsh-memory-nebula-1.3.0.tgz --prefix <profile>
+npm install .\dsh-memory-nebula-1.4.0.tgz --prefix <profile>
 ```
 
 ```bash
 # macOS / Linux
-sha256sum -c dsh-memory-nebula-1.3.0.tgz.sha256
-npm install ./dsh-memory-nebula-1.3.0.tgz --prefix <profile>
+sha256sum -c dsh-memory-nebula-1.4.0.tgz.sha256
+npm install ./dsh-memory-nebula-1.4.0.tgz --prefix <profile>
 ```
 
 然后确认 `<profile>/package.json` 里两处都在：
@@ -80,6 +80,14 @@ node lib/standalone.mjs --port 7890 --root "D:\document\Memory Universe"
 ```
 
 只绑定 `127.0.0.1`；不要做端口转发到公网。
+
+同一支独立引擎也能只写快照、不启端口，适合 CI 或每日归档：
+
+```bash
+node lib/standalone.mjs --share ./nebula-$(date +%F).html
+node lib/standalone.mjs --share ./work.html --scope ws:星港 --hide level:lesson
+node lib/standalone.mjs --demo --share ./demo.html   # 示例库，不碰真实库
+```
 
 ## 升级
 
@@ -129,7 +137,7 @@ Remove-Item -Recurse -Force "$env:USERPROFILE\.dsh\memory-nebula"
 npm run verify          # 单测 + release-check；prepack 也会跑
 node scripts/smoke.mjs http://127.0.0.1:7891/api/memory-nebula
 npm pack                # 生成 tgz
-sha256sum dsh-memory-nebula-1.3.0.tgz > dsh-memory-nebula-1.3.0.tgz.sha256
+sha256sum dsh-memory-nebula-1.4.0.tgz > dsh-memory-nebula-1.4.0.tgz.sha256
 npm publish             # 需要维护者账号；本仓库不自动发布
 ```
 

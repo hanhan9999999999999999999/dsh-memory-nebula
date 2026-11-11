@@ -64,11 +64,12 @@
 | **第一次打开**：空库给三条接入路径，或直接进示例星系 | 空态卡片「看示例」、`?demo=1` |
 | **单文件快照**：整张星图（含正文）打包成一个 HTML，离线可看 | 顶栏「导出 → 整张星图 · 单文件 HTML」、`GET /share` |
 | **范围分享**：只导出一个工作区 / 一个项目 / 选中节点 2 跳 | 导出菜单另两项、`GET /share?scope=ws:<工作区>` |
+| **命令行快照**：CI / 定时归档不启端口，直接写 HTML | `node lib/standalone.mjs --share <file> [--scope …]` |
 | **隐私过滤**：导出前整区隐去日记 / 按层级 / 项目 / 状态排除 | 导出菜单「隐去日记」、`GET /share?hide=ws:日记` |
 | **中英双语**：界面与离线快照都可切英文，未翻译处回退中文 | 顶栏语言按钮、`?lang=en` |
 | **一键诊断**：复制版本/环境/图规模/最近错误，不含正文与路径 | `?` →「复制诊断」、`GET /diagnostics`、`--diagnose` |
 | **首访引导**：搜一个词 → 看一条证据 → 走一条链，三步可跳过 | 首次打开自动出现，`?` 里可重看 |
-| **万条级打开**：10,000 条 / 78,593 条连接，首屏 < 1s | 无需切换；大图自动跳过生长动画，基准见 `docs/benchmarks.md` |
+| **两万条级打开**：20,000 条 / 156,993 条连接，建图 2.53s、快照首屏 762ms | 无需切换；大图自动跳过生长动画，基准见 `docs/benchmarks.md` |
 | 时间回放（只看某天及之前） | 时间视图底部时间轴 |
 | 快捷键一览 | `?` 或顶栏「?」 |
 
@@ -77,7 +78,7 @@
 已经装好的机器上（`profiles/desktop`），只要打开「记忆星图」页面就有一张图；页面每 12 秒比一次 `sig`，别的会话写了新记忆会自动长出新星点。库里还没有记忆时，页面会给三条接入路径，也可以先点「看示例」；`…/memory-nebula/?demo=1` 可直达示例星系，逛完退出不会动真实库。
 
 从插件市场装（推荐）：在 DSH 的「插件 → 发现」里添加索引
-`https://unpkg.com/dsh-memory-nebula@1.3.0/market/index.json`，搜索「记忆星图」安装。
+`https://unpkg.com/dsh-memory-nebula@1.4.0/market/index.json`，搜索「记忆星图」安装。
 装完按下面的 2.5 跑一次 doctor。
 
 也可以从仓库装到 DSH：
@@ -85,7 +86,7 @@
 ```powershell
 # 1) 装进 profile（二选一）
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
-npm install <path>\dsh-memory-nebula-1.3.0.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.4.0.tgz --prefix <profile>
 
 # 2) profile 的 package.json 里加依赖与 bundles（只加 dependencies 不会重组）
 #    dependencies:         "dsh-memory-nebula": "file:../../plugins/dsh-memory-nebula"
@@ -106,12 +107,22 @@ node lib/standalone.mjs --port 7890                          # 其它系统，�
 
 `sidecar.ps1` 还接受 `-Port`、`-Root <额外扫描目录>`、`-Node <node.exe>`；`status` / `stop` 只作用于指定端口。
 
+不启动端口，直接从命令行写一份快照：
+
+```powershell
+node lib/standalone.mjs --demo --share .\snapshot.html
+node lib/standalone.mjs --share .\work.html --scope ws:星港 --hide level:lesson
+```
+
+`--share` 只建一次图就退出：`--scope` 支持 `all` / `ws:<工作区>` / `project:<项目>` /
+`focus:<节点 id>`，`--hops` 控制 focus 的跳数（1–5，默认 2），`--hide` 可逗号分隔多条规则。
+
 页面会并行探宿主与独立引擎的 `/ping`，自动选 `build` 较新的那条；宿主缺接口时顶部有横幅说明。
 
 自检三条命令：
 
 ```bash
-npm test        # 93 项单元测试
+npm test        # 95 项单元测试
 npm run verify  # 单测 + 发布静态检查（npm pack 的 prepack 会自动再跑）
 node scripts/smoke.mjs   # 63 项接口契约（对运行中的实例）
 ```
@@ -149,7 +160,7 @@ node scripts/smoke.mjs   # 63 项接口契约（对运行中的实例）
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 本地开发、测试命令与提交约定 |
 | [docs/verified.md](docs/verified.md) | 每一条结论背后的实测证据 |
 | [docs/architecture.md](docs/architecture.md) | 模块分工、请求路径、不能破的不变量 |
-| [docs/testing.md](docs/testing.md) | 93 项单测、63 项冒烟、25 项安全探针、浏览器探针清单与手工验收 |
+| [docs/testing.md](docs/testing.md) | 95 项单测、63 项冒烟、25 项安全探针、浏览器探针清单与手工验收 |
 | [docs/roadmap.md](docs/roadmap.md) | 从 0.5 到 1.2：切片分享、首访引导、万条性能、国际化与发行支持 |
 | [CHANGELOG.md](CHANGELOG.md) | 版本变更 |
 
@@ -175,7 +186,7 @@ lib/
 scripts/smoke.mjs     只读契约自查（63 项）
 scripts/release-check.mjs  发布静态检查
 scripts/bench.mjs     10k 性能基准（建图 / 检索 / 体检 / 快照 / 内存）
-test/                 node:test 单元测试（93 项）
+test/                 node:test 单元测试（95 项）
 sidecar.ps1           Windows 独立引擎开关
 ```
 
@@ -188,6 +199,6 @@ sidecar.ps1           Windows 独立引擎开关
 
 ## 版本与许可
 
-- 当前版本 `1.3.0`，MIT。
+- 当前版本 `1.4.0`，MIT。
 - 打包内容：`lib/`、`scripts/`、`docs/`、`cordis.patch.yml`、`README.md` / `README.en.md`、`CHANGELOG.md`、`LICENSE`、`sidecar.ps1`（`test/` 与 `dev/` 不进包）。
 - 前端改动刷新页面即生效；`lib/host/` 下所有引擎文件（含 `adapters/`、`bridge.js`、`ledger.js`）由 LiveEngine 热载，`http.js` / `index.js` / `live.js` 改动要重启 DSH 或走独立引擎。

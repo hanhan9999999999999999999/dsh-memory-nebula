@@ -46,6 +46,8 @@
 ```
 node <plugin>/lib/standalone.mjs --port 7890            # 默认扫当前目录
 node <plugin>/lib/standalone.mjs --port 7890 --root D:\work --log D:\logs\nebula.log
+node <plugin>/lib/standalone.mjs --share D:\backup\nebula.html --scope ws:星港 --hide level:lesson
+node <plugin>/lib/standalone.mjs --demo --share D:\backup\demo.html   # 示例库，不碰真实库
 memory-nebula --help          # 装成 bin 之后
 ```
 
@@ -68,7 +70,7 @@ memory-nebula --help          # 装成 bin 之后
 
 ## 发布信息
 
-- 版本 `1.3.0`，`license: MIT`，无运行时依赖。
+- 版本 `1.4.0`，`license: MIT`，无运行时依赖。
 - `files`：`lib/`、`cordis.patch.yml`、`README.md`、`README.en.md`、`docs/`、`CHANGELOG.md`、
   `LICENSE`、`scripts/`、`sidecar.ps1`。
 - 装完先体检：`node scripts/doctor.mjs --profile <profile> [--root DIR] [--base URL] [--json]`；

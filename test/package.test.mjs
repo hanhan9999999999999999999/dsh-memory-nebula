@@ -19,6 +19,7 @@ test('package.json：身份与发布字段', () => {
   assert.ok(pkg.dsh?.bundle?.patch)
   assert.ok(pkg.dsh?.client?.platform === 'web')
   assert.ok(pkg.engines?.node)
+  assert.equal(pkg.dependencies, undefined, '运行时零依赖：不能把自己列进 dependencies')
 })
 
 test('package.json：files 覆盖运行所需，不夹带测试与临时文件', () => {

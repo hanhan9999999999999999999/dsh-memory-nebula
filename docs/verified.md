@@ -2,6 +2,19 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.4.0（2026-11-11）命令行快照
+
+- `node lib/standalone.mjs --demo --share <file>`：64 节点 / 78 连接 / 398,897B，
+  title「记忆星图 · 离线快照」，无外部 `<script src>`。
+- `--scope ws:xingang --hide level:fact`：10 节点 / 3 连接 / 372,521B；非法 scope
+  退出码 2，stderr 为「scope 要写成 ws:<工作区>…」。
+- `package.json` 删除误留的自我依赖；`package.test.mjs` 断言 `dependencies` 为空。
+- 单测 **95/95**（新增 `standalone.test.mjs` 2 项）；`npm run check` 全绿。
+- 打包 **77 个文件 / 2,461,678B**，sha256 `e74e2b038119aa4ee3783f6ea4c4e432060b34dd02332af9e7b55dc67216d710`；
+  干净安装 `--version`=1.4.0，示例快照写出成功，`dependencies` 仍为空。
+- npm publish 后 `dist.shasum=bf921545577d5076536a7c290f84f777e65b3a42`，
+  unpacked 3,149,662B / 77 文件；unpkg 索引 200，`marketInstallTarget`=1.4.0。
+
 ## 1.3.0（2026-11-11）紧凑快照
 
 - 20k 快照从旧对象格式约 23.1MB 降到 **19,996,814B**，生成 174.2ms；

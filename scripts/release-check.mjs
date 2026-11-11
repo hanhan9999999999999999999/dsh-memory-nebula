@@ -313,6 +313,16 @@ if (!read('lib/web/api.js').includes('function expandSnapshotNodes')) fail('api.
 if (!read('CHANGELOG.md').includes('## 1.3.0')) fail('CHANGELOG 缺 1.3.0')
 ok('1.3.0 构件：紧凑快照 / 列展开 / 变更记录')
 
+if (!read('lib/standalone.mjs').includes('--share <file>')) fail('standalone 缺 --share')
+if (!read('lib/standalone.mjs').includes('parseShareScope')) fail('standalone 没接 scope')
+if (!exists('test/standalone.test.mjs')) fail('缺 standalone CLI 测试')
+if (!read('CHANGELOG.md').includes('## 1.4.0')) fail('CHANGELOG 缺 1.4.0')
+{
+  const pkg = JSON.parse(read('package.json'))
+  if (pkg.dependencies !== undefined) fail('package.json 不应有运行时依赖')
+}
+ok('1.4.0 构件：命令行快照 / 零依赖 / CLI 测试 / 变更记录')
+
 
 
 
