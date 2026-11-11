@@ -21,7 +21,7 @@ cd <plugin>
 # 1. 语法与静态检查（版本一致、UTF-8、import、死文件、CORS、document.write…）
 npm run check
 
-# 2. 单元测试（92 项，纯函数 + 契约）
+# 2. 单元测试（93 项，纯函数 + 契约）
 npm test
 
 # 3. 起一个干净实例，跑接口契约（63 项）
@@ -67,6 +67,7 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 1.1.8 实测：**75 个文件**，包约 2.3MB、解开约 3.0MB（精确字节以 `npm pack` 输出为准）。
 1.2.0 实测：**75 个文件**，包约 2.3MB、解开约 3.0MB（精确字节以 `npm pack` 输出为准）；20k 基准 2.53s / heap 248MB，见 `benchmarks.md`。
 1.2.1 实测：**77 个文件**，包约 2.4MB、解开约 3.0MB；新增排查文档与 20k 截图，另修英文空态兜底。
+1.3.0 实测：**77 个文件**，包约 2.4MB、解开约 3.0MB；快照按列存使 20k 文件从约 23.1MB 降到 19,996,814B。
 清单里应含 `sidecar.ps1`、`scripts/`、`test/` 不含（单测只在仓库里跑）、`dev/` 与截图不含。
 
 装进 DSH profile（与 `docs/operations.md` 的 junction 方式二选一）：

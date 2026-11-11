@@ -40,13 +40,42 @@ test('share: 内联 i18n，英文快照不依赖外部脚本', async () => {
 
 test('share: 数据里带正文，但不会提前闭合 script', async () => {
   const { html } = await share()
-  const contents = (html.match(/"content":/g) || []).length
-  assert.ok(contents >= 55, '带正文的节点数 ' + contents)
-  // JSON 里的 < 全部转义成 \u003c：不会出现 </script> 把数据截断
-  const dataStart = html.indexOf('window.__NEBULA_SNAPSHOT__')
-  const dataEnd = html.indexOf('</script>', dataStart)
+  const dataStart = html.indexOf('window.__NEBULA_SNAPSHOT__ = ') + 'window.__NEBULA_SNAPSHOT__ = '.length
+  const dataEnd = html.indexOf(';</script>', dataStart)
+  assert.ok(dataStart > 0 && dataEnd > dataStart, '找不到快照数据段')
   const data = html.slice(dataStart, dataEnd)
   assert.ok(!data.includes('</script'))
+  const payload = JSON.parse(data)
+  assert.ok(Array.isArray(payload.graph.nodeColumns), '节点应按列存')
+  assert.ok(Array.isArray(payload.graph.edgeColumns), '边应按列存')
+  const contentAt = payload.graph.nodeColumns.indexOf('content')
+  assert.ok(contentAt >= 0, 'nodeColumns 应包含 content')
+  const contents = payload.graph.nodes.filter((row) => row[contentAt]).length
+  assert.ok(contents >= 55, '带正文的节点数 ' + contents)
+})
+
+test('share: 节点与边按列压缩后，核心字段仍能一一还原', async () => {
+  const { html } = await share()
+  const slice = sliceShareGraph(await demoNebula())
+  const dataStart = html.indexOf('window.__NEBULA_SNAPSHOT__ = ') + 'window.__NEBULA_SNAPSHOT__ = '.length
+  const payload = JSON.parse(html.slice(dataStart, html.indexOf(';</script>', dataStart)))
+  const nodeCols = payload.graph.nodeColumns
+  const rows = payload.graph.nodes
+  const coreNodeKeys = ['id', 'ws', 'cluster', 'level', 'label', 'importance', 'status', 'project', 'provider', 'degree', 'seed']
+  assert.equal(rows.length, slice.graph.nodes.length)
+  for (let i = 0; i < slice.graph.nodes.length; i++) {
+    for (const key of coreNodeKeys) {
+      assert.deepEqual(rows[i][nodeCols.indexOf(key)] ?? undefined, slice.graph.nodes[i][key], `node ${i}.${key}`)
+    }
+  }
+  const edgeCols = payload.graph.edgeColumns
+  assert.equal(edgeCols.join(','), 's,d,w,t,curated')
+  for (let i = 0; i < slice.graph.edges.length; i++) {
+    const e = slice.graph.edges[i]
+    for (const key of ['s', 'd', 'w', 't', 'curated']) {
+      assert.deepEqual(payload.graph.edges[i][edgeCols.indexOf(key)] ?? undefined, e[key], `edge ${i}.${key}`)
+    }
+  }
 })
 
 test('share: 正文里的尖括号被转义成 JSON 安全形式', async () => {

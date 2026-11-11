@@ -2,6 +2,22 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.3.0（2026-11-11）紧凑快照
+
+- 20k 快照从旧对象格式约 23.1MB 降到 **19,996,814B**，生成 174.2ms；
+  节点/边改为 `nodeColumns`/`edgeColumns` + 行数组，客户端 `expandSnapshotNodes`/
+  `expandSnapshotEdges` 展开后再建索引。
+- 同一份 20k 快照（headless Edge，1680×1000，`?` 不适用）：
+  - 新浏览器 profile（`dev/edge-bench20k-cold`）首屏 **762ms**；
+  - 热 profile（`dev/edge-bench20k`）首屏 **572ms**；
+  - 检索 52ms / 12 命中，搜索 704ms / 12 命中，详情 116ms / 731 字，
+    证据链 1 跳 <1ms，体检看板 1.9s / 824 字，`window.__nebulaErrors` 为空。
+- 单测 **93/93**（新增列顺序与核心字段逐项还原）；`npm run check` 全绿。
+- 打包 **77 个文件 / 2,459,108B**，sha256 `53c5feefcea3707b53b3d9d2f8a613749fb7dc49ac3edaa5abea2c6cb1546483`；
+  干净安装 `--version`=1.3.0；npm publish 后 `dist.shasum=8534682a0a95ae16701951bc26bbd9fc490a76b5`，
+  unpacked 3,143,396B / 77 文件。
+- 旧快照兼容：无 `nodeColumns`/`edgeColumns` 的对象格式原样返回，不展开。
+
 ## 1.2.1（2026-11-11）英文空态兜底
 
 - 英文静态巡检 `dev/audit-en.mjs`（headless Edge，`?lang=en`，排除记忆正文/标题/来源名）

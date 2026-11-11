@@ -308,6 +308,11 @@ if (!read('lib/web/i18n.js').includes('"这里还没有星星": "No stars here y
 if (!read('CHANGELOG.md').includes('## 1.2.1')) fail('CHANGELOG 缺 1.2.1')
 ok('1.2.1 构件：英文空态兜底 / i18n 文案 / 变更记录')
 
+if (!read('lib/host/share.js').includes('function packNodeRows')) fail('share.js 缺节点列压缩')
+if (!read('lib/web/api.js').includes('function expandSnapshotNodes')) fail('api.js 缺快照节点展开')
+if (!read('CHANGELOG.md').includes('## 1.3.0')) fail('CHANGELOG 缺 1.3.0')
+ok('1.3.0 构件：紧凑快照 / 列展开 / 变更记录')
+
 
 
 
