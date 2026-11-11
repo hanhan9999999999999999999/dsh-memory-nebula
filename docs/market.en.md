@@ -4,7 +4,7 @@ Turn memories scattered across workspaces into a star map you can walk, query an
 
 Memories in DSH often live across dozens of workspaces and thousands of sessions. Search returns a list, but not **why** those memories relate; switch projects and the thread disappears. Memory Nebula reads the same stores (meow-memory / OpenViking) and builds a graph: nodes are memories, edges are shared keywords, entities, projects, session co-activation and manual curation. It never copies or rewrites your stores. Everything is computed locally.
 
-![Memory Nebula: a thousand memories and their links](assets/preview.png)
+![Memory Nebula: a thousand memories and their links](assets/preview-en.jpg)
 
 ## Three ways to look
 
@@ -20,7 +20,7 @@ Select a node and the right panel shows what it connects to and why: same projec
 
 Shift-click a second node to find an **evidence chain**: every hop, its reason and the chain strength. If there is no path, it says so instead of inventing one.
 
-![A selected memory: body, neighbours and the reason for each edge](assets/demo.jpg)
+![A selected memory: body, neighbours and the reason for each edge](assets/demo-en.jpg)
 
 ## Search and spread
 
@@ -57,7 +57,7 @@ Export the whole map, the current workspace, or “two hops around this memory�
 - optionally hide the Diary workspace before export; `scope`/`hide` affect the export only;
 - the file is a point-in-time copy **including the text** — check the scope before sending it.
 
-![An exported offline snapshot: only the selected slice](assets/snapshot.jpg)
+![An exported offline snapshot: only the selected slice](assets/snapshot-en.jpg)
 
 ## Ten thousand memories, still opens
 
