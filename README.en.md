@@ -6,11 +6,11 @@
 
 A DSH plugin that pulls memories out of every workspace **and every memory plugin**, turns them into a **nebula of evidence-backed connections**, and lets both you and the AI follow those connections the way neurons do.
 
-![Memory Nebula: three views, filters, evidence chains](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/preview.png)
+![Memory Nebula: three views, filters, evidence chains](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/preview-en.jpg)
 
 No memories yet? The empty state offers three ways in, plus a built-in demo galaxy:
 
-![Empty state and demo galaxy](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/demo.jpg)
+![Empty state and demo galaxy in English](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/demo-en.jpg)
 
 ![English UI: top bar, filters, boards and detail](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/i18n-en.jpg)
 
@@ -18,7 +18,7 @@ No memories yet? The empty state offers three ways in, plus a built-in demo gala
 
 Export the whole graph (text included) as one self-contained HTML for offline reading:
 
-![Offline single-file snapshot](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/snapshot.jpg)
+![Offline single-file snapshot in English](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/snapshot-en.jpg)
 
 - One icon in the sidebar opens the whole nebula (deep-space style: zoom, filter, search).
 - Every other memory database is opened **read-only**. The plugin only writes under `$DSH_HOME/memory-nebula/`.
