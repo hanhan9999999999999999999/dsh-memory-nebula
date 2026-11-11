@@ -14,6 +14,9 @@
   干净安装 `--version`=1.4.1，doctor 8/0/0。
 - npm publish 后 `dist.shasum=d46b70cf8e513188e3eaa86c805b70922d5f9bba`，
   unpacked 3,626,628B / 81 文件。
+- GitHub commit `ee3ea1ba13fd3686dd7115967d1c21179b35470a` 的 CI 三 job 全 success；
+  Release `v1.4.1` id **441735408**，tgz 与 `.sha256` 上传成功；unpkg 索引 200，
+  `marketInstallTarget`=1.4.1。
 
 ## 1.4.0（2026-11-11）命令行快照
 
