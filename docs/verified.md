@@ -14,6 +14,8 @@
   干净安装 `--version`=1.4.0，示例快照写出成功，`dependencies` 仍为空。
 - npm publish 后 `dist.shasum=bf921545577d5076536a7c290f84f777e65b3a42`，
   unpacked 3,149,662B / 77 文件；unpkg 索引 200，`marketInstallTarget`=1.4.0。
+- GitHub commit `56ca2be1b2da4bc8f17055160f85c59c655ab276` 的三 job（Node 22.13 / 24 / Package install）
+  全 success；Release `v1.4.0` id **441284269**，tgz 与 `.sha256` 均上传成功。
 
 ## 1.3.0（2026-11-11）紧凑快照
 
