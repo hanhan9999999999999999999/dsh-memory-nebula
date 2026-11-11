@@ -17,6 +17,12 @@
   557 连接 / 93,871 字节。
 - 打包 **81 个文件 / 2,921,242B**，sha256 `579e34fd6679e7f514feb9c18b8ce6df9ac95225103a40866e898bdf7ffdcad9`；
   干净安装 `--version`=1.5.0，`--demo --export --scope ws:xingang` 输出 32/31。
+- npm publish 后 latest=1.5.0，`dist.shasum=b914ecf1b7e4c2abb0d25cc90184f014208b9afe`，
+  unpacked 3,638,299B；registry 安装 1.5.0，doctor 8/0/0，focus 导出 21 节点。
+- GitHub commit `b5200bb27ba5e12c507cfde30ed3507c64fba4b7` 的 CI 三 job
+  （Node 22.13 / Node 24 / Package install）全 success；Release `v1.5.0`
+  id **441843361**，tgz 与 `.sha256` 上传成功。
+- unpkg `@1.5.0/market/index.json` 经 `parseMarketIndex` 通过（1 插件 / 1.5.0）。
 - 兼容：`--export` 不传 `--format` 时按 `.json` / 其它扩展名推断；不传 `--scope`
   与旧 `/export` 全图行为一致。
 
