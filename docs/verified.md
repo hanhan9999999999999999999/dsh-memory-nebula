@@ -24,6 +24,9 @@
 - **registry 反查**：直接下载 npm 上的 1.2.0 tgz，sha256 与本地产物**逐字节一致**；
   75 文件，含 `market/`、`locale/`、`SECURITY.md`、`CONTRIBUTING.md`，不含 `test/` 或 `dev/`；
   manifest 有 `dsh.bundle`、`bin`、`exports`、`engines`，`dependencies` 为空。
+- **published artifact E2E**：从 registry 装 1.2.0 后直接跑 `lib/standalone.mjs`（真实库，端口 7902）：
+  `/ping` 2048 记忆 / 9931 连接；`/graph` v2 同规模；`/diagnostics` version 1.2.0；
+  `/share` 200 / 2,973,207B，含 `__NEBULA_SNAPSHOT__`、无外部 script。
 - **发布**：npm `latest=1.2.0`，dist.shasum `28229ac76e5dea3efcc8bdee26d6be0941eda6de`；
   fresh-cache 安装 1.2.0、doctor 8/0/0。
 - **索引**：`https://unpkg.com/dsh-memory-nebula@1.2.0/market/index.json` 200，
