@@ -21,6 +21,9 @@
 - **测试**：92/92 单测；release-check 全绿（含 1.2.0 构件）；smoke 63/63；安全探针 25/25。
 - **包**：75 文件 / 2,300,396B，sha256 `da47b3675482473779ee1d3ed5b2d1c763beb1a3974bf8c15c528702bcb60a60`；
   干净安装 `--version`=1.2.0、`doctor --help`、`import` 导出正常。
+- **registry 反查**：直接下载 npm 上的 1.2.0 tgz，sha256 与本地产物**逐字节一致**；
+  75 文件，含 `market/`、`locale/`、`SECURITY.md`、`CONTRIBUTING.md`，不含 `test/` 或 `dev/`；
+  manifest 有 `dsh.bundle`、`bin`、`exports`、`engines`，`dependencies` 为空。
 - **发布**：npm `latest=1.2.0`，dist.shasum `28229ac76e5dea3efcc8bdee26d6be0941eda6de`；
   fresh-cache 安装 1.2.0、doctor 8/0/0。
 - **索引**：`https://unpkg.com/dsh-memory-nebula@1.2.0/market/index.json` 200，
