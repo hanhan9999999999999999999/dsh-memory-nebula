@@ -2,6 +2,16 @@
 
 本文件记录「记忆星图」每个版本改了什么。日期为落盘日期。
 
+## 1.4.1 — 2026-11-11
+
+主题「英文门面」：README 与市场详情页不再用中文截图。
+
+- `README.en.md` 换用 `preview-en.jpg`、`demo-en.jpg`、`snapshot-en.jpg`；
+  `docs/market.en.md` 的三张图也切到英文版本。
+- 新增 `docs/assets/preview-en.jpg`、`demo-en.jpg`、`empty-en.jpg`、`snapshot-en.jpg`；
+  中文 README 与市场详情保持原图。
+- 仍然 95 单测；没有代码行为变化，只补齐英文入口的视觉一致性。
+
 ## 1.4.0 — 2026-11-11
 
 主题「从命令行带走」：快照不再只属于打开页面的人。

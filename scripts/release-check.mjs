@@ -323,6 +323,14 @@ if (!read('CHANGELOG.md').includes('## 1.4.0')) fail('CHANGELOG 缺 1.4.0')
 }
 ok('1.4.0 构件：命令行快照 / 零依赖 / CLI 测试 / 变更记录')
 
+for (const f of ['preview-en.jpg', 'demo-en.jpg', 'empty-en.jpg', 'snapshot-en.jpg']) {
+  if (!existsSync(join(ROOT, 'docs/assets', f))) fail(`缺英文截图 ${f}`)
+}
+if (!read('README.en.md').includes('docs/assets/preview-en.jpg')) fail('英文 README 未用英文预览图')
+if (!read('docs/market.en.md').includes('assets/snapshot-en.jpg')) fail('英文市场详情未用英文快照图')
+if (!read('CHANGELOG.md').includes('## 1.4.1')) fail('CHANGELOG 缺 1.4.1')
+ok('1.4.1 构件：英文截图 / 英文 README / 市场详情 / 变更记录')
+
 
 
 

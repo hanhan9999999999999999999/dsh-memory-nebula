@@ -2,6 +2,19 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.4.1（2026-11-11）英文门面
+
+- `README.en.md` 与 `docs/market.en.md` 的截图改为英文界面：
+  `preview-en.jpg`（真实库 2062 记忆 / 10027 连接）、`demo-en.jpg`（示例 64/78）、
+  `snapshot-en.jpg`（离线快照）、`empty-en.jpg`（空态三出口）。
+- 英文截图由 headless Edge 在 `http://127.0.0.1:7905/?lang=en` 实拍；跳过新手引导与
+  快捷键面板后截图，`window.__nebulaErrors` 为空。
+- 仍 95/95 单测；`npm run check` 全绿。没有代码行为变化，仅 README/市场素材。
+- 打包 **81 个文件 / 2,917,431B**，sha256 `f984fb191f09d2e9336e7c397964a5f74e70a4a78871212e83c82051eff64d53`；
+  干净安装 `--version`=1.4.1，doctor 8/0/0。
+- npm publish 后 `dist.shasum=d46b70cf8e513188e3eaa86c805b70922d5f9bba`，
+  unpacked 3,626,628B / 81 文件。
+
 ## 1.4.0（2026-11-11）命令行快照
 
 - `node lib/standalone.mjs --demo --share <file>`：64 节点 / 78 连接 / 398,897B，
