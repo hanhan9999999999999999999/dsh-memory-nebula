@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Troubleshooting / 故障排查
+    url: https://github.com/hanhan9999999999999999999/dsh-memory-nebula/blob/main/docs/troubleshooting.md
+    about: Blank page, empty graph, 3D guard, snapshot size, token gate — start here.
+  - name: Support policy / 支持说明
+    url: https://github.com/hanhan9999999999999999999/dsh-memory-nebula/blob/main/SUPPORT.md
+    about: What to include, what never to paste, and how security reports are handled.
+  - name: Security report / 安全问题
+    url: https://github.com/hanhan9999999999999999999/dsh-memory-nebula/security/advisories/new
+    about: Please report vulnerabilities privately, not as a public issue.

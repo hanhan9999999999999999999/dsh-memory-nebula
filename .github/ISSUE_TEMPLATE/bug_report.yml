@@ -1,0 +1,82 @@
+name: Bug report
+description: Something is broken, blank, slow, or shows the wrong data.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing: run `doctor`, read `docs/troubleshooting.md`, and search existing issues.
+        Do not paste memory text, tokens, `.npmrc`, or private paths. Use `?demo=1` or a minimal fake store when a reproduction needs content.
+  - type: input
+    id: version
+    attributes:
+      label: dsh-memory-nebula version
+      placeholder: "1.6.2"
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: DSH / OS / Node
+      placeholder: "DSH 0.2.2-rc.1 · Windows 11 · Node 24.17"
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install it?
+      options:
+        - Curated catalog (dsh plugin add)
+        - npm package / tgz
+        - Source checkout
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Mode
+      options:
+        - Hosted inside DSH
+        - Standalone engine
+        - Offline snapshot (file://)
+        - Demo galaxy
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Doctor output
+      description: Paste the full text/JSON. It contains no memory text or paths.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Open ...\n2. Click ...\n3. See ..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots / console errors
+      description: Drag images here. Remove private text first.
+      render: text
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Checklist
+      options:
+        - label: I removed memory text, tokens, `.npmrc`, and private paths from this report.
+          required: true
+        - label: I ran `doctor` and included its output.
+          required: true

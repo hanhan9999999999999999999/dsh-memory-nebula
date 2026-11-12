@@ -141,6 +141,7 @@ Adapter contract and every `sources.json` field: [docs/adapters.md](docs/adapter
 | [docs/troubleshooting.md](docs/troubleshooting.md) | Start here when something breaks: doctor, version drift, empty graph, 3D/snapshot limits, privacy, ticket material |
 | [SECURITY.md](SECURITY.md) | Read-only boundary, HTTP protections and vulnerability reporting |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Local development, test commands and contribution rules |
+| [SUPPORT.md](SUPPORT.md) | what to run first, what to include, and what never to paste |
 | [docs/testing.md](docs/testing.md) | 100 unit tests, 63 smoke checks, 25 security probes, browser probes |
 | [docs/roadmap.md](docs/roadmap.md) | From 0.5 to 1.2: scoped sharing, first-run guidance, 10k-node performance, i18n and release support |
 | [CHANGELOG.md](CHANGELOG.md) | Version history |
@@ -163,7 +164,7 @@ lib/
 scripts/smoke.mjs     63 read-only contract checks
 scripts/release-check.mjs  static release check
 scripts/bench.mjs     10k benchmark (build / recall / hygiene / snapshot / memory)
-test/                 node:test unit suite (90 assertions)
+test/                 node:test unit suite (100 assertions)
 ```
 
 ## Privacy and security
@@ -173,6 +174,12 @@ test/                 node:test unit suite (90 assertions)
 - The standalone engine accepts an optional `--token <at least 12 chars>`; without it the local open-and-read model is unchanged, and the host path uses DSH's Host/auth fence. With a token, a browser opening the page gets a small unlock form; a wrong password never lets it through.
 - Full model and verification: [docs/security.md](docs/security.md).
 - Performance budget and 10k measurements: [docs/benchmarks.md](docs/benchmarks.md).
+
+## Support
+
+- Run `node scripts/doctor.mjs`, then check [docs/troubleshooting.md](docs/troubleshooting.md) — blank pages, empty graphs and 3D guards are covered there.
+- Use the issue forms and include `doctor` output, DSH/Node/OS versions, and reproduction steps. **Never paste memory text, tokens, `.npmrc`, or private paths.**
+- Report vulnerabilities through the private advisory in [SECURITY.md](SECURITY.md). Full policy: [SUPPORT.md](SUPPORT.md).
 
 ## Version
 

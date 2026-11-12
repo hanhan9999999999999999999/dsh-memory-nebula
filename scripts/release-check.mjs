@@ -308,6 +308,14 @@ if (!read('lib/web/i18n.js').includes('"这里还没有星星": "No stars here y
 if (!read('CHANGELOG.md').includes('## 1.2.1')) fail('CHANGELOG 缺 1.2.1')
 ok('1.2.1 构件：英文空态兜底 / i18n 文案 / 变更记录')
 
+for (const f of ['SUPPORT.md', '.github/ISSUE_TEMPLATE/bug_report.yml', '.github/ISSUE_TEMPLATE/feature_request.yml', '.github/ISSUE_TEMPLATE/config.yml', '.github/PULL_REQUEST_TEMPLATE.md']) {
+  if (!exists(f)) fail(`缺少支持入口：${f}`)
+}
+if (!read('README.md').includes('SUPPORT.md') || !read('README.en.md').includes('SUPPORT.md')) {
+  fail('README 没链到 SUPPORT.md')
+}
+ok('支持入口：SUPPORT / issue 表单 / PR 模板 / README 链接')
+
 if (!read('lib/host/share.js').includes('function packNodeRows')) fail('share.js 缺节点列压缩')
 if (!read('lib/web/api.js').includes('function expandSnapshotNodes')) fail('api.js 缺快照节点展开')
 if (!read('CHANGELOG.md').includes('## 1.3.0')) fail('CHANGELOG 缺 1.3.0')

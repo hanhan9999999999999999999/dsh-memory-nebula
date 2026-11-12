@@ -1,0 +1,52 @@
+name: Feature request
+description: Suggest a view, an export, an adapter, or a workflow.
+title: "[idea] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Tell the story first: what are you trying to finish, and where does the nebula get in the way?
+        Concrete workflows beat abstract features. Do not include private memory text.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      placeholder: "I have 12 workspaces and want to hand a client only one project, without exposing the rest."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would help?
+      description: A button, a CLI flag, a different default, an adapter — rough is fine.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What do you do today?
+      description: Existing workaround, another tool, or "nothing".
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Graph / layout / 3D
+        - Search / recall / evidence chain
+        - Snapshots / export / share
+        - Adapters / data sources
+        - CLI / doctor / install
+        - Docs / marketplace
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: This request contains no private memory text or credentials.
+          required: true

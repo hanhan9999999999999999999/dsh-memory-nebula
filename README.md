@@ -135,7 +135,7 @@ ebula.md --format md
 自检三条命令：
 
 ```bash
-npm test        # 98 项单元测试
+npm test        # 100 项单元测试
 npm run verify  # 单测 + 发布静态检查（npm pack 的 prepack 会自动再跑）
 node scripts/smoke.mjs   # 63 项接口契约（对运行中的实例）
 ```
@@ -171,6 +171,7 @@ node scripts/smoke.mjs   # 63 项接口契约（对运行中的实例）
 | [docs/troubleshooting.md](docs/troubleshooting.md) | 出问题时先看这里：doctor、版本漂移、空图、3D/快照边界、隐私与工单材料 |
 | [SECURITY.md](SECURITY.md) | 只读边界、HTTP 防护与漏洞报告 |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 本地开发、测试命令与提交约定 |
+| [SUPPORT.md](SUPPORT.md) | 提 issue 前先做什么、要带什么、绝不能贴什么 |
 | [docs/verified.md](docs/verified.md) | 每一条结论背后的实测证据 |
 | [docs/architecture.md](docs/architecture.md) | 模块分工、请求路径、不能破的不变量 |
 | [docs/testing.md](docs/testing.md) | 100 项单测、63 项冒烟、25 项安全探针、浏览器探针清单与手工验收 |
@@ -199,7 +200,7 @@ lib/
 scripts/smoke.mjs     只读契约自查（63 项）
 scripts/release-check.mjs  发布静态检查
 scripts/bench.mjs     10k 性能基准（建图 / 检索 / 体检 / 快照 / 内存）
-test/                 node:test 单元测试（98 项）
+test/                 node:test 单元测试（100 项）
 sidecar.ps1           Windows 独立引擎开关
 ```
 
@@ -210,6 +211,12 @@ sidecar.ps1           Windows 独立引擎开关
 - 独立引擎可加 `--token <至少 12 字符>` 开本机口令；不传时保持本地即开即用，宿主内走 DSH 的 Host/认证围栏。开启后浏览器直接打开页面会看到输口令的登录页，口令错误不会放行。
 - 全文细节与威胁模型见 [docs/security.md](docs/security.md)。
 - 性能预算与 10k 实测见 [docs/benchmarks.md](docs/benchmarks.md)。
+
+## 支持与反馈
+
+- 先跑 `node scripts/doctor.mjs`，再对照 [docs/troubleshooting.md](docs/troubleshooting.md)；多数空白页/空图/3D 问题能在那里解决。
+- 提 issue 请用仓库里的模板，附 `doctor` 输出、DSH/Node/系统版本、复现步骤；**不要贴记忆正文、token、`.npmrc` 或私有路径**。
+- 安全漏洞走私密 advisory，见 [SECURITY.md](SECURITY.md)。完整支持边界见 [SUPPORT.md](SUPPORT.md)。
 
 ## 版本与许可
 
