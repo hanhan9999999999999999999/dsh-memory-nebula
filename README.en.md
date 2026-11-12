@@ -170,7 +170,7 @@ test/                 node:test unit suite (90 assertions)
 
 - Read-only: every memory database is opened with `readOnly`; writes stay under `$DSH_HOME/memory-nebula/`.
 - Local-only: the standalone engine binds `127.0.0.1`; cross-site reads get no CORS, cross-site writes get 403; the page ships a CSP.
-- The standalone engine accepts an optional `--token <at least 12 chars>`; without it the local open-and-read model is unchanged, and the host path uses DSH's Host/auth fence.
+- The standalone engine accepts an optional `--token <at least 12 chars>`; without it the local open-and-read model is unchanged, and the host path uses DSH's Host/auth fence. With a token, a browser opening the page gets a small unlock form; a wrong password never lets it through.
 - Full model and verification: [docs/security.md](docs/security.md).
 - Performance budget and 10k measurements: [docs/benchmarks.md](docs/benchmarks.md).
 

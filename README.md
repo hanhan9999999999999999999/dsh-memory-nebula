@@ -207,7 +207,7 @@ sidecar.ps1           Windows 独立引擎开关
 
 - 只读：所有记忆库以 `readOnly` 打开；写入只落在 `$DSH_HOME/memory-nebula/`。
 - 只连本机：独立引擎绑定 `127.0.0.1`；跨站读拿不到 CORS、跨站写 403；页面带 CSP。
-- 独立引擎可加 `--token <至少 12 字符>` 开本机口令；不传时保持本地即开即用，宿主内走 DSH 的 Host/认证围栏。
+- 独立引擎可加 `--token <至少 12 字符>` 开本机口令；不传时保持本地即开即用，宿主内走 DSH 的 Host/认证围栏。开启后浏览器直接打开页面会看到输口令的登录页，口令错误不会放行。
 - 全文细节与威胁模型见 [docs/security.md](docs/security.md)。
 - 性能预算与 10k 实测见 [docs/benchmarks.md](docs/benchmarks.md)。
 
