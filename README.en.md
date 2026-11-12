@@ -4,7 +4,7 @@
 [![npm](https://img.shields.io/npm/v/dsh-memory-nebula.svg)](https://www.npmjs.com/package/dsh-memory-nebula)
 [![license](https://img.shields.io/npm/l/dsh-memory-nebula.svg)](https://github.com/hanhan9999999999999999999/dsh-memory-nebula/blob/main/LICENSE)
 
-A DSH plugin that pulls memories out of every workspace **and every memory plugin**, turns them into a **nebula of evidence-backed connections**, and lets both you and the AI follow those connections the way neurons do.
+[Website](https://hanhan9999999999999999999.github.io/dsh-memory-nebula/) · A DSH plugin that pulls memories out of every workspace **and every memory plugin**, turns them into a **nebula of evidence-backed connections**, and lets both you and the AI follow those connections the way neurons do.
 
 ![Memory Nebula: three views, filters, evidence chains](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/preview-en.jpg)
 

@@ -4,7 +4,7 @@
 [![npm](https://img.shields.io/npm/v/dsh-memory-nebula.svg)](https://www.npmjs.com/package/dsh-memory-nebula)
 [![license](https://img.shields.io/npm/l/dsh-memory-nebula.svg)](https://github.com/hanhan9999999999999999999/dsh-memory-nebula/blob/main/LICENSE)
 
-[English](https://github.com/hanhan9999999999999999999/dsh-memory-nebula/blob/main/README.en.md) · 在 DSH 里把散落在各个工作区、各个记忆插件里的记忆抽出来，算成一张**带证据的关联星云**，再从这张图上做「神经元式」的连带检索——以及，让别的插件注入了什么，星图就顺着连接补上它没注的那一半。
+[English](https://github.com/hanhan9999999999999999999/dsh-memory-nebula/blob/main/README.en.md) · [官网](https://hanhan9999999999999999999.github.io/dsh-memory-nebula/) · 在 DSH 里把散落在各个工作区、各个记忆插件里的记忆抽出来，算成一张**带证据的关联星云**，再从这张图上做「神经元式」的连带检索——以及，让别的插件注入了什么，星图就顺着连接补上它没注的那一半。
 
 ![记忆星图：三种视图、左栏筛选、证据链与详情](https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/preview.png)
 

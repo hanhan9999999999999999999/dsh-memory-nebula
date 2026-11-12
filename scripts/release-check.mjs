@@ -316,6 +316,14 @@ if (!read('README.md').includes('SUPPORT.md') || !read('README.en.md').includes(
 }
 ok('支持入口：SUPPORT / issue 表单 / PR 模板 / README 链接')
 
+if (!exists('docs/index.html') || !exists('docs/.nojekyll')) fail('缺少官网首页或 .nojekyll')
+if (!read('docs/index.html').includes('assets/preview-en.jpg')) fail('官网首页没引用英文主图')
+if (!read('docs/index.html').includes('Your memories,')) fail('官网首页标题缺失')
+if (!read('README.md').includes('hanhan9999999999999999999.github.io/dsh-memory-nebula') || !read('README.en.md').includes('hanhan9999999999999999999.github.io/dsh-memory-nebula')) {
+  fail('README 没链到官网')
+}
+ok('官网：docs/index.html / .nojekyll / README 入口')
+
 if (!read('lib/host/share.js').includes('function packNodeRows')) fail('share.js 缺节点列压缩')
 if (!read('lib/web/api.js').includes('function expandSnapshotNodes')) fail('api.js 缺快照节点展开')
 if (!read('CHANGELOG.md').includes('## 1.3.0')) fail('CHANGELOG 缺 1.3.0')
