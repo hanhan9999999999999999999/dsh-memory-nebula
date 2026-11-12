@@ -14,7 +14,7 @@
 - 发布后补支持入口：`SUPPORT.md`、三份 issue 表单/配置、PR 模板、README 中英「支持与反馈」段；
   commit `2ed89eb4…`，CI 三 job success。`SUPPORT.md` 已加入下次打包的 `files` 白名单。
 - 官网：GitHub Pages 以 `main` + `/docs` 启用，`https://hanhan9999999999999999999.github.io/dsh-memory-nebula/` 200；
-  桌面 1401px / 移动 414px 均无横向溢出，6 张图与 icon 全 200；commit `7facf6f…`、`c5b8230…`。
+  桌面 1401px / 移动 414px 均无横向溢出，6 张图与 icon 全 200；commit `7facf6f…`、`c5b8230…`、`2da58c9…`。
 
 ## 1.6.1（2026-11-12）口令门把手
 
