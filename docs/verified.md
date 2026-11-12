@@ -2,6 +2,15 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.6.2（2026-11-12）医生也带钥匙
+
+- `doctor --token <token>` / `NEBULA_TOKEN` 会以 `Authorization: Bearer` 请求 `/ping`；
+  本地 HTTP fixture 断言收到的正是该头，且报告 detail 不含口令。
+- 100/100 单测；`npm run check` 全绿。
+- 发布：81 文件 / 2,929,631B，sha256 `795b66985e5d5637975a27cf3e75e6972e5e457cf32749ed5c7e054f5af48040`；
+  npm `dsh-memory-nebula@1.6.2`（dist.shasum `3bb5a7dff2089b8a35448ae3f4db027d79abb627`），
+  registry 安装 `--version`=1.6.2；unpkg `@1.6.2/market/index.json` 为 format 1 / 1.6.2。
+
 ## 1.6.1（2026-11-12）口令门把手
 
 - 7909 standalone `--token unlock-test-123456`：无凭据 `GET /app` 返回 401 HTML 登录页，

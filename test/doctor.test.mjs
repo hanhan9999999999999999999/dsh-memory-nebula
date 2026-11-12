@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
@@ -11,6 +12,7 @@ import {
   checkRuntime,
   checkPackage,
   checkProfile,
+  checkEndpoint,
   checkVersionDrift,
   formatDoctor,
 } from '../lib/host/doctor.js'
@@ -116,6 +118,30 @@ test('doctor: 装的是新代码、跑的是旧宿主会提醒重启', () => {
   assert.equal(r.status, 'warn')
   assert.match(r.detail, /installed 1\.1\.4, running host 1\.1\.0/)
   assert.match(r.hint, /重启 DSH/)
+})
+
+test('doctor: 口令模式下 endpoint 带 Bearer，不把 token 写进 detail', async () => {
+  let seen = ''
+  const server = createServer((req, res) => {
+    seen = req.headers.authorization || ''
+    res.writeHead(200, { 'content-type': 'application/json' })
+    res.end(JSON.stringify({ ok: true, version: '1.6.1', mode: 'standalone', stats: { nodes: 1 } }))
+  })
+  await new Promise((r) => server.listen(0, '127.0.0.1', r))
+  const base = `http://127.0.0.1:${server.address().port}/api/memory-nebula`
+  try {
+    const withToken = await checkEndpoint(base, 2000, 'secret-token-123')
+    assert.equal(seen, 'Bearer secret-token-123')
+    assert.equal(withToken.status, 'ok')
+    assert.equal(withToken.version, '1.6.1')
+    assert.doesNotMatch(withToken.detail, /secret-token-123/)
+
+    const noToken = await checkEndpoint(base, 2000, '')
+    assert.equal(seen, '')
+    assert.equal(noToken.status, 'ok')
+  } finally {
+    await new Promise((r) => server.close(r))
+  }
 })
 
 test('doctor: 文本报告带状态与汇总', () => {

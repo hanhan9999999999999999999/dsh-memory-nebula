@@ -2,6 +2,16 @@
 
 本文件记录「记忆星图」每个版本改了什么。日期为落盘日期。
 
+## 1.6.2 — 2026-11-12
+
+主题「医生也带钥匙」：`--token` 开启后，安装体检不再被自己的 401 挡住。
+
+- `doctor --token <token>`（或 `NEBULA_TOKEN`）把口令放进 `Authorization: Bearer`，
+  `/ping` 能正常检查版本、模式与图规模；口令本身不写进任何报告文本。
+- `checkEndpoint(base, timeout, token)` 增加可选口令参数；错误 401 的提示明确指向 `--token`。
+- 新增 endpoint 口令单测（本地 HTTP fixture 断言 Authorization 头与不泄漏 token），总 **100 单测**。
+- 目录入口、README、发行与兼容文档同步到 1.6.2。
+
 ## 1.6.1 — 2026-11-12
 
 主题「口令门把手」：口令开启后，浏览器直接打开 `/app` 不再只看到一段 JSON。
