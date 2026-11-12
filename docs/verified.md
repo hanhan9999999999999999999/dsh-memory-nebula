@@ -17,6 +17,8 @@
   registry 安装 `--version`=1.6.0，doctor 8 通过 / 0 提醒 / 0 失败；unpkg
   `@1.6.0/market/index.json` 为 format 1 / 1.6.0。GitHub 源码 commit `007a167…`，
   CI 三 job success；Release v1.6.0（id `442911770`）附 tgz 与 `.sha256`。
+- 发布后回归：7908 standalone（真实库）smoke 63/63、安全探针 25/25、doctor 9 通过 / 0 提醒 / 0 失败
+  （endpoint 1.6.0 / 2134 memories）。
 
 ## 1.5.2（2026-11-12）精选目录收录
 
