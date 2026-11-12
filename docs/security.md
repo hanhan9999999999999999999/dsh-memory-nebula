@@ -39,6 +39,16 @@
 「本机」= `http://127.0.0.1[:port]`、`http://localhost[:port]`、`http://[::1][:port]`。
 实现见 `lib/host/http.js` 的 `isLoopbackOrigin` / `corsHeaders` / `allowWrite`。
 
+### 本机口令（1.6.0，可选）
+
+独立引擎可以加 `--token <至少 12 字符>`（或环境变量 `NEBULA_TOKEN`）。启用后，页面、静态资源、
+API、`/share`、`/export`、`/diagnostics` 全部要凭据：`nb_token` cookie、`Authorization: Bearer`，
+或第一次用 `?token=` 换 cookie。cookie 是 `HttpOnly; SameSite=Strict`，页面加载后会把 `?token=`
+从地址栏历史里删掉。比较用 `timingSafeEqual`；短于 12 字符拒绝启动。
+
+不传 `--token` 时保持原来的本地即开即用模型；宿主模式不使用这个参数，继续走
+`ctx.connection.requestRejection` 与 Host 围栏。
+
 ### Host 围栏（1.1.8）
 
 读接口同样不能只靠 Origin：GET 通常不带 `Origin`，恶意域名解析到 `127.0.0.1` 后浏览器会把
@@ -66,8 +76,8 @@
 ### 单文件快照与示例模式（0.5.0 / 0.6.0 / 0.7.0）
 
 - `GET /share` 会把**当前星图的全部正文**内联进一个 HTML。它和 `/export` 一样是数据出口：
-  独立引擎没有账号鉴权（能访问本机端口的人就能拿到）；宿主挂载时则要过 1.1.8 的
-  `requestRejection`（Host/Origin + 已认证 Peer）。下载后的文件不再受本机服务保护，按「明文备份」对待。
+  独立引擎默认没有账号鉴权（能访问本机端口的人就能拿到），可用 1.6.0 的 `--token` 加一道本机口令；
+  宿主挂载时则要过 1.1.8 的 `requestRejection`（Host/Origin + 已认证 Peer）。下载后的文件不再受本机服务保护，按「明文备份」对待。
 - 快照里的数据经 `JSON.stringify` 后把 `<` 转义成 `<`，内联脚本里的 `</script` 也会被拆开，
   记忆正文无法提前闭合 `<script>`；快照页面同样先 `esc()` 再进 DOM。
 - 示例模式（`?demo=1`）只读：所有非 GET/HEAD 请求在路由入口返回 403；示例实例不读盘、不写盘、
@@ -86,7 +96,8 @@
   PID/运行时/RSS、图规模、建图耗时、来源身份（key/title/adapter/provider/size）与最近错误。
 - **不读记忆正文，不输出 `path` / `dbPath`**；`sources` 只有标题与体积，没有本机路径。
 - 来源标题、插件/技能名称仍可能出现，贴给外部支持前先扫一眼；页面「复制诊断」也不会带正文。
-- 独立引擎没有账号鉴权：能访问本机端口的人就能读；宿主内则要过已认证 Peer 的 `requestRejection`。
+- 独立引擎默认没有账号鉴权：能访问本机端口的人就能读；可加 `--token` 开本机口令，
+  或在宿主内过已认证 Peer 的 `requestRejection`。
   它只降低泄漏面，不替代访问控制。
 
 ## 五、请求体与导入
@@ -101,7 +112,7 @@
 | --- | --- | --- |
 | 恶意网页（同浏览器） | 读：不能（无 CORS + Host 围栏）；写：不能（Origin/写保护 403） | DNS rebinding 的 Host 不是回环名，1.1.8 起直接 403 |
 | 局域网其它设备 | 不能 | 只绑 127.0.0.1 |
-| 本机其它进程 / 同一用户 | **能** | 本机单用户模型，没有鉴权；能读文件就能读记忆库，星图不额外加锁 |
+| 本机其它进程 / 同一用户 | **默认能；加 `--token` 后要口令** | 本机单用户模型；不传 token 时没有鉴权，能读文件就能读记忆库；token 只降低「本机端口被别人直接打开」的风险，不替代文件权限 |
 | 记忆内容里的 HTML/脚本 | 不能执行 | 文本一律转义 + CSP；但仍会被当作普通文字显示 |
 | 通过反向代理暴露端口 | **边界失效** | 见上文，不要这么做 |
 

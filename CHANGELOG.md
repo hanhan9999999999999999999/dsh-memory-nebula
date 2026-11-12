@@ -2,6 +2,18 @@
 
 本文件记录「记忆星图」每个版本改了什么。日期为落盘日期。
 
+## 1.6.0 — 2026-11-12
+
+主题「本机口令」：给 standalone 一个可选的口令门，默认仍然不改变本地即开即用的体验。
+
+- `lib/standalone.mjs` 新增 `--token <至少 12 字符>`，也读 `NEBULA_TOKEN`；不传则行为不变。
+- 启用后所有 HTTP 路由（页面、静态资源、API、`/share`、`/export`、`/diagnostics`）都要凭据：
+  cookie `nb_token`、`Authorization: Bearer <token>`，或第一次用 `?token=` 换 cookie。
+- cookie 为 `HttpOnly; SameSite=Strict; Path=/api/memory-nebula`；页面加载后把 `?token=` 从地址栏
+  历史里拿掉；口令比较用 `timingSafeEqual`，短于 12 字符直接拒绝启动。
+- 宿主模式不读这个参数：宿主内继续用 `ctx.connection.requestRejection` 与 Host 围栏。
+- 99 单测（新增口令门 1 项）；`npm run check` 全绿。
+
 ## 1.5.2 — 2026-11-12
 
 - 精选目录收录：awesome-dsh-plugin PR #14065 已合并，目录页

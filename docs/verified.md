@@ -2,6 +2,21 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.6.0（2026-11-12）本机口令
+
+- 99 单测：新增「无凭据 401 / cookie 200 / Bearer 200 / `?token=` 200 且带 cookie / 错口令 401」。
+- standalone 实测：`--token test-token-123456` 启动 7906，`/graph?demo=1` 无凭据 401、
+  Bearer 200、`/app?token=` 200 并返回
+  `set-cookie: nb_token=…; Path=/api/memory-nebula; HttpOnly; SameSite=Strict`。
+- 浏览器实测（headless Edge，`dev/cdp-token.mjs`）：打开 `/app?demo=1&token=…` 后地址栏变成
+  `/app?demo=1`（token 已从历史移除），64 记忆 / 78 连接正常加载，`document.cookie` 为空
+  （HttpOnly 生效），无 JS 错误；截图 `dev/shot/token.png`。
+- 短于 12 字符的口令拒绝启动；不传 `--token` 时行为与 1.5.2 完全一致。
+- 发布：npm `dsh-memory-nebula@1.6.0`（dist.shasum `83cb628db66db8a0eb4039c798023fc14943295c`，
+  81 文件 / 2,925,496B，sha256 `12b89260b1f90037ae5a09ea4fa6ab40d2c308adb2845fac3f2210317457662f`）；
+  registry 安装 `--version`=1.6.0，doctor 8 通过 / 0 提醒 / 0 失败；unpkg
+  `@1.6.0/market/index.json` 为 format 1 / 1.6.0。
+
 ## 1.5.2（2026-11-12）精选目录收录
 
 - awesome-dsh-plugin PR #14065 已合并（merge commit `aaa81f3…`）。

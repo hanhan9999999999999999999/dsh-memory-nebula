@@ -10,6 +10,9 @@
   无 `Origin` 的本机脚本可写（curl / 自动化）。
 - **Host 必须是 `127.0.0.1[:port]` / `localhost[:port]` / `[::1][:port]`**；其它 Host 一律 403，
   用来挡 DNS rebinding。宿主内还会再过一遍 `ctx.connection.requestRejection(req)`（401/403）。
+- **可选本机口令**：standalone 以 `--token <至少 12 字符>`（或 `NEBULA_TOKEN`）启动后，所有路由
+  （含静态页、`/share`、`/export`、`/diagnostics`）都要求 `nb_token` cookie、`Authorization: Bearer`
+  或首次 `?token=` 换取 cookie；否则 401。宿主模式不启用这个参数，继续用 `requestRejection`。
 - 错误体：`{ "error": "人话说明" }`；参数错误 400，找不到 404，请求体过大 413，未预期异常 500。
 - 版本与构建：`/ping` 的 `version` 来自 `package.json`，`build` 是 `lib` 下全部 `.m?js` 的 mtime 最大值
   （改任何模块都会推进）。
@@ -19,7 +22,7 @@
 ```json
 {
   "ok": true,
-  "version": "1.5.2",
+  "version": "1.6.0",
   "build": 1794143336695,
   "startedAt": 1794143336695,
   "mode": "host",
@@ -50,7 +53,7 @@
 ```text
 memory-nebula diagnostics
 # 不含记忆正文；可以整段贴给支持
-version: 1.5.2
+version: 1.6.0
 build: 1794276294467
 started: 2026-11-10T02:20:37.399Z
 mode: standalone

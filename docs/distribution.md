@@ -6,7 +6,7 @@
 ## 包是什么
 
 - npm 包名：`dsh-memory-nebula`
-- 当前版本：`1.5.2`
+- 当前版本：`1.6.0`
 - 形态：DSH 插件（`cordis.patch.yml` + `lib/client.js`）与独立引擎（`lib/standalone.mjs`）共用一套代码
 - 许可：MIT；没有授权锁、没有遥测、不会把记忆上传到任何服务器
 - 包内容：`lib/`、`scripts/`、`docs/`、`cordis.patch.yml`、`README.md` / `README.en.md`、
@@ -19,7 +19,7 @@
 在「插件 → 发现」里添加索引：
 
 ```text
-https://unpkg.com/dsh-memory-nebula@1.5.2/market/index.json
+https://unpkg.com/dsh-memory-nebula@1.6.0/market/index.json
 ```
 
 搜索「记忆星图」安装。索引与详情页都在 npm 包里，由 unpkg 提供；不需要第二个站点。
@@ -29,16 +29,16 @@ https://unpkg.com/dsh-memory-nebula@1.5.2/market/index.json
 
 ```powershell
 # Windows PowerShell
-Get-FileHash .\dsh-memory-nebula-1.5.2.tgz -Algorithm SHA256
+Get-FileHash .\dsh-memory-nebula-1.6.0.tgz -Algorithm SHA256
 # 对照同目录的 .sha256 文件；不一致就停，不要装
 
-npm install .\dsh-memory-nebula-1.5.2.tgz --prefix <profile>
+npm install .\dsh-memory-nebula-1.6.0.tgz --prefix <profile>
 ```
 
 ```bash
 # macOS / Linux
-sha256sum -c dsh-memory-nebula-1.5.2.tgz.sha256
-npm install ./dsh-memory-nebula-1.5.2.tgz --prefix <profile>
+sha256sum -c dsh-memory-nebula-1.6.0.tgz.sha256
+npm install ./dsh-memory-nebula-1.6.0.tgz --prefix <profile>
 ```
 
 然后确认 `<profile>/package.json` 里两处都在：
@@ -77,7 +77,12 @@ New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Ta
 npx dsh-memory-nebula --port 7890
 # 或
 node lib/standalone.mjs --port 7890 --root "D:\document\Memory Universe"
+# 这台机器不只你一个人用 / 端口会被别的程序碰到：加一道本机口令
+node lib/standalone.mjs --port 7890 --token "至少-12-个字符的口令"
 ```
+
+启用 `--token` 后，终端会打印一次带 `?token=` 的地址；打开一次换到 cookie，之后正常用。
+宿主模式不支持这个参数，使用 DSH 自己的 Host/认证围栏。
 
 只绑定 `127.0.0.1`；不要做端口转发到公网。
 
@@ -137,7 +142,7 @@ Remove-Item -Recurse -Force "$env:USERPROFILE\.dsh\memory-nebula"
 npm run verify          # 单测 + release-check；prepack 也会跑
 node scripts/smoke.mjs http://127.0.0.1:7891/api/memory-nebula
 npm pack                # 生成 tgz
-sha256sum dsh-memory-nebula-1.5.2.tgz > dsh-memory-nebula-1.5.2.tgz.sha256
+sha256sum dsh-memory-nebula-1.6.0.tgz > dsh-memory-nebula-1.6.0.tgz.sha256
 npm publish             # 需要维护者账号；本仓库不自动发布
 ```
 

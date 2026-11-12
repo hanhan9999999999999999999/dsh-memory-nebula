@@ -271,3 +271,37 @@ test('http: /export 尊重 scope 与 focus 跳数', async () => {
   assert.equal(bad.status, 400)
   assert.match(JSON.parse(bad.body).error, /这个范围里没有记忆/)
 })
+
+test('http: 可选本机口令挡住无凭据请求，cookie / query / Bearer 都能放行', async () => {
+  const nebula = new Nebula({ demo: true, log: () => {} })
+  await nebula.refresh()
+  let secured = null
+  registerRoutes({ register({ handler: h }) { secured = h } }, nebula, () => {}, {
+    mode: 'standalone',
+    token: 'correct-horse-battery',
+  })
+
+  const denied = await call(secured, '/graph?demo=1')
+  assert.equal(denied.status, 401)
+  assert.match(JSON.parse(denied.body).error, /需要本机口令/)
+
+  const cookie = await call(secured, '/graph?demo=1', {
+    headers: { cookie: 'nb_token=correct-horse-battery' },
+  })
+  assert.equal(cookie.status, 200)
+  assert.equal(JSON.parse(cookie.body).nodes.length, 64)
+
+  const bearer = await call(secured, '/graph?demo=1', {
+    headers: { authorization: 'Bearer correct-horse-battery' },
+  })
+  assert.equal(bearer.status, 200)
+
+  const viaQuery = await call(secured, '/graph?demo=1&token=correct-horse-battery')
+  assert.equal(viaQuery.status, 200)
+  assert.match(String(viaQuery.headers['set-cookie']), /nb_token=correct-horse-battery/)
+
+  const wrong = await call(secured, '/graph?demo=1', {
+    headers: { cookie: 'nb_token=wrong' },
+  })
+  assert.equal(wrong.status, 401)
+})
