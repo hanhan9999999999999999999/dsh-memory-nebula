@@ -9,6 +9,10 @@
   返回 200，页面 title 为 `hanhan9999999999999999999/dsh-memory-nebula — dsh plugin · Memory`，
   安装命令为 `dsh plugin --profile web add dsh-memory-nebula`。
 - 本版只改 README 安装入口与版本号，无代码变更；98 单测 / 63 冒烟 / 25 探针沿用 1.5.1。
+- 发布：npm `dsh-memory-nebula@1.5.2`（dist.shasum `a4504c0441f29b4eb7e7573e515c5e049eacf2df`，81 文件 / 2,922,704B，sha256 `5ae708cbe94e1e9ffae187406df8d120fcef084d4f02ff558a91d4eb5ac9a1ca`）；
+  registry 安装 `--version`=1.5.2，doctor 8 通过 / 0 提醒 / 0 失败；unpkg
+  `@1.5.2/market/index.json` 为 format 1 / 1.5.2。GitHub 源码 commit `de9c74b…`，
+  Release v1.5.2（id `442827970`）附 tgz 与 `.sha256`。
 
 ## 1.5.1（2026-11-11）切片簇
 
