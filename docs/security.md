@@ -46,6 +46,10 @@ API、`/share`、`/export`、`/diagnostics` 全部要凭据：`nb_token` cookie�
 或第一次用 `?token=` 换 cookie。cookie 是 `HttpOnly; SameSite=Strict`，页面加载后会把 `?token=`
 从地址栏历史里删掉。比较用 `timingSafeEqual`；短于 12 字符拒绝启动。
 
+1.6.1 起，浏览器直接打开页面会给一个不加载脚本的登录表单，提交到 `POST /unlock`；
+浏览器对 401 页上的表单可能发 `Origin: null`，因此这一条路由不套写接口的 Origin 规则——
+口令本身是凭据，错误口令不会产生副作用。API 与静态资源仍然只回 401 JSON。
+
 不传 `--token` 时保持原来的本地即开即用模型；宿主模式不使用这个参数，继续走
 `ctx.connection.requestRejection` 与 Host 围栏。
 

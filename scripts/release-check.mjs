@@ -344,6 +344,12 @@ if (!read('lib/host/nebula.js').includes('c.members || []')) fail('范围导出�
 if (!read('CHANGELOG.md').includes('## 1.5.1')) fail('CHANGELOG 缺 1.5.1')
 ok('1.5.1 构件：切片簇 / 变更记录')
 
+if (!read('lib/host/http.js').includes('sendUnlockPage')) fail('缺少口令登录页')
+if (!read('lib/host/http.js').includes("route === '/unlock'")) fail('缺少 /unlock 路由')
+if (!read('test/http.test.mjs').includes('/unlock')) fail('缺少口令登录页测试')
+if (!read('CHANGELOG.md').includes('## 1.6.1')) fail('CHANGELOG 缺 1.6.1')
+ok('1.6.1 构件：口令登录页 / 302 路由 / 变更记录')
+
 if (!read('lib/standalone.mjs').includes("--token")) fail('standalone 缺 --token')
 if (!read('lib/host/http.js').includes('timingSafeEqual')) fail('HTTP 口令门缺常量时间比较')
 if (!read('lib/host/http.js').includes('nb_token')) fail('HTTP 口令门缺 cookie')
@@ -356,7 +362,7 @@ if (!read('README.md').includes('awesome-dsh-plugin.com/p/hanhan9999999999999999
 if (!read('README.en.md').includes('dsh plugin --profile web add dsh-memory-nebula')) {
   fail('README.en 未写目录安装命令')
 }
-if (!read('market/index.json').includes('"version": "1.6.0"')) fail('market 索引未到 1.6.0')
+if (!read('market/index.json').includes('"version": "1.6.1"')) fail('market 索引未到 1.6.1')
 if (!read('CHANGELOG.md').includes('## 1.5.2')) fail('CHANGELOG 缺 1.5.2')
 ok('1.5.2 构件：精选目录入口 / 安装命令 / 索引版本 / 变更记录')
 

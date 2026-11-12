@@ -2,6 +2,15 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.6.1（2026-11-12）口令门把手
+
+- 7909 standalone `--token unlock-test-123456`：无凭据 `GET /app` 返回 401 HTML 登录页，
+  标题「记忆星图 · 需要口令」；页面不加载脚本，表单指向 `/api/memory-nebula/unlock`。
+- headless Edge 填入口令并提交：302 回 `/app`，cookie 生效，页面加载 2152 记忆 / 10602 连接，
+  `window.__nebulaErrors` 为空；错误口令留在表单并提示「口令不对，再试一次」。
+- API 仍保持 JSON 401（`/graph` 无凭据），静态资源也要凭据。
+- 99/99 单测；`npm run check` 全绿。
+
 ## 1.6.0（2026-11-12）本机口令
 
 - 99 单测：新增「无凭据 401 / cookie 200 / Bearer 200 / `?token=` 200 且带 cookie / 错口令 401」。

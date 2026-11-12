@@ -13,6 +13,9 @@
 - **可选本机口令**：standalone 以 `--token <至少 12 字符>`（或 `NEBULA_TOKEN`）启动后，所有路由
   （含静态页、`/share`、`/export`、`/diagnostics`）都要求 `nb_token` cookie、`Authorization: Bearer`
   或首次 `?token=` 换取 cookie；否则 401。宿主模式不启用这个参数，继续用 `requestRejection`。
+- 浏览器未带凭据打开 `/app` 时得到登录表单，不会只看到 JSON；表单提交到 `POST /unlock`
+  （`application/x-www-form-urlencoded`，字段 `token`），正确时种 `HttpOnly` cookie 并 302 回
+  `/app`，错误时留在表单上提示。API 与静态资源仍然返回 401 JSON，不参与表单流程。
 - 错误体：`{ "error": "人话说明" }`；参数错误 400，找不到 404，请求体过大 413，未预期异常 500。
 - 版本与构建：`/ping` 的 `version` 来自 `package.json`，`build` 是 `lib` 下全部 `.m?js` 的 mtime 最大值
   （改任何模块都会推进）。
@@ -22,7 +25,7 @@
 ```json
 {
   "ok": true,
-  "version": "1.6.0",
+  "version": "1.6.1",
   "build": 1794143336695,
   "startedAt": 1794143336695,
   "mode": "host",
@@ -53,7 +56,7 @@
 ```text
 memory-nebula diagnostics
 # 不含记忆正文；可以整段贴给支持
-version: 1.6.0
+version: 1.6.1
 build: 1794276294467
 started: 2026-11-10T02:20:37.399Z
 mode: standalone
