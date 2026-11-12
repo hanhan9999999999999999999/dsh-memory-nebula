@@ -74,6 +74,8 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 1.6.0 实测：新增可选本机口令（standalone `--token` / `NEBULA_TOKEN`），99 单测；81 文件 / 2,925,496B。
 1.6.1 实测：口令门的 HTML 登录页与 `/unlock` 302，99 单测；81 文件 / 2,928,345B。
 1.6.2 实测：`doctor --token` 把口令放进 Authorization，endpoint 不再被自己的 401 挡住；100 单测；81 文件 / 2,929,631B。
+1.6.3 实测：修列存快照空白，102 单测；88 文件 / 3,066,023B（含 docs/demo.html）。
+1.6.4 实测：`--demo` 服务器模式使用示例库，103 单测；88 文件 / 3,066,929B。
 1.5.2 实测：只改 README 与精选目录入口，无代码变更；81 文件 / 2,922,704B，精确字节以 `npm pack` 输出为准。
 清单里应含 `sidecar.ps1`、`scripts/`、`test/` 不含（单测只在仓库里跑）、`dev/` 与截图不含。
 
@@ -84,7 +86,7 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.1.6.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.6.4.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：
