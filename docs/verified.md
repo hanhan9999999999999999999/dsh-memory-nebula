@@ -15,7 +15,8 @@
 - 发布：npm `dsh-memory-nebula@1.6.0`（dist.shasum `83cb628db66db8a0eb4039c798023fc14943295c`，
   81 文件 / 2,925,496B，sha256 `12b89260b1f90037ae5a09ea4fa6ab40d2c308adb2845fac3f2210317457662f`）；
   registry 安装 `--version`=1.6.0，doctor 8 通过 / 0 提醒 / 0 失败；unpkg
-  `@1.6.0/market/index.json` 为 format 1 / 1.6.0。
+  `@1.6.0/market/index.json` 为 format 1 / 1.6.0。GitHub 源码 commit `007a167…`，
+  CI 三 job success；Release v1.6.0（id `442911770`）附 tgz 与 `.sha256`。
 
 ## 1.5.2（2026-11-12）精选目录收录
 

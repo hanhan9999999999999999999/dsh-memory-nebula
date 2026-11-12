@@ -82,8 +82,8 @@
   不写「应该可以」。
 - **已落地**：`GET /diagnostics`、`standalone --diagnose`、页面「复制诊断」；
   `docs/compatibility.md` 与 `docs/distribution.md`；1.0.0 包 64 文件、76 单测、63 冒烟。
-- **执行记录**：维护者授权后已完成 npm 公开发布（当前 latest 1.5.2）与 GitHub Release；
-  精选目录 PR 已提交（awesome-dsh-plugin#14065），等仓库满 24 小时后过年龄门。
+- **执行记录**：维护者授权后已完成 npm 公开发布（当前 latest 1.6.0）与 GitHub Release；
+  精选目录 PR 已合并并收录（awesome-dsh-plugin#14065）。
 
 ## 1.1 「装得上」：安装体检与上架（1.1.0–1.1.7 已交付）
 
@@ -143,14 +143,22 @@
   focus 走无向 BFS；空范围 400，不再 200 包错误。
 - 98 单测 / 63 冒烟 / 25 探针；HTTP 与 CLI 共用同一实现，避免两条导出路径漂移。
 
-## 1.6 待定：5 万条与目录合并后的真实验证
+## 1.6 「本机口令」（1.6.0 已交付）
 
-不先承诺版本号。两件已知的事：
+**问题**：独立引擎默认没有账号，能打开本机端口的人就能读；目录评审也把这条写进了描述。
+
+- `standalone --token <至少 12 字符>` / `NEBULA_TOKEN`：所有路由（页面、静态、API、分享、导出、诊断）
+  都要 `nb_token` cookie、`Authorization: Bearer`，或首次 `?token=` 换 cookie；短口令拒绝启动。
+- cookie 是 `HttpOnly; SameSite=Strict`，页面加载后把 `?token=` 从地址栏历史移除；
+  比较用 `timingSafeEqual`。不传 token 时保持原来的本地即开即用。
+- 宿主模式不读这个参数，继续走 `ctx.connection.requestRejection` 与 Host 围栏。
+- 99 单测；不改变 `/share` 的明文出口语义。
+
+## 1.7 仍待做：5 万条与商店端到端
 
 - 5 万条要做分页 / 视口裁剪 / 快照分片，先出可用的 2D 摘要，再按需加载；
   在真实词表基准过关前不写进支持矩阵。
-- 精选目录 PR 合并后，用 dshmarket 真机搜索、安装、升级一次；本地 fixture 只证明了
-  目录读取与安装目标生成，不等于商店端到端。
+- 精选目录已收录；还要用 dshmarket 真机搜索、安装、升级一次，验证 UI 端到端。
 
 ## 不做的事
 
