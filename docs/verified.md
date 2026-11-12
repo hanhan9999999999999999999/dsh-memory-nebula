@@ -10,6 +10,10 @@
   `window.__nebulaErrors` 为空；错误口令留在表单并提示「口令不对，再试一次」。
 - API 仍保持 JSON 401（`/graph` 无凭据），静态资源也要凭据。
 - 99/99 单测；`npm run check` 全绿。
+- 发布：81 文件 / 2,928,345B，sha256 `c75bade28992b964ac1a1a43b49bcd6bb2a6377813b0ee34e6e0bddccf2c54a1`；
+  npm `dsh-memory-nebula@1.6.1`（dist.shasum `aa72e23d22a2f435d187f358b9b77992aaf2c486`），
+  registry 安装 `--version`=1.6.1，doctor 8/0/0；unpkg `@1.6.1/market/index.json` 为 format 1 / 1.6.1。
+  GitHub commit `41b2d9d…`，Release v1.6.1（id `443021780`）附 tgz 与 `.sha256`。
 
 ## 1.6.0（2026-11-12）本机口令
 
