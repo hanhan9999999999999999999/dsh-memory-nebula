@@ -124,7 +124,7 @@ npm run check                 # 静态检查（通配 CORS、document.write、UT
 node dev/security-probe.mjs http://127.0.0.1:7890
 ```
 
-安全探针的 21 项断言见 `docs/testing.md` 第三节。改完 `lib/host/http.js` 必须重启宿主或独立引擎——
+安全探针的 25 项断言见 `docs/testing.md` 第三节。改完 `lib/host/http.js` 必须重启宿主或独立引擎——
 它是启动时静态加载的，热载不覆盖路由。
 
 ## 八、报告问题
