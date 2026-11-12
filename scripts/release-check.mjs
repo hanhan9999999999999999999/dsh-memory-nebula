@@ -356,6 +356,21 @@ if (!read('test/doctor.test.mjs').includes('Bearer secret-token-123')) fail('doc
 if (!read('CHANGELOG.md').includes('## 1.6.2')) fail('CHANGELOG 缺 1.6.2')
 ok('1.6.2 构件：doctor 口令 / 测试 / 变更记录')
 
+let shots = null
+try {
+  shots = JSON.parse(read('screenshots.json')).screenshots
+} catch {
+  fail('screenshots.json 缺失或不是合法 JSON')
+}
+if (!Array.isArray(shots) || shots.length < 1 || shots.length > 8) {
+  fail('screenshots.json 需要 1–8 张截图')
+} else {
+  for (const relPath of shots) {
+    if (!exists(relPath)) fail('市场截图不存在：' + relPath)
+  }
+}
+ok(`市场截图：${Array.isArray(shots) ? shots.length : 0} 张，路径已验证`)
+
 if (!read('lib/standalone.mjs').includes("--token")) fail('standalone 缺 --token')
 if (!read('lib/host/http.js').includes('timingSafeEqual')) fail('HTTP 口令门缺常量时间比较')
 if (!read('lib/host/http.js').includes('nb_token')) fail('HTTP 口令门缺 cookie')
