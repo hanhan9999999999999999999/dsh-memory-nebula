@@ -4,7 +4,7 @@
 
 三层自动检查 + 一层人工验收。前三层都能在干净仓库里跑，不依赖 DSH 正在运行。
 
-## 一、单元测试：`test/`（100 项）
+## 一、单元测试：`test/`（102 项）
 
 ```bash
 npm test
@@ -22,6 +22,7 @@ node --test "test/*.test.mjs"
 | `http.test.mjs` | 20 | loopback Origin 识别、公网/伪协议拒绝、CORS 回显与 `Vary`、`?demo=1` 只读与 ETag 304、`/share` 响应头与范围/隐藏参数、`/diagnostics` 纯文本与无路径、可选本机口令（cookie/Bearer/query）、前缀/版本/能力清单 |
 | `demo.test.mjs` | 5 | 示例图规模与跨区桥、手工边/实体边、体检样本、Nebula 不读盘、详情/检索/证据链 |
 | `share.test.mjs` | 14 | 单文件自包含、正文与 `</script>` 防护、尖括号转义、`$&` 保留、`<noscript>`/只读元信息、ws/project/focus 切片、hide 白名单与脱敏 |
+| `snapshot.test.mjs` | 2 | 按列存的快照 graph() 展开、详情/检索共用同一张展开图 |
 | `i18n.test.mjs` | 7 | 字典非空、回退中文、语言优先级、applyDom、T/静态 key 全覆盖 |
 | `diagnostics.test.mjs` | 3 | 报告结构、无 path/dbPath、文本不含盘符与库名、空图格式化 |
 | `doctor.test.mjs` | 10 | 版本下界、包文件、profile 依赖/bundles/已安装、版本漂移提醒、口令 endpoint、warn 不阻断、文本/JSON 报告 |

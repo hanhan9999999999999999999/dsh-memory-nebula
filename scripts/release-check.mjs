@@ -380,6 +380,12 @@ if (!read('test/doctor.test.mjs').includes('Bearer secret-token-123')) fail('doc
 if (!read('CHANGELOG.md').includes('## 1.6.2')) fail('CHANGELOG 缺 1.6.2')
 ok('1.6.2 构件：doctor 口令 / 测试 / 变更记录')
 
+if (!read('lib/web/api.js').includes('Promise.resolve(snapData().graph)')) fail('快照 graph 没走展开路径')
+if (!read('lib/web/render.js').includes('window.__NEBULA_SNAPSHOT__')) fail('快照没有立即显示节点')
+if (!exists('test/snapshot.test.mjs')) fail('缺快照展开回归测试')
+if (!read('CHANGELOG.md').includes('## 1.6.3')) fail('CHANGELOG 缺 1.6.3')
+ok('1.6.3 构件：快照展开 / 立即出图 / 回归测试')
+
 let shots = null
 try {
   shots = JSON.parse(read('screenshots.json')).screenshots
