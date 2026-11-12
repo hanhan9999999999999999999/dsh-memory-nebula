@@ -28,6 +28,7 @@
     "locale",
     "market",
     "SECURITY.md",
+    "SUPPORT.md",
     "CONTRIBUTING.md"
   ],
   "scripts": {

@@ -11,6 +11,8 @@
   npm `dsh-memory-nebula@1.6.2`（dist.shasum `3bb5a7dff2089b8a35448ae3f4db027d79abb627`），
   registry 安装 `--version`=1.6.2；unpkg `@1.6.2/market/index.json` 为 format 1 / 1.6.2。
   GitHub commit `fc9b533…`，CI 三 job 全 success；Release v1.6.2（id `443155981`）附 tgz 与 `.sha256`。
+- 发布后补支持入口：`SUPPORT.md`、三份 issue 表单/配置、PR 模板、README 中英「支持与反馈」段；
+  commit `2ed89eb4…`，CI 三 job success。`SUPPORT.md` 已加入下次打包的 `files` 白名单。
 
 ## 1.6.1（2026-11-12）口令门把手
 
