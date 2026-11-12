@@ -13,7 +13,8 @@
 - 发布：81 文件 / 2,928,345B，sha256 `c75bade28992b964ac1a1a43b49bcd6bb2a6377813b0ee34e6e0bddccf2c54a1`；
   npm `dsh-memory-nebula@1.6.1`（dist.shasum `aa72e23d22a2f435d187f358b9b77992aaf2c486`），
   registry 安装 `--version`=1.6.1，doctor 8/0/0；unpkg `@1.6.1/market/index.json` 为 format 1 / 1.6.1。
-  GitHub commit `41b2d9d…`，Release v1.6.1（id `443021780`）附 tgz 与 `.sha256`。
+  GitHub commit `41b2d9d…`，Release v1.6.1（id `443021780`）附 tgz 与 `.sha256`；
+  test suite 同步 commit `22f57bf…` 后 CI 三 job（Node 22.13 / 24 / Package install）全 success。
 
 ## 1.6.0（2026-11-12）本机口令
 
