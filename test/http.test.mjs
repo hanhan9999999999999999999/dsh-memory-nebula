@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { Readable } from 'node:stream'
 import { Nebula } from '../lib/host/nebula.js'
 import { registerRoutes, CAPABILITIES, PREFIX, isLoopbackOrigin, isLoopbackHost, corsHeaders } from '../lib/host/http.js'
 
@@ -31,11 +32,16 @@ function makeRes() {
   }
 }
 
-async function call(h, path, { method = 'GET', headers = {} } = {}) {
+async function call(h, path, { method = 'GET', headers = {}, body = null } = {}) {
   const req = {
     url: PREFIX + path,
     method,
     headers: { host: '127.0.0.1:7891', origin: 'http://127.0.0.1:7891', ...headers },
+  }
+  if (body != null) {
+    const stream = Readable.from([Buffer.from(String(body))])
+    req.on = stream.on.bind(stream)
+    req.destroy = stream.destroy.bind(stream)
   }
   const res = makeRes()
   await h(req, res)
@@ -304,4 +310,28 @@ test('http: 可选本机口令挡住无凭据请求，cookie / query / Bearer �
     headers: { cookie: 'nb_token=wrong' },
   })
   assert.equal(wrong.status, 401)
+
+  // 浏览器直接打开页面：给一个输口令的入口，而不是裸 JSON。
+  const gate = await call(secured, '/app')
+  assert.equal(gate.status, 401)
+  assert.match(gate.headers['content-type'], /text\/html/)
+  assert.match(gate.body, /需要本机口令/)
+  assert.match(gate.body, new RegExp('action="' + PREFIX + '/unlock"'))
+
+  const badForm = await call(secured, '/unlock', {
+    method: 'POST',
+    body: 'token=wrong',
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+  })
+  assert.equal(badForm.status, 401)
+  assert.match(badForm.body, /口令不对/)
+
+  const goodForm = await call(secured, '/unlock', {
+    method: 'POST',
+    body: 'token=correct-horse-battery',
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+  })
+  assert.equal(goodForm.status, 302)
+  assert.equal(goodForm.headers.location, PREFIX + '/app')
+  assert.match(String(goodForm.headers['set-cookie']), /nb_token=correct-horse-battery/)
 })
