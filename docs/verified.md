@@ -2,6 +2,14 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.5.2（2026-11-12）精选目录收录
+
+- awesome-dsh-plugin PR #14065 已合并（merge commit `aaa81f3…`）。
+- 目录页 `https://awesome-dsh-plugin.com/p/hanhan9999999999999999999/dsh-memory-nebula/`
+  返回 200，页面 title 为 `hanhan9999999999999999999/dsh-memory-nebula — dsh plugin · Memory`，
+  安装命令为 `dsh plugin --profile web add dsh-memory-nebula`。
+- 本版只改 README 安装入口与版本号，无代码变更；98 单测 / 63 冒烟 / 25 探针沿用 1.5.1。
+
 ## 1.5.1（2026-11-11）切片簇
 
 - 1.5.0 的 `scope` 已按节点重算，但 `clusters` 仍按节点上不存在的 `cluster` 字段过滤，

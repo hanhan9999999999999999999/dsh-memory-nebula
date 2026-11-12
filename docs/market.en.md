@@ -78,13 +78,13 @@ Above 3,000 memories it stays in the 2D nebula and asks you to filter before swi
 Add this index in the DSH plugin market:
 
 ```text
-https://unpkg.com/dsh-memory-nebula@1.5.1/market/index.json
+https://unpkg.com/dsh-memory-nebula@1.5.2/market/index.json
 ```
 
 Then search for “Memory Nebula” and install. Or install the npm package directly:
 
 ```bash
-npm install dsh-memory-nebula@1.5.1
+npm install dsh-memory-nebula@1.5.2
 ```
 
 Run the read-only doctor after installing:

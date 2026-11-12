@@ -71,6 +71,7 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 1.4.0 实测：**77 个文件**，包约 2.4MB、解开约 3.0MB；新增 `--share` 命令行快照，修掉 package.json 自我依赖。
 1.4.1 实测：**81 个文件 / 2,917,431B**（新增 4 张英文截图），解开 3,626,628B；无代码行为变化。
 1.5.0 实测：**81 个文件 / 约 2.9MB**（新增命令行导出与范围过滤，无新资源文件），精确字节以 `npm pack` 为准。
+1.5.2 实测：只改 README 与精选目录入口，无代码变更；文件数与字节以 `npm pack` 输出为准。
 清单里应含 `sidecar.ps1`、`scripts/`、`test/` 不含（单测只在仓库里跑）、`dev/` 与截图不含。
 
 装进 DSH profile（与 `docs/operations.md` 的 junction 方式二选一）：

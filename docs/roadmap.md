@@ -82,7 +82,7 @@
   不写「应该可以」。
 - **已落地**：`GET /diagnostics`、`standalone --diagnose`、页面「复制诊断」；
   `docs/compatibility.md` 与 `docs/distribution.md`；1.0.0 包 64 文件、76 单测、63 冒烟。
-- **执行记录**：维护者授权后已完成 npm 公开发布（当前 latest 1.5.1）与 GitHub Release；
+- **执行记录**：维护者授权后已完成 npm 公开发布（当前 latest 1.5.2）与 GitHub Release；
   精选目录 PR 已提交（awesome-dsh-plugin#14065），等仓库满 24 小时后过年龄门。
 
 ## 1.1 「装得上」：安装体检与上架（1.1.0–1.1.7 已交付）

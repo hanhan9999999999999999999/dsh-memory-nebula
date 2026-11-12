@@ -2,6 +2,14 @@
 
 本文件记录「记忆星图」每个版本改了什么。日期为落盘日期。
 
+## 1.5.2 — 2026-11-12
+
+- 精选目录收录：awesome-dsh-plugin PR #14065 已合并，目录页
+  <https://awesome-dsh-plugin.com/p/hanhan9999999999999999999/dsh-memory-nebula/>。
+- README 中英增加 `dsh plugin --profile web add dsh-memory-nebula` 与目录链接；
+  unpkg format-1 索引继续可用。
+- 无代码变更：98 单测 / 63 冒烟 / 25 安全探针沿用 1.5.1。
+
 ## 1.5.1 — 2026-11-11
 
 切片簇修正：1.5.0 的 `scope` 已按节点重算，但 `clusters` 仍按节点上不存在的

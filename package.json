@@ -1,6 +1,6 @@
 {
   "name": "dsh-memory-nebula",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "private": false,
   "description": "Local-first memory nebula for DeepSeek Harness — read-only graph, spreading recall, evidence chains, offline snapshots. 记忆星图：把 DSH 各工作区的记忆只读连成一张可交互星云。",
   "type": "module",
