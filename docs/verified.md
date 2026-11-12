@@ -10,6 +10,7 @@
 - 发布：81 文件 / 2,929,631B，sha256 `795b66985e5d5637975a27cf3e75e6972e5e457cf32749ed5c7e054f5af48040`；
   npm `dsh-memory-nebula@1.6.2`（dist.shasum `3bb5a7dff2089b8a35448ae3f4db027d79abb627`），
   registry 安装 `--version`=1.6.2；unpkg `@1.6.2/market/index.json` 为 format 1 / 1.6.2。
+  GitHub commit `fc9b533…`，CI 三 job 全 success；Release v1.6.2（id `443155981`）附 tgz 与 `.sha256`。
 
 ## 1.6.1（2026-11-12）口令门把手
 

@@ -73,7 +73,7 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 1.5.0 实测：**81 个文件 / 约 2.9MB**（新增命令行导出与范围过滤，无新资源文件），精确字节以 `npm pack` 为准。
 1.6.0 实测：新增可选本机口令（standalone `--token` / `NEBULA_TOKEN`），99 单测；81 文件 / 2,925,496B。
 1.6.1 实测：口令门的 HTML 登录页与 `/unlock` 302，99 单测；81 文件 / 2,928,345B。
-1.6.2 实测：`doctor --token` 把口令放进 Authorization，endpoint 不再被自己的 401 挡住；100 单测。
+1.6.2 实测：`doctor --token` 把口令放进 Authorization，endpoint 不再被自己的 401 挡住；100 单测；81 文件 / 2,929,631B。
 1.5.2 实测：只改 README 与精选目录入口，无代码变更；81 文件 / 2,922,704B，精确字节以 `npm pack` 输出为准。
 清单里应含 `sidecar.ps1`、`scripts/`、`test/` 不含（单测只在仓库里跑）、`dev/` 与截图不含。
 
