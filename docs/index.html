@@ -99,6 +99,8 @@
     transition:transform .55s var(--ease),background .55s var(--ease),border-color .55s var(--ease);
   }
   .btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.22)}
+  .btn.ghost{background:transparent;border-color:transparent;padding-left:10px;padding-right:10px;color:var(--muted)}
+  .btn.ghost:hover{color:var(--ink);background:rgba(255,255,255,.04)}
   .btn.primary{background:linear-gradient(135deg,rgba(88,230,198,.22),rgba(88,230,198,.08));border-color:rgba(88,230,198,.34);color:#e7fff9}
   .btn .go{
     display:grid;place-items:center;width:28px;height:28px;border-radius:50%;
@@ -232,7 +234,7 @@
     Memory Nebula
   </a>
   <div class="nav-links">
-    <a href="#why">Why</a><a href="#screens">Screens</a><a href="#install">Install</a><a href="#boundary">Boundary</a>
+    <a href="demo.html?lang=en">Demo</a><a href="#why">Why</a><a href="#screens">Screens</a><a href="#install">Install</a><a href="#boundary">Boundary</a>
   </div>
   <a class="nav-cta" href="https://github.com/hanhan9999999999999999999/dsh-memory-nebula" target="_blank" rel="noreferrer">GitHub <b>↗</b></a>
 </nav>
@@ -245,8 +247,9 @@
         <h1>Your memories,<br><em>as a sky.</em></h1>
         <p class="lede">A read-only nebula for every store on this machine — meow-memory, OpenViking, notes, SQLite. See what connects, follow the evidence, and hand someone <b>one file instead of your whole life.</b></p>
         <div class="hero-actions">
-          <a class="btn primary" href="#install">Install the plugin <span class="go">↗</span></a>
-          <a class="btn" href="#screens">See the screens <span class="go">↓</span></a>
+          <a class="btn primary" href="demo.html?lang=en">Open the live demo <span class="go">↗</span></a>
+          <a class="btn" href="#install">Install the plugin <span class="go">↗</span></a>
+          <a class="btn ghost" href="#screens">See the screens <span class="go">↓</span></a>
         </div>
         <div class="meta">
           <span><b>20k</b> memories supported</span>
