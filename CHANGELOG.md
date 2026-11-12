@@ -2,6 +2,15 @@
 
 本文件记录「记忆星图」每个版本改了什么。日期为落盘日期。
 
+## 1.6.4 — 2026-11-13
+
+主题「demo 真的是 demo」：`npx -y -p dsh-memory-nebula memory-nebula --demo` 之前仍读真实库。
+
+- standalone 的服务器分支漏传 `demo`，`--demo` 只对 `--share/--export` 生效；现在建图实例带上 demo。
+- `/ping` 与 `/graph` 的 `demo` 字段现在也认引擎自身的 demo 状态，不再只认 `?demo=1`。
+- 新增一条子进程回归：启动 `--demo --port`，断言 ping 的 `demo=true`、64 节点/78 连接。
+- 单测 102 → 103；README/发行文档补「先看不装」的 npx 命令。
+
 ## 1.6.3 — 2026-11-13
 
 主题「点得亮」：修复按列存的快照只出界面、不出星图。

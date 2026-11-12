@@ -2,6 +2,13 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.6.4（2026-11-13）demo 真的是 demo
+
+- 子进程回归：`node lib/standalone.mjs --demo --port <随机端口>` 启动后 `/ping` 返回
+  `demo=true`、64 记忆 / 78 连接；`/graph` 也带 demo 标记。
+- `--demo` 之前只对 `--share/--export` 生效，服务器分支漏传 demo；已修，单测 **103/103**。
+- `npx -y -p dsh-memory-nebula memory-nebula --demo` 现在真的只读示例库。
+
 ## 1.6.3（2026-11-13）点得亮
 
 - 回归：用最小 window 运行浏览器版 `api.js`，列存快照的 `graph()` 现在返回对象节点与 `{a,b}` 边；

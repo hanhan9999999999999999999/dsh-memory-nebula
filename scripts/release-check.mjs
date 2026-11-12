@@ -386,6 +386,12 @@ if (!exists('test/snapshot.test.mjs')) fail('缺快照展开回归测试')
 if (!read('CHANGELOG.md').includes('## 1.6.3')) fail('CHANGELOG 缺 1.6.3')
 ok('1.6.3 构件：快照展开 / 立即出图 / 回归测试')
 
+if (!read('lib/standalone.mjs').includes("const demo = process.argv.includes('--demo')")) fail('standalone 服务器没接 demo')
+if (!read('lib/host/http.js').includes('Boolean(src.demo)')) fail('ping/graph 没报告引擎 demo')
+if (!read('test/standalone.test.mjs').includes('reports the demo graph')) fail('缺 demo 服务器回归')
+if (!read('CHANGELOG.md').includes('## 1.6.4')) fail('CHANGELOG 缺 1.6.4')
+ok('1.6.4 构件：demo 服务器 / demo 标记 / 回归测试')
+
 let shots = null
 try {
   shots = JSON.parse(read('screenshots.json')).screenshots

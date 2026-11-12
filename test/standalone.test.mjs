@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { spawnSync } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -63,5 +63,37 @@ test('standalone --export 拒绝空范围并以 2 退出', () => {
     assert.match(r.stderr, /这个范围里没有记忆/)
   } finally {
     rmSync(dir, { recursive: true, force: true })
+  }
+})
+
+test('standalone --demo server reports the demo graph, not the real store', async () => {
+  const port = 17000 + Math.floor(Math.random() * 1000)
+  const child = spawn(process.execPath, [cli, '--demo', '--port', String(port)], {
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
+  try {
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('server did not start')), 10000)
+      let log = ''
+      child.stdout.on('data', (chunk) => {
+        log += String(chunk)
+        if (log.includes('standalone on')) {
+          clearTimeout(timer)
+          resolve()
+        }
+      })
+      child.on('exit', (code) => {
+        clearTimeout(timer)
+        reject(new Error(`server exited ${code}: ${log}`))
+      })
+    })
+    const res = await fetch(`http://127.0.0.1:${port}/api/memory-nebula/ping`)
+    assert.equal(res.status, 200)
+    const ping = await res.json()
+    assert.equal(ping.demo, true)
+    assert.equal(ping.stats.nodes, 64)
+    assert.equal(ping.stats.edges, 78)
+  } finally {
+    child.kill()
   }
 })

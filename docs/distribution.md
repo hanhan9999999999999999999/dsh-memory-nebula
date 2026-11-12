@@ -6,7 +6,7 @@
 ## 包是什么
 
 - npm 包名：`dsh-memory-nebula`
-- 当前版本：`1.6.3`
+- 当前版本：`1.6.4`
 - 形态：DSH 插件（`cordis.patch.yml` + `lib/client.js`）与独立引擎（`lib/standalone.mjs`）共用一套代码
 - 许可：MIT；没有授权锁、没有遥测、不会把记忆上传到任何服务器
 - 包内容：`lib/`、`scripts/`、`docs/`、`cordis.patch.yml`、`README.md` / `README.en.md`、
@@ -22,7 +22,7 @@
 在「插件 → 发现」里添加索引：
 
 ```text
-https://unpkg.com/dsh-memory-nebula@1.6.3/market/index.json
+https://unpkg.com/dsh-memory-nebula@1.6.4/market/index.json
 ```
 
 搜索「记忆星图」安装。索引与详情页都在 npm 包里，由 unpkg 提供；不需要第二个站点。
@@ -32,16 +32,16 @@ https://unpkg.com/dsh-memory-nebula@1.6.3/market/index.json
 
 ```powershell
 # Windows PowerShell
-Get-FileHash .\dsh-memory-nebula-1.6.3.tgz -Algorithm SHA256
+Get-FileHash .\dsh-memory-nebula-1.6.4.tgz -Algorithm SHA256
 # 对照同目录的 .sha256 文件；不一致就停，不要装
 
-npm install .\dsh-memory-nebula-1.6.3.tgz --prefix <profile>
+npm install .\dsh-memory-nebula-1.6.4.tgz --prefix <profile>
 ```
 
 ```bash
 # macOS / Linux
-sha256sum -c dsh-memory-nebula-1.6.3.tgz.sha256
-npm install ./dsh-memory-nebula-1.6.3.tgz --prefix <profile>
+sha256sum -c dsh-memory-nebula-1.6.4.tgz.sha256
+npm install ./dsh-memory-nebula-1.6.4.tgz --prefix <profile>
 ```
 
 然后确认 `<profile>/package.json` 里两处都在：
@@ -97,6 +97,16 @@ node lib/standalone.mjs --share ./work.html --scope ws:星港 --hide level:lesso
 node lib/standalone.mjs --demo --share ./demo.html   # 示例库，不碰真实库
 ```
 
+## 先看不装
+
+不想动 DSH profile，也可以直接跑一次：
+
+```powershell
+npx -y -p dsh-memory-nebula memory-nebula --demo
+```
+
+它只启动独立引擎和内置示例库，不读真实记忆，也不写 profile。
+
 ## 升级
 
 1. 保留旧包：把当前 `dsh-memory-nebula-<旧版本>.tgz` 与 `.sha256` 放进 `releases/`。
@@ -145,7 +155,7 @@ Remove-Item -Recurse -Force "$env:USERPROFILE\.dsh\memory-nebula"
 npm run verify          # 单测 + release-check；prepack 也会跑
 node scripts/smoke.mjs http://127.0.0.1:7891/api/memory-nebula
 npm pack                # 生成 tgz
-sha256sum dsh-memory-nebula-1.6.3.tgz > dsh-memory-nebula-1.6.3.tgz.sha256
+sha256sum dsh-memory-nebula-1.6.4.tgz > dsh-memory-nebula-1.6.4.tgz.sha256
 npm publish             # 需要维护者账号；本仓库不自动发布
 ```
 
