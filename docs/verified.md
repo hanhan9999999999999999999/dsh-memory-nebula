@@ -8,6 +8,9 @@
   详情与检索共用同一张展开图。两项测试进 `test/snapshot.test.mjs`，总 **102/102**。
 - `docs/demo.html`（64 节点 / 78 连接）在 headless Edge 打开：画布出节点、搜索命中、详情正文正常，无 JS 错误。
 - 同一修复覆盖所有按列存快照；旧对象型快照不受影响；快照不再依赖 rAF 才显示节点。
+- 发布：88 文件 / 3,066,023B，sha256 `03db4f968283e437789c441f0c0a5758183635c72d9e58d6ef90f89baca76afa`；npm latest 1.6.3，
+  `dist.shasum=6c2eefeec3468b794ca48909e2db4a5beb58865a`；GitHub commit `bbf1474…`，Release `v1.6.3`（id 443394582）。
+- `docs/demo.html` 线上 200（399,418B），页内已是 `Promise.resolve(snapData().graph)` 与 `1.6.3`；headless Edge 出节点、搜索与详情正常。
 
 ## 1.6.2（2026-11-12）医生也带钥匙
 
