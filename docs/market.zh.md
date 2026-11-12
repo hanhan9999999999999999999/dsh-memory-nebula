@@ -95,6 +95,12 @@ npx memory-nebula-doctor --profile <你的 DSH profile 目录>
 
 它会检查 Node 版本、包文件、profile 依赖、bundle 声明、记忆源和可选的 `/ping` 端点。只读，不上传任何东西。
 
+## 可选的本机口令
+
+独立引擎可以加 `--token <至少 12 字符>`（或 `NEBULA_TOKEN`）。开启后所有路由都要凭据，
+浏览器直接打开页面会看到一张输口令的登录卡；登录成功写 `HttpOnly` cookie 并回到星图，
+错误口令不会放行。默认不传，行为不变；宿主模式继续用 DSH 的 Host / 认证围栏。
+
 ## 边界
 
 - 本机单用户工具，没有账号系统，不要把它暴露到公网；

@@ -95,6 +95,13 @@ npx memory-nebula-doctor --profile <your DSH profile directory>
 
 It checks the Node version, package files, profile dependency, bundle declaration, memory sources and an optional `/ping` endpoint. Nothing is uploaded.
 
+## Optional local password
+
+The standalone engine accepts `--token <at least 12 chars>` (or `NEBULA_TOKEN`). When set, every
+route requires a credential; a browser opening the page gets a small unlock card, and a correct
+password sets an `HttpOnly` cookie and returns to the map. A wrong password never gets through.
+Without the flag nothing changes; the host path keeps DSH's Host/auth fence.
+
 ## Boundaries
 
 - single-user, local tool: no accounts, do not expose it to the public internet;
