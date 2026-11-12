@@ -8,6 +8,7 @@
   `demo=true`、64 记忆 / 78 连接；`/graph` 也带 demo 标记。
 - `--demo` 之前只对 `--share/--export` 生效，服务器分支漏传 demo；已修，单测 **103/103**。
 - `npx -y -p dsh-memory-nebula memory-nebula --demo` 现在真的只读示例库。
+- Node 22.13.0 下复跑：103/103 单测、`release-check` 全绿（1.6.4 代码）；兼容矩阵的下界仍然成立。
 - 发布：88 文件 / 3,066,929B，sha256 `bad3f598874be5b988ad9dd0e6615ae48c3ca1bcfd8d2d28fb0852802cfbd760`；
   npm latest 1.6.4，`dist.shasum=9ddbdf650237b3b2157c49b775773dbaa5e057a5`；GitHub commit `bf94d55…`，Release `v1.6.4`（id 443451341）。
 
