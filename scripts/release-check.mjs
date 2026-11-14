@@ -392,6 +392,38 @@ if (!read('test/standalone.test.mjs').includes('reports the demo graph')) fail('
 if (!read('CHANGELOG.md').includes('## 1.6.4')) fail('CHANGELOG 缺 1.6.4')
 ok('1.6.4 构件：demo 服务器 / demo 标记 / 回归测试')
 
+// 1.7.0：键盘与读屏。门要盯住「以后有人删了键盘层，测试还得红」，
+// 所以断言的是结构 + 测试文件同时在位，而不是只查 CHANGELOG 有没有写。
+if (!exists('lib/web/nav.js')) fail('1.7.0 缺 lib/web/nav.js')
+if (!exists('test/nav.test.mjs')) fail('1.7.0 缺导航几何单测')
+if (!exists('test/a11y.test.mjs')) fail('1.7.0 缺可访问性结构门')
+if (!exists('docs/accessibility.md')) fail('1.7.0 缺 docs/accessibility.md')
+if (!read('lib/web/index.html').includes('id="skykeys"')) fail('键盘层 #skykeys 丢了')
+if (!read('lib/web/index.html').includes('id="a11y-live"')) fail('aria-live 播报区丢了')
+if (!read('lib/web/index.html').includes('id="a11y-index"')) fail('纯文本索引丢了')
+if (!read('lib/web/style.css').includes('.sr-only')) fail('style.css 缺 .sr-only')
+if (!read('lib/web/index.html').includes('class="skip-link"')) fail('1.7.0 缺跳过链接 .skip-link')
+if (!read('lib/web/style.css').includes('.skip-link:focus')) fail('跳过链接没有可见的焦点样式')
+if (!read('lib/web/app.js').includes('function bindKeyboardNav')) fail('键盘没接线')
+if (!read('lib/web/app.js').includes('function renderA11yIndex')) fail('索引没接线')
+if (!read('lib/web/render.js').includes('api.zoomBy')) fail('2D 缺 zoomBy')
+if (!read('lib/web/space3d.js').includes('zoomBy(factor)')) fail('3D 缺 zoomBy')
+if (!read('lib/host/share.js').includes("'nav.js'")) fail('单文件快照没内联 nav.js')
+if (!read('lib/host/http.js').includes("'nav.js'")) fail('独立引擎静态白名单漏了 nav.js')
+if (!read('README.md').includes('docs/accessibility.md')) fail('README 没链到可访问性文档')
+if (!read('docs/index.html').includes('Keyboard / screen reader')) fail('官网没有键盘/读屏卡片')
+if (!read('docs/interface.md').includes('accessibility.md')) fail('interface 文档没链到可访问性说明')
+if (!read('CHANGELOG.md').includes('## 1.7.0')) fail('CHANGELOG 缺 1.7.0')
+if (!read('docs/release.md').includes('1.7.0 实测')) fail('release.md 缺 1.7.0 实测记录')
+if (!read('docs/verified.md').includes('c6e9f8d50ca69da34c1d266ce3e8a0f5f26fd7bebf3a11bf2296c639a6be3d66')) fail('verified.md 缺 1.7.0 产物 sha256')
+if (!read('lib/web/index.html').includes('<main id="app">')) fail('1.7.0 缺 main 地标')
+if (!read('lib/web/app.js').includes("setAttribute('data-zh-aria', '最小连接强度')")) fail('连接强度滑杆缺可翻译的 aria 标签')
+if (!read('lib/web/app.js').includes("setAttribute('aria-label', T('最低重要度'))")) fail('重要度滑杆缺 aria-label')
+if (!read('docs/index.html').includes('--faint:#8a94a6')) fail('官网弱文字对比度没提到 4.5:1 以上')
+if (!read('docs/index.html').includes('class="shots reveal" role="region" tabindex="0"')) fail('官网截图条键盘不可达')
+if (!read('docs/verified.md').includes('axe-core 4.10.2')) fail('verified.md 缺 axe 审计记录')
+ok('1.7.0 构件：键盘层 / 读屏索引 / 两个渲染器 / 快照内联 / 文档与测试')
+
 let shots = null
 try {
   shots = JSON.parse(read('screenshots.json')).screenshots

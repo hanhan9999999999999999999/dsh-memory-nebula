@@ -45,6 +45,55 @@ html, body {
 #sky3dlbl { pointer-events: none; }
 #sky3d[hidden], #sky3dlbl[hidden] { display: none; }
 
+/* 只给读屏的文本：视觉上消失，但仍然留在可访问性树里。
+   不用 display:none / visibility:hidden —— 那会把内容一起从读屏里摘掉。 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 跳过链接：键盘用户第一个 Tab 就能越过一串工具栏，直接进星图。
+   平时收在屏幕外，聚焦时滑回顶部；鼠标用户不会看到它。 */
+.skip-link {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  z-index: 90;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #04202a;
+  font: 600 13px/1.2 var(--mono);
+  text-decoration: none;
+  transform: translate(-50%, -180%);
+  transition: transform 0.16s ease;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translate(-50%, 0);
+  outline: 2px solid #04202a;
+  outline-offset: 2px;
+}
+
+/* 键盘层：铺满舞台，只接键盘焦点、不吃鼠标（pointer-events:none），
+   所以点画布照旧能拖动；点下去时 app.js 把焦点递进来，接着就能用方向键走。 */
+#skykeys { position: absolute; inset: 0; pointer-events: none; outline: none; }
+
+#skykeys:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+  border-radius: 10px;
+}
+
 /* 背景：径向柔光 + 极淡噪点，避免大片死黑 */
 #vignette {
   position: absolute; inset: 0; pointer-events: none;

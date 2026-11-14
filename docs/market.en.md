@@ -28,6 +28,14 @@ Search covers titles, bodies and keywords. Results mark direct hits versus nodes
 
 “Spread from here” is not a second search box: it starts at this memory and walks existing links up to two hops, answering “what else is attached to this?”
 
+## Keyboard and screen readers
+
+You can walk the whole map without a mouse: Tab into the star layer, then arrow keys pick the next star by **spatial direction** (not list order), Enter opens it, `[` `]` follow an edge to a neighbour, `+` `-` zoom, `0` returns to the full map and `Home` jumps to the busiest star. Every step is announced through `aria-live`, e.g. “Current position: Type: Source Han Sans · Design system”.
+
+Screen readers get more than “this is a picture”: the page ships a plain-text summary (how many memories, how many links) and an importance-ordered memory index, while the canvases stay out of the accessibility tree so a reader does not wander across an empty canvas. Details and known limits: [accessibility.md](accessibility.md).
+
+![The shortcut sheet, including the six new star-layer keys](assets/keys-en.jpg)
+
 ## Hygiene, including the ugly parts
 
 Six read-only checks:
@@ -78,13 +86,13 @@ Above 3,000 memories it stays in the 2D nebula and asks you to filter before swi
 Add this index in the DSH plugin market:
 
 ```text
-https://unpkg.com/dsh-memory-nebula@1.6.4/market/index.json
+https://unpkg.com/dsh-memory-nebula@1.7.0/market/index.json
 ```
 
 Then search for “Memory Nebula” and install. Or install the npm package directly:
 
 ```bash
-npm install dsh-memory-nebula@1.6.4
+npm install dsh-memory-nebula@1.7.0
 ```
 
 Run the read-only doctor after installing:

@@ -1,4 +1,4 @@
-# 记忆星图 · memory-nebula
+﻿# 记忆星图 · memory-nebula
 
 [![CI](https://github.com/hanhan9999999999999999999/dsh-memory-nebula/actions/workflows/ci.yml/badge.svg)](https://github.com/hanhan9999999999999999999/dsh-memory-nebula/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/dsh-memory-nebula.svg)](https://www.npmjs.com/package/dsh-memory-nebula)
@@ -71,6 +71,7 @@
 | **首访引导**：搜一个词 → 看一条证据 → 走一条链，三步可跳过 | 首次打开自动出现，`?` 里可重看 |
 | **两万条级打开**：20,000 条 / 156,993 条连接，建图 2.53s、快照首屏 762ms | 无需切换；大图自动跳过生长动画，基准见 `docs/benchmarks.md` |
 | 时间回放（只看某天及之前） | 时间视图底部时间轴 |
+| **纯键盘 / 读屏**：方向键在星星之间按方向走、`[` `]` 沿连接走、`+` `-` 缩放、`Home` 跳枢纽 | 点一下画面（或 Tab 进星图）就能用；`?` 看全表 |
 | 快捷键一览 | `?` 或顶栏「?」 |
 
 ## 快速开始
@@ -84,7 +85,7 @@ dsh plugin --profile web add dsh-memory-nebula
 ```
 
 也可以在 DSH 的「插件 → 发现」里添加索引
-`https://unpkg.com/dsh-memory-nebula@1.6.4/market/index.json`，搜索「记忆星图」安装。
+`https://unpkg.com/dsh-memory-nebula@1.7.0/market/index.json`，搜索「记忆星图」安装。
 装完按下面的 2.5 跑一次 doctor。
 
 想先看看，不装进 DSH：
@@ -100,7 +101,7 @@ npx -y -p dsh-memory-nebula memory-nebula --demo
 ```powershell
 # 1) 装进 profile（二选一）
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
-npm install <path>\dsh-memory-nebula-1.6.4.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.7.0.tgz --prefix <profile>
 
 # 2) profile 的 package.json 里加依赖与 bundles（只加 dependencies 不会重组）
 #    dependencies:         "dsh-memory-nebula": "file:../../plugins/dsh-memory-nebula"
@@ -143,7 +144,7 @@ ebula.md --format md
 自检三条命令：
 
 ```bash
-npm test        # 103 项单元测试
+npm test        # 126 项单元测试
 npm run verify  # 单测 + 发布静态检查（npm pack 的 prepack 会自动再跑）
 node scripts/smoke.mjs   # 63 项接口契约（对运行中的实例）
 ```
@@ -170,6 +171,7 @@ node scripts/smoke.mjs   # 63 项接口契约（对运行中的实例）
 | [docs/data-and-edges.md](docs/data-and-edges.md) | 数据从哪来；7 类边怎么算、怎么剪枝；来源节点 |
 | [docs/recall-and-tools.md](docs/recall-and-tools.md) | 扩散激活检索；九个出口、补充包预算与每轮注入 |
 | [docs/interface.md](docs/interface.md) | 三种视图、交互、详情面板、LOD、看板/命令面板/主线、时间回放与导出 |
+| [docs/accessibility.md](docs/accessibility.md) | 键盘走位、读屏播报与索引、实现结构、已知限制与手工验收清单 |
 | [docs/http-api.md](docs/http-api.md) | HTTP 路由、`/ping` 字段、ETag/304、错误码、请求体限制 |
 | [docs/security.md](docs/security.md) | 本机服务边界、CORS/CSRF、CSP、只读保证、威胁模型与验证 |
 | [docs/operations.md](docs/operations.md) | 只读边界、装卸、已知限制、sidecar、发布信息 |
@@ -182,7 +184,7 @@ node scripts/smoke.mjs   # 63 项接口契约（对运行中的实例）
 | [SUPPORT.md](SUPPORT.md) | 提 issue 前先做什么、要带什么、绝不能贴什么 |
 | [docs/verified.md](docs/verified.md) | 每一条结论背后的实测证据 |
 | [docs/architecture.md](docs/architecture.md) | 模块分工、请求路径、不能破的不变量 |
-| [docs/testing.md](docs/testing.md) | 103 项单测、63 项冒烟、25 项安全探针、浏览器探针清单与手工验收 |
+| [docs/testing.md](docs/testing.md) | 126 项单测、63 项冒烟、25 项安全探针、浏览器探针清单与手工验收 |
 | [docs/roadmap.md](docs/roadmap.md) | 从 0.5 到 1.2：切片分享、首访引导、万条性能、国际化与发行支持 |
 | [CHANGELOG.md](CHANGELOG.md) | 版本变更 |
 
@@ -208,7 +210,7 @@ lib/
 scripts/smoke.mjs     只读契约自查（63 项）
 scripts/release-check.mjs  发布静态检查
 scripts/bench.mjs     10k 性能基准（建图 / 检索 / 体检 / 快照 / 内存）
-test/                 node:test 单元测试（103 项）
+test/                 node:test 单元测试（124 项）
 sidecar.ps1           Windows 独立引擎开关
 ```
 
@@ -228,6 +230,6 @@ sidecar.ps1           Windows 独立引擎开关
 
 ## 版本与许可
 
-- 当前版本 `1.6.4`，MIT。
+- 当前版本 `1.7.0`，MIT。
 - 打包内容：`lib/`、`scripts/`、`docs/`、`cordis.patch.yml`、`README.md` / `README.en.md`、`CHANGELOG.md`、`LICENSE`、`sidecar.ps1`（`test/` 与 `dev/` 不进包）。
 - 前端改动刷新页面即生效；`lib/host/` 下所有引擎文件（含 `adapters/`、`bridge.js`、`ledger.js`）由 LiveEngine 热载，`http.js` / `index.js` / `live.js` 改动要重启 DSH 或走独立引擎。

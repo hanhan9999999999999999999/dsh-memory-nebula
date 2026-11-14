@@ -2,6 +2,41 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.7.0（2026-11-14）键盘也能游
+
+- 键盘层实测：headless Edge（`--headless=new`，1440×900）打开重新生成的 `docs/demo.html`
+  （64 节点 / 78 连接 / 420,455B），`#skykeys` 拿到焦点后：
+  `→` 播报「当前位置：字体：思源黑体 + 霞鹜文楷 · 设计系统」，`↓` 换到「当前位置：配色方案 v2：夜航蓝 + 暖沙 · 设计系统」，
+  `]` 沿连接走到「当前位置：星港的界面配色直接复用设计系统 · 星港产品」，`+` 播「已放大」，
+  `Enter` 打开详情（`#detail` 为 `show`，标题与当前位置一致），`Esc` 收起并播「已离开星图」、焦点落回 `#btn-keys`。
+  全程 `window.__errs` 与控制台异常均为空。
+- 读屏：`#a11y-summary` 输出「记忆星图：64 条记忆，78 条连接。按 Tab 进入星图后，用方向键在星星之间移动，回车打开。」；
+  `#a11y-index` 生成 64 条（`A11Y_INDEX_MAX = 300`）；三张画布仍是 `aria-hidden`，不再挂无效的 `role="img"`。
+- 自动：126/126 单测（新增 `test/nav.test.mjs` 10 项几何、`test/a11y.test.mjs` 11 项结构门）；
+  `release-check` 全绿，并新增 1.7.0 构件门（键盘层 / 读屏索引 / 两个渲染器 / 快照内联 / 白名单 / 文档与测试）。
+- 真机抓到的发行缺口：独立引擎的 `STATIC` 白名单漏了 `nav.js`，HTTP 页面里 `window.NebulaNav === undefined`，
+  修前方向键只会播「这个方向没有别的记忆」、`]` 只会播「这颗星没有连出去的线」（离线快照因为内联，反而正常）。
+  补齐白名单后，同一探针在 `http://127.0.0.1:62117/` 上通过：`→`「深夜调试 · 日记」、`↓`「储物柜密码改了 · 日记」、
+  `]`「被一句「先别动」戳到 · 日记」、`Enter` 标题一致、`Esc` 焦点回 `#btn-keys`；回归进 `test/http.test.mjs`（21 项）。
+- 发布产物：`npm pack` **91 文件 / 3,229,329B**，sha256 `c6e9f8d50ca69da34c1d266ce3e8a0f5f26fd7bebf3a11bf2296c639a6be3d66`；
+  装进空目录（`npm i <tarball>`）后同一套检查仍过（smoke 63/63、CDP 键盘探针全通过），
+  包里含 `lib/web/nav.js`、`docs/accessibility.md`、`docs/assets/keys-en.jpg`。
+- 示例库的来源面板不再假报警：同一台 demo 服务上 `scripts/smoke.mjs` 曾报
+  「sources 读过节点 0 条 / 1 条错误」（`适配器 demo 不能扫描`）；`sourcesReport()` 现在在 demo 下直接统计内置数据，
+  重新跑 smoke **63 项全过、0 失败**。回归进 `test/demo.test.mjs`（第 6 项）。
+- 快照：`node lib/standalone.mjs --demo --share docs/demo.html` 重新生成，页内已含
+  `root.NebulaNav = api`、`nav.js` 内联与 `const APP_VERSION = '1.7.0'`。
+- 跳过链接：页面第一个 `Tab` 停在「跳到记忆星图」（`a.getBoundingClientRect().top === 10`，已滑入视野），
+  `Enter` 后 `document.activeElement.id === "skykeys"`，接着方向键即可走位——整条路径只用真实按键。
+- 3D（Galaxy）视图同样走通：按 `3` 切换后 `#sky3d` 可见，方向键播报「当前位置：星港的图标是一架纸飞机 · 星港产品」、
+  `]`「主人原话：「先别动我的声线」 · 语音实验室」、`+`「已放大」、`Enter` 详情标题一致、`Esc` 焦点回 `#btn-keys`，零异常。
+- axe-core 4.10.2 审计（`dev/axe.min.js` + `dev/cdp-axe.mjs`，headless Edge 注入后跑 `axe.run`）：
+  离线快照 **0 违例 / 40 passes**；HTTP 中文 **0 / 41**；`?lang=en` **0 / 42**；官网 `docs/index.html` **0 / 38**。
+  修前官网有 color-contrast 10 处（`#5f6878` on `#050608` = 3.6:1）、`.shots` 横向滚动条键盘不可达 1 处；
+  现在弱文字 `--faint:#8a94a6`（6.6:1）、截图条 `tabindex="0" role="region"`，星图页补 `<main id="app">` 与两个滑杆的 `aria-label`。
+  唯一 incomplete 项是画布渐变背景上的 color-contrast，axe 判不了，需人眼复核。
+- 未做真机屏幕阅读器验收（NVDA / VoiceOver 未跑）；键盘链路走的是 CDP 真实按键事件，不是页面内合成事件。
+
 ## 1.6.4（2026-11-13）demo 真的是 demo
 
 - 子进程回归：`node lib/standalone.mjs --demo --port <随机端口>` 启动后 `/ping` 返回

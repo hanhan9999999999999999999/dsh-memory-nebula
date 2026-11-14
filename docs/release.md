@@ -21,7 +21,7 @@ cd <plugin>
 # 1. 语法与静态检查（版本一致、UTF-8、import、死文件、CORS、document.write…）
 npm run check
 
-# 2. 单元测试（95 项，纯函数 + 契约）
+# 2. 单元测试（126 项，纯函数 + 契约 + 结构门）
 npm test
 
 # 3. 起一个干净实例，跑接口契约（63 项）
@@ -76,6 +76,11 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 1.6.2 实测：`doctor --token` 把口令放进 Authorization，endpoint 不再被自己的 401 挡住；100 单测；81 文件 / 2,929,631B。
 1.6.3 实测：修列存快照空白，102 单测；88 文件 / 3,066,023B（含 docs/demo.html）。
 1.6.4 实测：`--demo` 服务器模式使用示例库，103 单测；88 文件 / 3,066,929B。
+1.7.0 实测：键盘层与读屏索引（`nav.js` + 两个渲染器的 `centerOn`/`zoomBy`），**126 单测 / 63 项 smoke**；
+**91 文件 / 3,229,329B**，sha256 `c6e9f8d50ca69da34c1d266ce3e8a0f5f26fd7bebf3a11bf2296c639a6be3d66`。
+装进空目录（`npm i <tarball>`）后跑 demo 服务：smoke 63 项全过，键盘探针（CDP 真实按键）全通过，
+`lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
+axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.5.2 实测：只改 README 与精选目录入口，无代码变更；81 文件 / 2,922,704B，精确字节以 `npm pack` 输出为准。
 清单里应含 `sidecar.ps1`、`scripts/`、`test/` 不含（单测只在仓库里跑）、`dev/` 与截图不含。
 
@@ -86,7 +91,7 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.6.4.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.7.0.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：

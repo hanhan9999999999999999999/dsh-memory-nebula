@@ -50,6 +50,7 @@ Export the whole graph (text included) as one self-contained HTML for offline re
 | **One-click diagnostics**: version, environment, graph size and last error, with no memory text or paths | `?` → “Copy diagnostics”, `GET /diagnostics`, `--diagnose` |
 | First-visit guide: search → open one memory → trace one chain, skippable | appears once, replay from `?` |
 | Time replay (everything up to a day) | timeline in the time view |
+| **Keyboard and screen reader**: arrow keys walk between stars by direction, `[` `]` follow links, `+` `-` zoom, `Home` jumps to the hub | click the map (or Tab in), then use the keys; `?` lists them |
 | Keyboard map | `?` |
 
 ## Quick start
@@ -61,7 +62,7 @@ dsh plugin --profile web add dsh-memory-nebula
 ```
 
 You can also add the index
-`https://unpkg.com/dsh-memory-nebula@1.6.4/market/index.json` under
+`https://unpkg.com/dsh-memory-nebula@1.7.0/market/index.json` under
 Plugins → Discover, search for “Memory Nebula”, and install. Run the doctor in step 2.5 afterwards.
 
 Want a look first, without installing into DSH?
@@ -77,7 +78,7 @@ Or install from this checkout:
 ```powershell
 # 1) link the plugin (either way)
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
-npm install <path>\dsh-memory-nebula-1.6.4.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.7.0.tgz --prefix <profile>
 
 # 2) profile package.json: add the dependency AND the bundle
 #    dependencies:        "dsh-memory-nebula": "file:../../plugins/dsh-memory-nebula"
@@ -140,6 +141,7 @@ Adapter contract and every `sources.json` field: [docs/adapters.md](docs/adapter
 | [docs/recall-and-tools.md](docs/recall-and-tools.md) | Spreading activation, the nine tools, bridge budget, per-turn injection |
 | [docs/architecture.md](docs/architecture.md) | Module map, request path, invariants |
 | [docs/interface.md](docs/interface.md) | Views, interaction, detail panel, LOD, board / command palette, export |
+| [docs/accessibility.md](docs/accessibility.md) | Keyboard walking, screen-reader announcements and index, structure, known limits, manual checklist |
 | [docs/http-api.md](docs/http-api.md) | HTTP routes, `/ping` fields, ETag/304, error codes, body limits |
 | [docs/security.md](docs/security.md) | Local-only boundary, CORS/CSRF, CSP, read-only guarantee, threat model |
 | [docs/operations.md](docs/operations.md) | Read-only boundary, install, hot reload, known limits |
@@ -150,7 +152,7 @@ Adapter contract and every `sources.json` field: [docs/adapters.md](docs/adapter
 | [SECURITY.md](SECURITY.md) | Read-only boundary, HTTP protections and vulnerability reporting |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Local development, test commands and contribution rules |
 | [SUPPORT.md](SUPPORT.md) | what to run first, what to include, and what never to paste |
-| [docs/testing.md](docs/testing.md) | 103 unit tests, 63 smoke checks, 25 security probes, browser probes |
+| [docs/testing.md](docs/testing.md) | 126 unit tests, 63 smoke checks, 25 security probes, browser probes |
 | [docs/roadmap.md](docs/roadmap.md) | From 0.5 to 1.2: scoped sharing, first-run guidance, 10k-node performance, i18n and release support |
 | [CHANGELOG.md](CHANGELOG.md) | Version history |
 
@@ -191,4 +193,4 @@ test/                 node:test unit suite (100 assertions)
 
 ## Version
 
-`1.6.4`, MIT. Front-end changes apply on refresh; everything under `lib/host/` is hot-reloaded, while `http.js` / `index.js` / `live.js` need a DSH restart (or the standalone engine).
+`1.7.0`, MIT. Front-end changes apply on refresh; everything under `lib/host/` is hot-reloaded, while `http.js` / `index.js` / `live.js` need a DSH restart (or the standalone engine).

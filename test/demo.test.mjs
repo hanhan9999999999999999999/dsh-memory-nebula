@@ -92,3 +92,12 @@ test('demo: 详情 / 检索 / 证据链都能用', async () => {
   assert.equal(p.found, true)
   assert.equal(p.hops, 1)
 })
+
+test('demo: 来源面板不把示例库报成读取失败', async () => {
+  const n = new Nebula({ demo: true, log: () => {} })
+  await n.refresh()
+  const rep = n.sourcesReport()
+  assert.equal(rep.live.errors.length, 0, '示例库不该有读取错误')
+  assert.equal(rep.live.nodes, DEMO_MEMORIES.length)
+  assert.ok(rep.live.byProvider.demo > 0, '按 provider 统计里应有 demo')
+})

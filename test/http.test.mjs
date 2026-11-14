@@ -335,3 +335,13 @@ test('http: 可选本机口令挡住无凭据请求，cookie / query / Bearer �
   assert.equal(goodForm.headers.location, PREFIX + '/app')
   assert.match(String(goodForm.headers['set-cookie']), /nb_token=correct-horse-battery/)
 })
+
+test('http: 静态资源包含键盘层 nav.js（1.7.0 起）', async () => {
+  const h = await boot()
+  const files = ['index.html', 'style.css', 'app.js', 'api.js', 'render.js', 'space3d.js', 'i18n.js', 'nav.js']
+  for (const file of files) {
+    const res = await call(h, '/' + file)
+    assert.equal(res.status, 200, `${file} 没被服务出去`)
+    if (file.endsWith('.js')) assert.match(String(res.headers['content-type']), /javascript/, `${file} 的 MIME 不对`)
+  }
+})

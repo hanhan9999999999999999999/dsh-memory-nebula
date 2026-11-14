@@ -18,12 +18,12 @@
 <meta name="twitter:image" content="https://raw.githubusercontent.com/hanhan9999999999999999999/dsh-memory-nebula/main/docs/assets/preview-en.jpg">
 <link rel="canonical" href="https://hanhan9999999999999999999.github.io/dsh-memory-nebula/">
 <meta name="theme-color" content="#050608">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Memory Nebula","applicationCategory":"DeveloperApplication","operatingSystem":"Windows, macOS, Linux","softwareVersion":"1.6.4","description":"A local-first, read-only memory atlas for DeepSeek Harness. See how memories connect, follow evidence, and hand someone a single-file slice.","url":"https://hanhan9999999999999999999.github.io/dsh-memory-nebula/","downloadUrl":"https://www.npmjs.com/package/dsh-memory-nebula","codeRepository":"https://github.com/hanhan9999999999999999999/dsh-memory-nebula","license":"https://github.com/hanhan9999999999999999999/dsh-memory-nebula/blob/main/LICENSE","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Organization","name":"主人 & 小代码酱"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Memory Nebula","applicationCategory":"DeveloperApplication","operatingSystem":"Windows, macOS, Linux","softwareVersion":"1.7.0","description":"A local-first, read-only memory atlas for DeepSeek Harness. See how memories connect, follow evidence, and hand someone a single-file slice.","url":"https://hanhan9999999999999999999.github.io/dsh-memory-nebula/","downloadUrl":"https://www.npmjs.com/package/dsh-memory-nebula","codeRepository":"https://github.com/hanhan9999999999999999999/dsh-memory-nebula","license":"https://github.com/hanhan9999999999999999999/dsh-memory-nebula/blob/main/LICENSE","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Organization","name":"主人 & 小代码酱"}}</script>
 <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
 <script>document.documentElement.classList.add('js')</script>
 <style>
   :root{
-    --bg:#050608; --ink:#f3f6f8; --muted:#8e97a7; --faint:#5f6878;
+    --bg:#050608; --ink:#f3f6f8; --muted:#8e97a7; --faint:#8a94a6;
     --line:rgba(255,255,255,.09); --line-2:rgba(255,255,255,.14);
     --teal:#58e6c6; --amber:#efb878; --violet:#a896ff;
     --ease:cubic-bezier(.32,.72,0,1);
@@ -152,7 +152,7 @@
   .card{grid-column:span 6;position:relative;padding:8px;border:1px solid var(--line);border-radius:26px;background:rgba(255,255,255,.028);transition:transform .65s var(--ease),border-color .65s var(--ease)}
   .card:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.17)}
   .card .in{height:100%;padding:26px;border:1px solid rgba(255,255,255,.055);border-radius:19px;background:linear-gradient(160deg,rgba(255,255,255,.035),rgba(255,255,255,.012));box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
-  .card.s7{grid-column:span 7}.card.s5{grid-column:span 5}
+  .card.s7{grid-column:span 7}.card.s5{grid-column:span 5}.card.s12{grid-column:span 12}
   .card .tag{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-bottom:22px}
   .card h3{margin:0 0 9px;font-size:19px;line-height:1.2;letter-spacing:-.025em;font-weight:600}
   .card p{margin:0;color:var(--muted);font-size:12px;line-height:1.7;max-width:42ch}
@@ -319,7 +319,11 @@
       </article>
       <article class="card s6 reveal d1">
         <div class="glyph"><svg viewBox="0 0 24 24"><path d="m5 7 5 5-5 5M12 17h7"/></svg></div>
-        <div class="in"><div class="tag">CLI / CI</div><h3>A CLI for the rest of us.</h3><p><span class="mono">--share</span>, <span class="mono">--export</span>, <span class="mono">--scope</span>, <span class="mono">--token</span>, <span class="mono">--diagnose</span>. Build a snapshot in CI, gate a release on 100 tests, or diagnose a customer without touching their memory text.</p></div>
+        <div class="in"><div class="tag">CLI / CI</div><h3>A CLI for the rest of us.</h3><p><span class="mono">--share</span>, <span class="mono">--export</span>, <span class="mono">--scope</span>, <span class="mono">--token</span>, <span class="mono">--diagnose</span>. Build a snapshot in CI, gate a release on 126 tests, or diagnose a customer without touching their memory text.</p></div>
+      </article>
+      <article class="card s12 reveal">
+        <div class="glyph"><svg viewBox="0 0 24 24"><rect x="2.5" y="6.5" width="19" height="11" rx="2"/><path d="M6 10h.01M9.5 10h.01M13 10h.01M16.5 10h.01M8 13.5h8"/></svg></div>
+        <div class="in"><div class="tag">Keyboard / screen reader</div><h3>Playable without a mouse.</h3><p>Tab into the map and arrow keys walk between stars by spatial direction; <span class="mono">[</span> <span class="mono">]</span> follow edges, <span class="mono">+</span> <span class="mono">-</span> zoom, <span class="mono">0</span> returns to the full map and <span class="mono">Home</span> jumps to the busiest star. Every move is announced through <span class="mono">aria-live</span>, and a plain-text index lists all N memories for screen readers — the canvases stay out of the accessibility tree instead of pretending to be images.</p></div>
       </article>
     </div>
   </section>
@@ -329,7 +333,7 @@
       <div><span class="eyebrow">Screens</span><h2>Real pixels,<br><em>not mockups.</em></h2></div>
       <p>Captured from the live catalog: the English interface, the demo galaxy, and the 20k offline snapshot.</p>
     </div>
-    <div class="shots reveal">
+    <div class="shots reveal" role="region" tabindex="0" aria-label="Screenshots: the whole sky, a selected memory, an offline snapshot, and the 20k benchmark">
       <figure class="shot"><div class="in"><img src="assets/preview-en.jpg" alt="English memory nebula with 2,062 memories" loading="lazy"></div><figcaption><b>01 · The whole sky</b><span>2,062 memories · 10,027 links</span></figcaption></figure>
       <figure class="shot"><div class="in"><img src="assets/demo-en.jpg" alt="Demo galaxy with a selected memory and its neighbours" loading="lazy"></div><figcaption><b>02 · A selected memory</b><span>demo galaxy · evidence visible</span></figcaption></figure>
       <figure class="shot"><div class="in"><img src="assets/snapshot-en.jpg" alt="Offline snapshot of the nebula" loading="lazy"></div><figcaption><b>03 · Offline snapshot</b><span>one file · no network</span></figcaption></figure>
@@ -351,14 +355,14 @@
         <div class="in">
           <div class="bar"><i></i><i></i><i></i></div>
           <div><span class="d">$</span> <span class="w">dsh plugin --profile web add dsh-memory-nebula</span></div>
-          <div class="g">✓ resolved dsh-memory-nebula@1.6.4</div>
+          <div class="g">✓ resolved dsh-memory-nebula@1.7.0</div>
           <div class="g">✓ profile web · bundle enabled</div>
           <div class="d">  restart DSH to load the new host code</div>
           <div style="height:10px"></div>
           <div><span class="d">$</span> <span class="w">node scripts/doctor.mjs</span></div>
           <div class="a">[ok] runtime   Node 24.17.0</div>
           <div class="a">[ok] sources   9 memory stores</div>
-          <div class="a">[ok] endpoint  1.6.4 · standalone</div>
+          <div class="a">[ok] endpoint  1.7.0 · standalone</div>
           <div class="g">summary: 9 passed / 0 warnings / 0 failed</div>
           <div style="height:10px"></div>
           <div><span class="d">$</span> <span class="w">memory-nebula --share ./nebula.html --scope ws:design</span></div>
@@ -393,6 +397,7 @@
       <a href="https://github.com/hanhan9999999999999999999/dsh-memory-nebula" target="_blank" rel="noreferrer">GitHub</a>
       <a href="https://www.npmjs.com/package/dsh-memory-nebula" target="_blank" rel="noreferrer">npm</a>
       <a href="https://github.com/hanhan9999999999999999999/dsh-memory-nebula/blob/main/docs/troubleshooting.md" target="_blank" rel="noreferrer">Troubleshooting</a>
+      <a href="https://github.com/hanhan9999999999999999999/dsh-memory-nebula/blob/main/docs/accessibility.md" target="_blank" rel="noreferrer">Accessibility</a>
       <a href="https://github.com/hanhan9999999999999999999/dsh-memory-nebula/blob/main/docs/security.md" target="_blank" rel="noreferrer">Security</a>
     </div>
   </div>

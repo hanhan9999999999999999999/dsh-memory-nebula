@@ -10,10 +10,22 @@
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+<a class="skip-link" href="#skykeys" data-zh="跳到记忆星图">跳到记忆星图</a>
+<main id="app">
 <div id="stage">
   <canvas id="sky" aria-hidden="true"></canvas>
   <canvas id="sky3d" hidden aria-hidden="true"></canvas>
   <canvas id="sky3dlbl" hidden aria-hidden="true"></canvas>
+  <!-- 键盘层：画布对读屏是空白，真正的入口是这一层。它只拿焦点，不接鼠标事件
+       （pointer-events:none）——点画布时由 app.js 把焦点递进来，接着就能用方向键。 -->
+  <div id="skykeys" role="application" tabindex="0"
+       data-zh-aria="记忆星图：方向键在星星之间移动，回车打开详情"
+       aria-label="记忆星图：方向键在星星之间移动，回车打开详情"
+       aria-describedby="kb-help"></div>
+  <p id="kb-help" class="sr-only" data-zh="方向键在记忆之间按方向移动；回车打开当前位置的记忆；[ 和 ] 沿连接走；加号减号缩放；0 回到全图；Esc 离开星图，回到页面上的其它按钮。">方向键在记忆之间按方向移动；回车打开当前位置的记忆；[ 和 ] 沿连接走；加号减号缩放；0 回到全图；Esc 离开星图，回到页面上的其它按钮。</p>
+  <div id="a11y-live" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+  <p id="a11y-summary" class="sr-only"></p>
+  <ul id="a11y-index" class="sr-only" data-zh-aria="记忆索引" aria-label="记忆索引"></ul>
   <div id="vignette"></div>
   <div id="netbar" hidden role="status" aria-live="polite">接口断开了 · 正在重试…</div>
   <div id="skewbar" hidden role="status">
@@ -135,6 +147,7 @@
     <div data-zh="正在点亮记忆星云…">正在点亮记忆星云…</div>
   </div>
 </div>
+</main>
 <script>
 // 三维视图脚本可能还没被宿主进程认识（宿主跑旧代码时 404）→ 回落到本机独立引擎。
 // 静态文件由服务端 no-store 发出，不需要再拼时间戳。
@@ -150,6 +163,7 @@
 })()
 </script>
 <script src="i18n.js"></script>
+<script src="nav.js"></script>
 <script src="api.js"></script>
 <script src="render.js"></script>
 <script src="app.js"></script>
