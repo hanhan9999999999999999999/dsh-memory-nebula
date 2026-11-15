@@ -1732,6 +1732,29 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   for (const [f, needle] of docs47) if (!read(f).includes(needle)) fail('1.11.47 文档缺 ' + f + ' 的「' + needle + '」')
   ok('1.11.47 构件：缓存 v8 与 buildMs/cacheAgeMs 分家')
 
+  // 1.11.48：验收的每一步用自己的 DSH_HOME；体检断言跟上 1.11.46 的新语义
+  const va48 = read("scripts/verify-all.mjs")
+  if (!va48.includes("const HOME_BASE = process.env.DSH_HOME || join(tmpdir(), 'nebula-verify-' + process.pid)")) fail("verify-all 没给每步单独的家")
+  if (!va48.includes("function stepHome(label)")) fail("verify-all 缺 stepHome")
+  if (!va48.includes("const home = opts.env && opts.env.DSH_HOME ? opts.env.DSH_HOME : stepHome(label)")) fail("verify-all 的 run() 没按步取家")
+  if (!va48.includes("env: { ...process.env, ...(opts.env || {}), DSH_HOME: home }")) fail("verify-all 没把 DSH_HOME 注入子进程")
+  const v20 = readDev("../dev/verify-20k.mjs")
+  if (v20 && v20.includes("const ovh = await get('/overview?hygiene=1')") === false) fail("大库验收还在假设概览一定带体检")
+  if (v20 && !v20.includes("概览说清了体检是否在算")) fail("大库验收缺 hygienePending 那条断言")
+  if (!existsReal("dev/probe-step-home.mjs")) fail("缺 dev/probe-step-home.mjs")
+  if (existsReal("dev/probe-step-home.mjs") && !read("dev/probe-step-home.mjs").includes("每步一个家")) {
+    fail("probe-step-home 没有「每步一个家」的结果行")
+  }
+  const docs48 = [
+    ["CHANGELOG.md", "十二步验收，以前共用一个家"],
+    ["docs/verified.md", "## 1.11.48（2026-11-15）"],
+    ["docs/roadmap.md", "1.11.48 已交付"],
+    ["docs/release.md", "## 1.11.48 实测"],
+    ["docs/benchmarks.md", "以前共用一个家（1.11.48 更新）"],
+  ]
+  for (const [f, needle] of docs48) if (!read(f).includes(needle)) fail("1.11.48 文档缺 " + f + " 的「" + needle + "」")
+  ok("1.11.48 构件：验收每步一个家 / 体检断言跟新语义 / 文档五处")
+
 }
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {

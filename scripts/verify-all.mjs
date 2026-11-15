@@ -15,7 +15,8 @@
  * 退出码: 0 全过；1 有失败；2 参数错误。
  */
 import { spawn } from 'node:child_process'
-import { existsSync, readdirSync, statSync } from 'node:fs'
+import { mkdirSync, existsSync, readdirSync, statSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { setTimeout as sleep } from 'node:timers/promises'
@@ -64,11 +65,26 @@ function readMe() {
 const has = (p) => existsSync(p)
 const devFile = (n) => join(DEV, n)
 
+// ---- 每一步用自己的 DSH_HOME ----
+// 以前所有步骤共用一个 DSH_HOME：上一步留下的图缓存在下一步会被读盘恢复，
+// 更进一步——签名对不上时会先端旧图再在后台重建，后台那轮和下一步的探针抢 CPU。
+// 1.11.48 起每步一个新家，避免跨步串味。
+const HOME_BASE = process.env.DSH_HOME || join(tmpdir(), 'nebula-verify-' + process.pid)
+let stepSeq = 0
+function stepHome(label) {
+  stepSeq += 1
+  const safe = String(label).replace(/[^\w\u4e00-\u9fa5]+/g, '-').slice(0, 24)
+  const dir = join(HOME_BASE, 'step-' + String(stepSeq).padStart(2, '0') + '-' + safe)
+  mkdirSync(dir, { recursive: true })
+  return dir
+}
+
 // ---- 跑一步 ----
 function run(label, cmd, args, opts = {}) {
   return new Promise((done) => {
     const t0 = Date.now()
-    const child = spawn(cmd, args, { cwd: opts.cwd || PKG, env: { ...process.env, ...(opts.env || {}) } })
+    const home = opts.env && opts.env.DSH_HOME ? opts.env.DSH_HOME : stepHome(label)
+    const child = spawn(cmd, args, { cwd: opts.cwd || PKG, env: { ...process.env, ...(opts.env || {}), DSH_HOME: home } })
     let out = ''
     child.stdout.on('data', (b) => { out += b })
     child.stderr.on('data', (b) => { out += b })
