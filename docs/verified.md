@@ -2,6 +2,17 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.11.46（2026-11-15）
+
+| 项 | 结果 |
+| --- | --- |
+| 单测 | **382/382**（新增 `test/overview-hygiene-lazy.test.mjs` 4 项） |
+| 接口 | `GET /overview` 20 万条 12,940ms → **111ms**；`GET /hygiene` 9,579ms，第二次 6ms |
+| 浏览器 | `dev/verify-hygiene-lazy.mjs` **9/9**：概览 28ms、看板先「正在算」、算完自己填上 |
+| 兼容 | `overview({ hygiene: false })`、`overviewAsync()`、`?hygiene=1` 三条老路照旧 |
+
+产物：dsh-memory-nebula-1.11.46.tgz · 95 个文件 · 3483361 字节 · sha256 384d37c0cd3c409471232e17805faff7a546adb123f95bfcbf01b2924b120d3a（包内记录的是上一刀的数字）。
+
 ## 1.11.45（2026-11-15）
 
 ### CLI 入口的契约

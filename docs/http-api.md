@@ -201,6 +201,20 @@ body：`{ v: 2, version, build, demo, nodes: [...], edges: [...], stats, builtAt
 
 两条都是「先给你这张，新的马上到」的说法，页面据此自己轮询 `/graph` 直到两者都为 false。
 
+### `GET /overview` 的 hygiene / hygienePending 与 `GET /hygiene`（1.11.46 起）
+
+`GET /overview` 默认**不再等体检**：有缓存就带上，没算过就给 `hygiene: null`、
+`cards: null`，并加 `hygienePending: true`。要「算完再给」加 `?hygiene=1`（老行为）。
+
+```
+GET /api/memory-nebula/overview            → { stats, sources, ..., hygiene: null, cards: null, hygienePending: true }
+GET /api/memory-nebula/overview?hygiene=1  → { ..., hygiene: {...}, cards: {...}, hygienePending: false }
+GET /api/memory-nebula/hygiene             → { ok: true, hygiene: {...}, cards: {...}, at }
+```
+
+`/hygiene` 会分片算（20 万条约 9.6 秒），同一份图上并发调用共用一次计算，算完进缓存；
+第二次是毫秒级。界面在 `hygienePending` 时会自己去取这一份。
+
 ### `GET /graph` 的两档刷新（1.11.25 起）
 
 | 请求 | 语义 | 没变时的成本 |

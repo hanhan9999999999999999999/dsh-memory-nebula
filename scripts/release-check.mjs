@@ -663,7 +663,11 @@ ok('1.11.4 构件：生成器三件套 / 按时间切片 / 接线到路由与工
 {
   if (!read('lib/host/nebula.js').includes('opts.all')) fail('/share 没有整图取全的开关')
   if (!read('lib/host/share.js').includes('nebula.publicGraph({ all: true })')) fail('切片没走整图取全')
-  if (!read('lib/host/nebula.js').includes("cards: opts.hygiene === false ? null : this.cards()"))
+  // 1.11.46 起 cards 也跟着「体检要不要算」走：cached 且没算过时也不许顺手算。
+  if (
+    !read('lib/host/nebula.js').includes("cards: opts.hygiene === false ? null : this.cards()") &&
+    !read('lib/host/nebula.js').includes("cards: cachedOnly ? (cachedHygiene ? this.cards() : null)")
+  )
     fail('overview({hygiene:false}) 仍会顺手算 cards')
   if (!read('lib/host/share.js').includes('function buildShareSlice')) fail('切片没拆出主体')
   if (!read('lib/host/recall.js').includes('export async function recallAsync')) fail('缺 recallAsync')
@@ -1659,6 +1663,38 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   ]
   for (const [f, needle] of docs45) if (!read(f).includes(needle)) fail("1.11.45 文档缺 " + f + " 的「" + needle + "」")
   ok("1.11.45 构件：CLI 契约测试 17 项 / hops 拼错即 400 / 五处文档")
+
+  // 1.11.46 构件：概览不等体检
+  const neb46 = read("lib/host/nebula.js")
+  if (!neb46.includes("const cachedOnly = opts.hygiene === 'cached'")) fail("overview 没有 cachedOnly 这一档")
+  if (!neb46.includes("hygienePending: cachedOnly && !cachedHygiene")) fail("overview 没标 hygienePending")
+  const http46 = read("lib/host/http.js")
+  if (!http46.includes("const wantHygiene = url.searchParams.get('hygiene') === '1'")) fail("/overview 没有 ?hygiene=1 这一档")
+  if (!http46.includes("route === '/hygiene'")) fail("没有 GET /hygiene")
+  if (!http46.includes("'hygiene',")) fail("CAPABILITIES 里没有 hygiene")
+  const api46 = read("lib/web/api.js")
+  if (!api46.includes("get('/hygiene')")) fail("界面没有 hygienic 取数路径")
+  const app46 = read("lib/web/app.js")
+  if (!app46.includes("function hydrateHygiene(ov)")) fail("界面没有 hydrateHygiene")
+  if (!app46.includes("hydrateHygiene(ov)")) fail("hydrateHygiene 没被调用")
+  if (!app46.includes("if (ov.hygienePending && !ov.hygiene)")) fail("看板会把空清单当干净（缺 hygienePending 分支）")
+  if (!exists("test/overview-hygiene-lazy.test.mjs")) fail("缺 test/overview-hygiene-lazy.test.mjs")
+  if (exists("test/overview-hygiene-lazy.test.mjs")) {
+    const t46 = read("test/overview-hygiene-lazy.test.mjs")
+    if (!t46.includes("hygienePending")) fail("懒体检单测没断言 hygienePending")
+    if (!t46.includes("hygiene: 'cached'")) fail("懒体检单测没走 cached 这一档")
+  }
+  if (!exists("../dev/verify-hygiene-lazy.mjs")) fail("缺 ../dev/verify-hygiene-lazy.mjs")
+  const docs46 = [
+    ["CHANGELOG.md", "打开一个面板，不该先等体检"],
+    ["docs/verified.md", "## 1.11.46（2026-11-15）"],
+    ["docs/roadmap.md", "1.11.46 已交付"],
+    ["docs/release.md", "## 1.11.46 实测"],
+    ["docs/benchmarks.md", "打开面板别等体检（1.11.46 更新）"],
+    ["docs/http-api.md", "GET /hygiene"],
+  ]
+  for (const [f, needle] of docs46) if (!read(f).includes(needle)) fail("1.11.46 文档缺 " + f + " 的「" + needle + "」")
+  ok("1.11.46 构件：概览不等体检 / 体检单独一条路 / 空清单不冒充干净 / 六处文档")
 
 }
 for (const n of notes) console.log(`  ✔ ${n}`)

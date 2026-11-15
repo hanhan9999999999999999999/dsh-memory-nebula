@@ -689,3 +689,18 @@ node --test --experimental-test-coverage test/*.test.mjs
 顺带量到的一件事：**Windows 上没有真的 SIGTERM 投递**。`child.kill("SIGTERM")` 会直接结束进程（退出码 null + signal），所以 `bye()` 的优雅退出只能在 POSIX 上断言，Windows 上只能断言「按时走人」。
 
 复现：`node --test test/cli.test.mjs`、`node --test --experimental-test-coverage`。
+
+## 打开面板别等体检（1.11.46 更新）
+
+20 万条（`.tmp-200k`）上同一份图的三个请求：
+
+| 请求 | 改前 | 改后 |
+| --- | --- | --- |
+| `GET /overview`（首次） | 12,940ms | 111ms |
+| `GET /hygiene`（首次） | —（压在 overview 里） | 9,579ms |
+| `GET /hygiene`（第二次） | — | 6ms |
+| `GET /overview`（体检已缓存） | 12,940ms | 49ms（带体检与卡片） |
+
+结论：体检本身没变快（那 9.6 秒是两两比对 58 万项的真实成本），
+变的是**它不再挡在别人前面**。慢的步骤应该能被单独叫号。
+
