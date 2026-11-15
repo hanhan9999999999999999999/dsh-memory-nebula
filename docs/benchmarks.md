@@ -673,3 +673,19 @@ node --test --experimental-test-coverage test/*.test.mjs
 | CI 作业 | 三红 | 待复核 |
 
 复现：`node dev/sim-clean-clone.mjs`。
+
+
+## CLI 入口：用户敲的第一条命令（1.11.45 更新）
+
+以前 `lib/standalone.mjs` 的覆盖率是 41.30%、函数覆盖 25%——参数解析、端口冲突、导出、口令、畸形请求这些分支全靠人手动跑一遍。补了 17 项真 spawn 的契约测试之后：
+
+| 指标 | 1.11.44 | 1.11.45 |
+|---|---|---|
+| `lib/standalone.mjs` 行覆盖 | 41.30% | **70.76%** |
+| `lib/standalone.mjs` 函数覆盖 | 25.00% | **47.06%** |
+| 全部文件行覆盖 | 90.04% | **91.19%** |
+| 单测 | 357 | **378** |
+
+顺带量到的一件事：**Windows 上没有真的 SIGTERM 投递**。`child.kill("SIGTERM")` 会直接结束进程（退出码 null + signal），所以 `bye()` 的优雅退出只能在 POSIX 上断言，Windows 上只能断言「按时走人」。
+
+复现：`node --test test/cli.test.mjs`、`node --test --experimental-test-coverage`。

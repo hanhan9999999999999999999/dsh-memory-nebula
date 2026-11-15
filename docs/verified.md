@@ -2,6 +2,36 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.11.45（2026-11-15）
+
+### CLI 入口的契约
+
+`test/cli.test.mjs` 真 spawn `lib/standalone.mjs`，17 项全过（每条都在临时目录 + 独立 `DSH_HOME` 里跑）：
+
+| 覆盖的东西 | 断言的是 |
+|---|---|
+| `--version` / `-v` | 打印的版本与 `package.json` 一致，退出码 0 |
+| `--help` / `-h` | 帮助里列出 `--port` `--root` `--export` `--share` `--diagnose` `--demo` `--token` |
+| 参数缺值 / 端口非数字 / 短口令 | 说清是哪一项、退出码 2 |
+| 端口被占用 | 退出码 1、提示「端口 N 已被占用」，且在建图之前就报（< 20s） |
+| `--export` | JSON 可被 `JSON.parse` 且带 `stats.nodes`；`report.md` 非空；`--format xml` 退出 2 |
+| `--share` | 产出 `<!doctype html>`、> 50KB 的自包含快照；范围写错退出 2 并说明原因 |
+| `--diagnose --json` | 输出可解析、带 `runtime.node`，不启动端口 |
+| 服务运行中 | `/ping` 报出版本与 capabilities；`/app` 回 200 HTML；`--log` 里有一行 `standalone on …` |
+| 安全面 | 本机 Origin 的 `OPTIONS` 回 204，外来 Origin 回 403；外来 Origin 的 POST 403 |
+| `--token` | 不带口令读 `/ping` 回 401 且提示「需要本机口令」，带 `?token=` 回 200 并下发 `nb_token` cookie |
+| 畸形请求 | 40KB 的 URL 回 **431** 与「请求头或 URL 太长」，不是连接错误 |
+| 日志坏掉 | `--log` 指到目录时退回控制台，并只吵一次 |
+
+### hops 解析的一致性
+
+`test/share-hops.test.mjs` 4 项：不传/留空 → 2；`1`–`5` 原样；`0` `-1` `6` `9` `2.5` `abc` `2跳` `Infinity` `1e3` `NaN`
+全部 `status === 400` 且消息含「hops 需要 1–5 的整数」；`" 3 "` 与 `"02"` 合法。
+
+端到端：`--export --hops 9` 与 `--share --hops abc` 都退出 2，消息「hops 需要 1–5 的整数」（以前是静默按 5 / 按 2）。
+
+产物：dsh-memory-nebula-1.11.45.tgz · 95 个文件 · 3479007 字节 · sha256 06893f42afc67fcbcada34dea7f76d24740f26a6a5bb657c821c0d86ba768cd6（包内记录的是上一刀的数字）。
+
 ## 1.11.44（2026-11-15）
 
 CI 的 `verify` 作业从「只跑 ubuntu」改成 `ubuntu-latest` + `windows-latest` 两个系统。

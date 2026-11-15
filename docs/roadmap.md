@@ -522,6 +522,31 @@ axe 审计以前只跑离线快照和官网。把审计扩到 5 万条库的八�
   `items` 只列前 40 对，比 pair 集合其实是在比「谁先被遍历到」；改成 8 条（28 对）才真的在测签名稳定性。
 - 还没做：`tok` 587–630ms 仍是分词的硬成本；`stale` 953–1,210ms 现在成了第二大头（瓶颈是扫描倒排链本身）。
 
+## 1.11.45「用户最先碰到的那个文件，一行都没测过」（1.11.45 已交付）
+
+`package.json` 挂着两个 bin，用户装完敲的第一条命令就是它；可测试全在 `lib/` 里 import 模块，入口得 spawn，于是 `lib/standalone.mjs` 只有 41.30% 行覆盖、25% 函数覆盖。
+
+- 新增 `test/cli.test.mjs` 17 项（真 spawn）：版本/帮助/缺值/无效端口/端口占用在建图前就报/短口令/export 的 JSON 与 md/share 快照与范围报错/diagnose --json//ping 与 /app/跨端口 Origin 与外来写 403/--token 的 401 与 cookie/40KB URL 回 431/--log 写不进去只吵一次。
+- `parseShareHops` 不再静默回落：拼错与越界一律 400，与 `parseShareLimit` 对齐；`--export --hops` 复用同一个解析（以前 `9` 悄悄变 5、`abc` 悄悄变 2）。
+- `lib/standalone.mjs` 41.30% → 70.76%（函数 25% → 47%）；单测 357 → 378；全部文件 90.04% → 91.19%。
+- 记下一条平台事实：Windows 没有真的 SIGTERM 投递，`bye()` 的优雅退出只能在 POSIX 上断言。
+## 1.11.44「用户全在 Windows，CI 只在 Linux 上跑」（1.11.44 已交付）
+
+插件带 `sidecar.ps1`、路径全按 Windows 写，而 CI 的 `verify` 只在 `ubuntu-latest` 上跑——发布前的每一次验证都发生在用户不用的系统上。
+
+- `verify` 改成 `ubuntu-latest` + `windows-latest` 两个系统并行，脚本统一 `shell: bash`，作业名带系统名。
+- 先用 `git clone`（带 autocrlf）在本机模拟这条作业：check 通过、357 项单测全过，证明它该绿而不是该红。
+## 1.11.43「22 上，测试把自己打崩了」（1.11.43 已交付）
+
+CI 只剩 `Node 22.15.0 => Unit tests` 红；用 `npx node@22.15.0` 在本机复现，`test/scan-steps.test.mjs` 整份进程死（`exitCode 3221225477`，`0xC0000005` 访问违例）——Node 22 的 `node:sqlite` 还是实验实现。
+
+- `engines` → `>=24.0.0`；CI 矩阵只留 24；`release.yml` 打包改 `npm pack --ignore-scripts`（测试已在 CI 跑过）。
+- 三个作业从此全绿；打标签自动建 Release（tgz + SHA256SUMS.txt）也在这版跑通。
+## 1.11.42「从 GitHub 装不上」，因为 Releases 里没有包（1.11.42 已交付）
+
+包里没有 Windows 侧的东西，用户「从 GitHub 装」时却根本没有可下的 tarball：Releases 一直停在 v1.6.4。
+
+- 新增 `.github/workflows/release.yml`：`push` 上 `v*` 标签就 `npm pack` + 生成 `SHA256SUMS.txt` + `gh release create --generate-notes --verify-tag`。
 ## 1.11.41「CI 红了两版，因为没人看 Actions」（1.11.41 已交付）
 
 发布门禁要求了本地才有的 `dev/` 探针（整个目录被 gitignore），node 下限写成 22.13 而代码用了 22.15 才有的 zstd —— 干净机器上必红，本机永远绿。

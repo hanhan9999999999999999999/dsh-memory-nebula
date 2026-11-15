@@ -1631,6 +1631,35 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   for (const [f, needle] of docs44) if (!read(f).includes(needle)) fail("1.11.44 文档缺 " + f + " 的「" + needle + "」")
   ok("` + MARK + ` / ubuntu + windows / 作业名带系统 / 统一 bash / 文档三处")
 
+  // 1.11.45：CLI 入口补契约测试，hops 解析不再静默回落
+  if (!exists("test/cli.test.mjs")) fail("缺 test/cli.test.mjs（CLI 入口的契约测试）")
+  if (exists("test/cli.test.mjs")) {
+    const cliSrc = read("test/cli.test.mjs")
+    for (const needle of ["--version", "已被占用", "请求头或 URL 太长", "--token 之后不带口令读不到数据", "日志写不进去"]) {
+      if (!cliSrc.includes(needle)) fail("cli 单测缺 " + needle)
+    }
+  }
+  if (!exists("test/share-hops.test.mjs")) fail("缺 test/share-hops.test.mjs")
+  const hopsSrc = exists("test/share-hops.test.mjs") ? read("test/share-hops.test.mjs") : ""
+  if (hopsSrc && !hopsSrc.includes("hops 需要 1–5 的整数")) fail("hops 单测没断言 400 的消息")
+  const shareSrc = read("lib/host/share.js")
+  if (!shareSrc.includes("if (!/^\\d+$/.test(text) || !Number.isFinite(n) || n < 1 || n > MAX_HOPS)")) {
+    fail("parseShareHops 还在静默回落")
+  }
+  if (shareSrc.includes("if (!Number.isFinite(n)) return 2")) fail("parseShareHops 的旧实现还在")
+  const standaloneSrc = read("lib/standalone.mjs")
+  if (!standaloneSrc.includes("hops = parseShareHops(arg('hops', '2'))")) fail("CLI 的 --hops 没复用 parseShareHops")
+  if (standaloneSrc.includes("Number(arg('hops', '2')) || 2")) fail("CLI 的 --hops 还在静默回落")
+  const docs45 = [
+    ["CHANGELOG.md", "用户最先碰到的那个文件"],
+    ["docs/verified.md", "## 1.11.45（2026-11-15）"],
+    ["docs/roadmap.md", "1.11.45 已交付"],
+    ["docs/release.md", "## 1.11.45 实测"],
+    ["docs/benchmarks.md", "用户敲的第一条命令"],
+  ]
+  for (const [f, needle] of docs45) if (!read(f).includes(needle)) fail("1.11.45 文档缺 " + f + " 的「" + needle + "」")
+  ok("1.11.45 构件：CLI 契约测试 17 项 / hops 拼错即 400 / 五处文档")
+
 }
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {
