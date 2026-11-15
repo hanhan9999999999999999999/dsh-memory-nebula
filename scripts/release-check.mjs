@@ -1797,6 +1797,29 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   for (const [f, needle] of docs50) if (!read(f).includes(needle)) fail("1.11.50 文档缺 " + f + " 的「" + needle + "」")
   ok("1.11.50 构件：读不到的路径跳过而不是崩 / 门禁禁止直读 dev/ / 三种视野 / 文档五处")
 
+  // 1.11.51：sidecar.ps1 的端口边界与版本提示
+  const sc = read("sidecar.ps1")
+  if (!sc.includes("[regex]::Escape([string]$Port)")) fail("sidecar.ps1 的端口匹配没有按边界比对")
+  if (sc.includes('-like "*--port $Port*"')) fail("sidecar.ps1 还在用子串匹配端口（会杀错进程）")
+  if (!sc.includes("$script:RequiredNode")) fail("sidecar.ps1 的版本提示没有读 engines")
+  if (sc.includes("Node 22.13+")) fail("sidecar.ps1 的提示还写死 22.13+")
+  if (!exists("test/sidecar-script.test.mjs")) fail("缺 test/sidecar-script.test.mjs")
+  if (exists("test/sidecar-script.test.mjs")) {
+    const st = read("test/sidecar-script.test.mjs")
+    if (!st.includes("不许动 63411")) fail("sidecar 单测没有「停前缀端口不许杀掉别的实例」这一条")
+    if (!st.includes("0xef, 0xbb, 0xbf")) fail("sidecar 单测没有 BOM 断言")
+    if (!st.includes("engines.node")) fail("sidecar 单测没有核对 engines 的值")
+  }
+  const docs51 = [
+    ["CHANGELOG.md", "停 6341，别把 63411 一起停了"],
+    ["docs/verified.md", "## 1.11.51（2026-11-15）"],
+    ["docs/roadmap.md", "1.11.51 已交付"],
+    ["docs/release.md", "## 1.11.51 实测"],
+    ["docs/benchmarks.md", "脚本也要有测试（1.11.51 更新）"],
+  ]
+  for (const [f, needle] of docs51) if (!read(f).includes(needle)) fail("1.11.51 文档缺 " + f + " 的「" + needle + "」")
+  ok("1.11.51 构件：端口按边界比对 / 版本提示读 engines / 脚本带 BOM / 六项契约测试 / 文档五处")
+
 }
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {

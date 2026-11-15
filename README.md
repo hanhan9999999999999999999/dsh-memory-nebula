@@ -92,7 +92,7 @@ dsh plugin --profile web add dsh-memory-nebula
 ```
 
 也可以在 DSH 的「插件 → 发现」里添加索引
-`https://unpkg.com/dsh-memory-nebula@1.11.50/market/index.json`，搜索「记忆星图」安装。
+`https://unpkg.com/dsh-memory-nebula@1.11.51/market/index.json`，搜索「记忆星图」安装。
 装完按下面的 2.5 跑一次 doctor。
 
 想先看看，不装进 DSH：
@@ -176,8 +176,8 @@ node scripts/smoke.mjs   # 63 项接口契约（对运行中的实例）
 | `NEBULA_LARGE_LIBRARY` | 150000 | 多大的库算「该提醒你一声」（`/ping.scale`、`/overview.warnings`、来源面板那句实话） |
 
 | `NEBULA_HYGIENE_WARM=0` | 关掉「建完图顺手把体检算好」的后台预热（词频表预热照常） | 开 |
-| `NEBULA_CACHE=0` | 不读也不写盘上的图缓存（1.11.50 起） | 开 |
-| `NEBULA_PREWARM_DELAY` | 建完图后隔多久预热检索缓存（毫秒，1.11.50 起） | 1200 |
+| `NEBULA_CACHE=0` | 不读也不写盘上的图缓存（1.11.51 起） | 开 |
+| `NEBULA_PREWARM_DELAY` | 建完图后隔多久预热检索缓存（毫秒，1.11.51 起） | 1200 |
 | `NEBULA_HY_PROFILE=1` / `NEBULA_GRAPH_TIMING=1` / `NEBULA_REFRESH_PROFILE=1` / `NEBULA_SHARE_PROFILE=1` | 打分段计时到 stderr，排查慢在哪一段 | 关 |
 
 ## 文档
@@ -248,6 +248,6 @@ sidecar.ps1           Windows 独立引擎开关
 
 ## 版本与许可
 
-- 当前版本 `1.11.50`，MIT。
+- 当前版本 `1.11.51`，MIT。
 - 打包内容：`lib/`、`scripts/`、`docs/`、`cordis.patch.yml`、`README.md` / `README.en.md`、`CHANGELOG.md`、`LICENSE`、`sidecar.ps1`（`test/` 与 `dev/` 不进包）。
 - 前端改动刷新页面即生效；`lib/host/` 下所有引擎文件（含 `adapters/`、`bridge.js`、`ledger.js`）由 LiveEngine 热载，`http.js` / `index.js` / `live.js` 改动要重启 DSH 或走独立引擎。

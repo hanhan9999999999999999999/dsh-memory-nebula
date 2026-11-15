@@ -98,6 +98,14 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.51 实测
+
+- 全量单测 **392/392**；`scripts/release-check.mjs` 全部通过。
+- `sidecar.ps1`：`stop -Port 6341` 不再动 63411（改前实测会杀掉，pid 75464 那次）；`start → status → stop` 一轮 16.9s 内完成。
+- 找不到 node 的提示现在跟着 `package.json` 的 `engines.node`（`>=24.0.0`）走。
+
+1.11.51 产物：第一刀：95 个文件 / 3,496,495 字节 / sha256 8ce6a4c1616d296ec47f0980f7de6650530c8b6fa142f82a058b796c7904828f（回填后重打，包内记录的是上一刀的数字）。
+
 ## 1.11.50 实测
 
 - 门禁三种视野全过：带 `dev/`、`NEBULA_NO_DEV=1`、干净克隆（163 跟踪文件，17.4s）。
@@ -562,7 +570,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.50.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.51.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：

@@ -20,6 +20,13 @@ $script = Join-Path $plugin 'lib\standalone.mjs'
 $homeDir = if ($env:DSH_HOME) { $env:DSH_HOME } else { Join-Path $env:USERPROFILE '.dsh' }
 $logDir = Join-Path $homeDir 'memory-nebula'
 
+# 需要的 Node 版本写在 package.json 的 engines.node 里；这里读它，免得提示和真实要求各说一套。
+$script:RequiredNode = '>=24.0.0'
+try {
+  $pkg = Get-Content (Join-Path $plugin 'package.json') -Raw | ConvertFrom-Json
+  if ($pkg.engines -and $pkg.engines.node) { $script:RequiredNode = [string]$pkg.engines.node }
+} catch { }
+
 function Resolve-Node {
   if ($Node) {
     if (-not (Test-Path $Node)) { throw "指定的 node 不存在：$Node" }
@@ -43,13 +50,19 @@ function Resolve-Node {
       Select-Object -First 1
     if ($hit) { return $hit.FullName }
   }
-  throw '找不到 node：请把 Node 22.13+ 放进 PATH，或用 -Node 指定路径。'
+  throw "找不到 node：请把 Node $script:RequiredNode 放进 PATH，或用 -Node 指定路径。"
 }
 
 # 只认「这个端口」的那一个实例，别把别人的 7891 一起杀掉。
 function Get-Sidecars {
   Get-CimInstance Win32_Process -Filter "Name='node.exe'" |
-    Where-Object { $_.CommandLine -like '*standalone.mjs*' -and $_.CommandLine -like "*--port $Port*" }
+    Where-Object {
+      if ($_.CommandLine -notlike '*standalone.mjs*') { return $false }
+      # 端口要按完整的一段比对：-like '*--port 6311*' 会把 63111 也算进来，
+      # 于是 stop -Port 6311 会去杀 63111 上的那个实例（不是自己起的进程）。
+      $pattern = '--port\s+"?' + [regex]::Escape([string]$Port) + '"?(\s|$)'
+      return [bool]($_.CommandLine -match $pattern)
+    }
 }
 
 function Wait-Ping {
