@@ -79,6 +79,13 @@ Shift 点第二个节点，会找两点之间的**证据链**：每一跳是哪�
 
 超过 3,000 条时默认留在二维星云，并提示先筛选再切三维：软件渲染下三维会卡，星图不假装自己扛得住。
 
+图上传输也不整包重传（1.8.0）：`/graph`、单文件快照与前端脚本按 `Accept-Encoding` 走 br / gzip，
+示例库的图从 24KB 压到 4.4KB；刷新时带 `ETag` 复验，命中就是 304、零正文。
+
+五万条是分层扛（1.9.0）：首屏只发 10,000 条（4.26MB，整图 22.3MB），底部「继续加载」按重要度往下翻；
+超过 2 万条且缩小时，边画成簇间聚合线，放大后只画视口里的边——5 万节点一帧 11.5ms；
+单文件快照默认最多 20,000 条，超了会在页面底部写明「已裁剪」。
+
 ![一万条记忆的二维星云](assets/bench-10k.jpg)
 
 ## 安装
@@ -86,13 +93,13 @@ Shift 点第二个节点，会找两点之间的**证据链**：每一跳是哪�
 在 DSH 的插件市场里添加索引：
 
 ```text
-https://unpkg.com/dsh-memory-nebula@1.7.0/market/index.json
+https://unpkg.com/dsh-memory-nebula@1.11.38/market/index.json
 ```
 
 然后搜索「记忆星图」安装。也可以直接装 npm 包：
 
 ```bash
-npm install dsh-memory-nebula@1.7.0
+npm install dsh-memory-nebula@1.11.38
 ```
 
 装完先体检：

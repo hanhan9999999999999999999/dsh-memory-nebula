@@ -52,7 +52,9 @@ test('diagnostics: 只报告规模/来源身份，不出现路径或正文', () 
   assert.equal(d.graph.nodes, 12)
   assert.equal(d.graph.edges, 30)
   assert.equal(d.sources.length, 1)
-  assert.deepEqual(Object.keys(d.sources[0]).sort(), ['adapter', 'key', 'kind', 'provider', 'size', 'title'])
+  // 1.10.1 起 sources 多一个 error 字段（读坏时点名原因，正常时是空串）；
+  // 但路径与库文件名仍然不许出现——见下面几条断言。
+  assert.deepEqual(Object.keys(d.sources[0]).sort(), ['adapter', 'error', 'key', 'kind', 'provider', 'size', 'title'])
   const keys = collectKeys(d)
   assert.ok(!keys.includes('path'))
   assert.ok(!keys.includes('dbPath'))

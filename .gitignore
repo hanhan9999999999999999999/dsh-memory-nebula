@@ -13,3 +13,7 @@ Thumbs.db
 
 # local snapshots / exports
 *.snapshot.html
+
+# probe leftovers（探针用完的临时浏览器配置、临时库、夹具）
+.tmp-*/
+.tmp-*

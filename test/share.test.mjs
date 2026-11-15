@@ -31,6 +31,14 @@ test('share: 生成的是一份自带样式与脚本的单文件', async () => {
   assert.ok(edges >= 60)
 })
 
+// 1.11.0 起数据放在 <script type="application/json" id="nebula-snapshot-data"> 里，
+// 原始文本就是校验和的对象；测试直接拿这段文本来解析。
+function dataOf(html) {
+  const m = html.match(/<script type="application\/json" id="nebula-snapshot-data">([\s\S]*?)<\/script>/)
+  assert.ok(m, '找不到快照数据块')
+  return m[1]
+}
+
 test('share: 内联 i18n，英文快照不依赖外部脚本', async () => {
   const { html } = await share()
   assert.match(html, /window\.NebulaI18n/)
@@ -40,10 +48,7 @@ test('share: 内联 i18n，英文快照不依赖外部脚本', async () => {
 
 test('share: 数据里带正文，但不会提前闭合 script', async () => {
   const { html } = await share()
-  const dataStart = html.indexOf('window.__NEBULA_SNAPSHOT__ = ') + 'window.__NEBULA_SNAPSHOT__ = '.length
-  const dataEnd = html.indexOf(';</script>', dataStart)
-  assert.ok(dataStart > 0 && dataEnd > dataStart, '找不到快照数据段')
-  const data = html.slice(dataStart, dataEnd)
+  const data = dataOf(html)
   assert.ok(!data.includes('</script'))
   const payload = JSON.parse(data)
   assert.ok(Array.isArray(payload.graph.nodeColumns), '节点应按列存')
@@ -57,8 +62,7 @@ test('share: 数据里带正文，但不会提前闭合 script', async () => {
 test('share: 节点与边按列压缩后，核心字段仍能一一还原', async () => {
   const { html } = await share()
   const slice = sliceShareGraph(await demoNebula())
-  const dataStart = html.indexOf('window.__NEBULA_SNAPSHOT__ = ') + 'window.__NEBULA_SNAPSHOT__ = '.length
-  const payload = JSON.parse(html.slice(dataStart, html.indexOf(';</script>', dataStart)))
+  const payload = JSON.parse(dataOf(html))
   const nodeCols = payload.graph.nodeColumns
   const rows = payload.graph.nodes
   const coreNodeKeys = ['id', 'ws', 'cluster', 'level', 'label', 'importance', 'status', 'project', 'provider', 'degree', 'seed']

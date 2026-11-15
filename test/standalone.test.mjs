@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { spawn, spawnSync } from 'node:child_process'
+import http from 'node:http'
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -93,6 +94,24 @@ test('standalone --demo server reports the demo graph, not the real store', asyn
     assert.equal(ping.demo, true)
     assert.equal(ping.stats.nodes, 64)
     assert.equal(ping.stats.edges, 78)
+
+    // 超长 URL 由解析层拒掉：要有可读的 431 + JSON 原因，而不是半截响应被拆连接。
+    // 用 node:http 取原始字节，fetch 在 431 上会把它报成连接错误。
+    const long = await new Promise((resolve, reject) => {
+      const req = http.get(
+        { host: '127.0.0.1', port, path: '/api/memory-nebula/ping?x=' + 'a'.repeat(20000) },
+        (r) => {
+          let body = ''
+          r.setEncoding('utf8')
+          r.on('data', (c) => (body += c))
+          r.on('end', () => resolve({ status: r.statusCode, headers: r.headers, body }))
+        },
+      )
+      req.on('error', reject)
+    })
+    assert.equal(long.status, 431)
+    assert.equal(long.headers.connection, 'close')
+    assert.match(long.body, /请求头或 URL 太长/)
   } finally {
     child.kill()
   }

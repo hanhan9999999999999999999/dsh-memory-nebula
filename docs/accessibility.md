@@ -36,6 +36,7 @@
 | 纯文本索引 | `#a11y-index`（`.sr-only` 列表） | 按重要度排序的标题清单，最多 300 条；超出部分给一句「还有 N 条，用搜索或项目筛选收窄范围」 |
 | 走位播报 | `#a11y-live`（`role="status" aria-live="polite" aria-atomic="true"`） | 「当前位置：标题 · 项目」「已打开：…」「已放大」「这个方向没有别的记忆」等 |
 | 键位说明 | `#kb-help`（`.sr-only`，由 `aria-describedby` 关联） | 全部按键的一句话说明 |
+| 分页条 | `#pagebar` 里的 `#pagebar-status`（`role="status" aria-live="polite" aria-atomic="true"`） | 「分页：已加载 N / M 条，还有 K 条」「加载中…」「已经加载全部 N 条」；按钮用 `aria-describedby` 指向它，加载中 `aria-busy="true"` |
 
 画布本身保持 `aria-hidden="true"`。在 `aria-hidden` 的节点上设 `role="img"` / `aria-label`
 是**死代码**——读屏不会念，还会让人误以为无障碍已经做了；1.7.0 把 `applyGraph` 里那一段删掉了。
@@ -75,8 +76,13 @@
 ```bash
 node --test test/nav.test.mjs     # 10 项几何
 node --test test/a11y.test.mjs    # 11 项结构门
-npm test                          # 全量 126 项
+npm test                          # 全量 163 项
 ```
+
+分页条（1.9.2 起）单独有一条真机验证：`node dev/verify-1.9-ui.mjs` 会在 headless Edge 里
+打开分页状态、断言 `role` / `aria-live` / `aria-atomic` / `aria-describedby` / `aria-busy`、
+把按钮 `focus()` 起来确认可键盘操作，再注入 axe-core 跑 WCAG A/AA（期望 `violations: []`），
+最后确认末页收起时有「已经加载全部 N 条」的读屏文本。
 
 审计（开发机，仓库外放 `axe.min.js` 与 CDP 脚本）：
 
@@ -94,3 +100,35 @@ node dev/cdp-axe.mjs "D:/path/to/docs/index.html"         # 官网
 3. 按 `Enter`：右侧详情打开；按 `Esc` 收起详情，再按一次焦点回到顶栏。
 4. 按 `+` `-` `0`：画面缩放与回到全图正常，且缩放不会越过滚轮的上下限。
 5. 开读屏（NVDA / VoiceOver）按 `Tab` 顺序走一遍：应能听到摘要、索引条数与每一条标题。
+
+## 二、会滚动的面板，也得能被 Tab 到（1.11.10）
+
+axe 在 5 万条库的几个真实状态里抓到同一条 serious 违例：`scrollable-region-focusable` ——
+`#hits`（搜索结果）与 `#boards-body`（看板）自己会滚，却进不了 Tab 序列。鼠标滚轮能用的人不会发现，
+只用键盘的人则**永远看不到第二屏**。
+
+同一台机器上还有七个这样的容器：`#filters`、`#sources`、`#detail`、`#d-body`、`#pb-body`、
+`#cmdk-list`、`#lb-body`、`#cards-grid`。全部补上 `tabindex="0"` + `role="region"` + `aria-label`，
+并在 `style.css` 里给它们同一条 `:focus-visible` 描边 —— 焦点跑进面板时，人得看得见自己在哪里。
+
+验收脚本（两个都要跑）：
+
+```bash
+node dev/verify-axe-states.mjs "D:/path/to/.tmp-50k" 62842   # 8 个状态，期望每个 0 违例
+node dev/verify-taborder.mjs  "D:/path/to/.tmp-50k" 62851   # 连按 Tab，期望 5 个面板都在序列里
+```
+
+`verify-axe-states.mjs` 的每个状态都带**状态断言**（必须真的到了那个状态才审）：首屏 10,000 条且分页条可见、
+全图 52,073 条且分页条收起、看板打开且体检页签选中且正文 2,000 字以上、三维 18,000 个光点、
+搜索 12 条命中、详情 2,000 字以上、证据链打开、命令面板打开。审一个没打开的面板等于审空气 ——
+这条断言就是防这个的（第一次跑时「体检看板」只数到 0 项，正是断言把它拦下来的）。
+
+顺带把三个调试钩子补进 `window.__nebulaDebug`（`showDetail` / `showPath` / `renderHits`），
+否则探针只能靠「点一下坐标」去猜当前是什么状态。
+
+## 三、少了一整块，要一直说（1.11.23）
+
+数据完整性的提示不能只靠 toast。`#readerr` 是常驻元素：`role="status"` + `aria-live="polite"`，
+出现时不抢焦点（polite），文案把「哪个来源、为什么、后果」说全，附带一个「看来源」按钮把焦点送到明细面板。
+axe 在含横幅的状态下 0 违例。
+

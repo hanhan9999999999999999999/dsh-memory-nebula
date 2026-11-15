@@ -77,21 +77,24 @@
       <input id="q" data-zh-ph="搜索记忆 / 神经元扩散检索…" data-zh-aria="搜索记忆" placeholder="搜索记忆 / 神经元扩散检索…" autocomplete="off" spellcheck="false" aria-label="搜索记忆" />
       <span class="kbd">/</span>
     </div>
-    <div id="hits"></div>
+    <div id="hits" tabindex="0" role="region" aria-label="搜索结果"></div>
   </div>
+
+  <!-- 有库读不动时这条会一直挂着：toast 只有两秒，走开的人就永远不知道少了什么 -->
+  <div id="readerr" role="status" aria-live="polite" hidden></div>
 
   <div id="leftcol">
-    <div class="hud" id="sources"><div class="f-title"><span data-zh="记忆概览">记忆概览</span><i class="f-any" id="src-tag"></i></div><div id="src-list"></div></div>
-    <div class="hud" id="filters"></div>
+    <div class="hud" id="sources" tabindex="0" role="region" aria-label="记忆来源"><div class="f-title"><span data-zh="记忆概览">记忆概览</span><i class="f-any" id="src-tag"></i></div><div id="src-list"></div></div>
+    <div class="hud" id="filters" tabindex="0" role="region" aria-label="筛选"></div>
   </div>
 
-  <aside id="detail">
+  <aside id="detail" tabindex="0" role="region" aria-label="记忆详情">
     <div class="d-head">
       <div class="d-meta" id="d-meta"></div>
       <div class="d-title" id="d-title"></div>
       <div class="d-imps" id="d-imps"></div>
     </div>
-    <div class="d-body" id="d-body"></div>
+    <div class="d-body" id="d-body" tabindex="0" role="region" aria-label="记忆正文"></div>
   </aside>
 
   <div class="hud" id="legend"></div>
@@ -100,7 +103,7 @@
       <span id="pb-title" data-zh="证据链">证据链</span>
       <button id="pb-close" data-zh-title="关闭（Esc）" data-zh-aria="关闭证据链" title="关闭（Esc）" aria-label="关闭证据链">×</button>
     </div>
-    <div id="pb-body"></div>
+    <div id="pb-body" tabindex="0" role="region" aria-label="证据链内容"></div>
   </div>
   <div id="boards" hidden role="dialog" aria-label="看板">
     <div class="cards-head">
@@ -113,11 +116,11 @@
       </div>
       <button id="boards-close" data-zh-title="关闭（Esc）" data-zh-aria="关闭看板" title="关闭（Esc）" aria-label="关闭看板">×</button>
     </div>
-    <div id="boards-body"></div>
+    <div id="boards-body" tabindex="0" role="region" aria-label="看板内容"></div>
   </div>
   <div id="cmdk" hidden role="dialog" aria-label="命令面板">
     <input id="cmdk-input" data-zh-ph="搜记忆、切换视图、打开项目卡片…" data-zh-aria="命令面板输入" placeholder="搜记忆、切换视图、打开项目卡片…" autocomplete="off" spellcheck="false" aria-label="命令面板输入" />
-    <div id="cmdk-list"></div>
+    <div id="cmdk-list" tabindex="0" role="region" aria-label="命令列表"></div>
     <div class="cmdk-foot"><span data-zh="/ 搜索">/ 搜索</span><span data-zh="↑↓ 选择">↑↓ 选择</span><span data-zh="Enter 执行">Enter 执行</span><span data-zh="Esc 关闭">Esc 关闭</span></div>
   </div>
   <div id="linebar" hidden>
@@ -125,7 +128,7 @@
       <span id="lb-title" data-zh="主线">主线</span>
       <button id="lb-close" data-zh-title="关闭（Esc）" data-zh-aria="关闭主线" title="关闭（Esc）" aria-label="关闭主线">×</button>
     </div>
-    <div id="lb-body"></div>
+    <div id="lb-body" tabindex="0" role="region" aria-label="主线内容"></div>
   </div>
   <div id="timebar" hidden>
     <span class="tb-label" data-zh="时间回放">时间回放</span>
@@ -138,7 +141,7 @@
       <small id="cards-sub" data-zh="每个工作区一张交接卡">每个工作区一张交接卡</small>
       <button id="cards-close" data-zh-title="关闭（Esc）" data-zh-aria="关闭项目卡片" title="关闭（Esc）" aria-label="关闭项目卡片">×</button>
     </div>
-    <div id="cards-grid"></div>
+    <div id="cards-grid" tabindex="0" role="region" aria-label="项目卡片内容"></div>
   </div>
   <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
   <div id="hint"><b data-zh="这里还没有星星">这里还没有星星</b><span data-zh="记忆库是空的，或者还没建立连接">记忆库是空的，或者还没建立连接</span></div>

@@ -35,6 +35,8 @@ Export the whole graph (text included) as one self-contained HTML for offline re
 | Evidence chain: how two memories are actually connected | select one, `Shift`-click another |
 | **Cross-plugin bridge**: what another plugin just injected → the neighbours it did not | `nebula_bridge`, per-turn injection |
 | **Attach a new memory store**: SQLite / notes dir / JSONL | `nebula_sources`, `sources.json` |
+| **Name an unreadable store**: no more silent "0 memories" | red row in Sources, one toast at startup, `sourceErrors` in `--diagnose` |
+| **Snapshot checksum**: single-file snapshots carry a sha256, so an edited or truncated file says so on open | "checksum ok" toast, or a red banner with expected vs actual digest; unparsable data reports itself instead of a half-drawn page |
 | **Push from a remote memory service** | `nebula_ingest`, `POST /ingest` |
 | Export the whole graph (MD report / JSON) | `GET /export?format=md\|json` |
 | Corrections: mute a wrong edge | `×` next to a neighbour, or `nebula_link(action="mute")` |
@@ -50,6 +52,11 @@ Export the whole graph (text included) as one self-contained HTML for offline re
 | **One-click diagnostics**: version, environment, graph size and last error, with no memory text or paths | `?` → “Copy diagnostics”, `GET /diagnostics`, `--diagnose` |
 | First-visit guide: search → open one memory → trace one chain, skippable | appears once, replay from `?` |
 | Time replay (everything up to a day) | timeline in the time view |
+| **Fifty thousand, paged**: first screen is 10,000 memories in 4.26MB (whole graph 22.3MB); "load more" follows the importance ranking | 50k measured at 197,569 edges / 0 orphans; `GET /graph?limit=&offset=` |
+| **Viewport culling**: only edges inside the view are drawn; zoomed out, edges become cluster-to-cluster bundles; 11.5ms per frame at 50k nodes | automatic; `pick()` walks a spatial grid |
+| **Snapshot sharding**: single-file snapshots cap at 20,000 memories and say "trimmed" on the page | `GET /share?limit=` (max 50,000), `--share` |
+| **3D with a draw budget**: above 18,000 memories the galaxy draws the most important ones and says so, instead of turning big libraries away; ~47–51ms per frame at 50k under software rendering | automatic in the galaxy view; `docs/troubleshooting.md` §5 |
+| **Compressed large responses**: `/graph`, snapshots and the front end negotiate br / gzip; refreshes revalidate with 304 | browsers negotiate automatically; `HEAD` gives length, see `docs/http-api.md` |
 | **Keyboard and screen reader**: arrow keys walk between stars by direction, `[` `]` follow links, `+` `-` zoom, `Home` jumps to the hub | click the map (or Tab in), then use the keys; `?` lists them |
 | Keyboard map | `?` |
 
@@ -62,7 +69,7 @@ dsh plugin --profile web add dsh-memory-nebula
 ```
 
 You can also add the index
-`https://unpkg.com/dsh-memory-nebula@1.7.0/market/index.json` under
+`https://unpkg.com/dsh-memory-nebula@1.11.38/market/index.json` under
 Plugins → Discover, search for “Memory Nebula”, and install. Run the doctor in step 2.5 afterwards.
 
 Want a look first, without installing into DSH?
@@ -78,7 +85,7 @@ Or install from this checkout:
 ```powershell
 # 1) link the plugin (either way)
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
-npm install <path>\dsh-memory-nebula-1.7.0.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.14.tgz --prefix <profile>
 
 # 2) profile package.json: add the dependency AND the bundle
 #    dependencies:        "dsh-memory-nebula": "file:../../plugins/dsh-memory-nebula"
@@ -193,4 +200,4 @@ test/                 node:test unit suite (100 assertions)
 
 ## Version
 
-`1.7.0`, MIT. Front-end changes apply on refresh; everything under `lib/host/` is hot-reloaded, while `http.js` / `index.js` / `live.js` need a DSH restart (or the standalone engine).
+`1.8.0`, MIT. Front-end changes apply on refresh; everything under `lib/host/` is hot-reloaded, while `http.js` / `index.js` / `live.js` need a DSH restart (or the standalone engine).

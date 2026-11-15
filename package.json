@@ -1,6 +1,6 @@
 {
   "name": "dsh-memory-nebula",
-  "version": "1.7.0",
+  "version": "1.11.38",
   "private": false,
   "description": "Local-first memory nebula for DeepSeek Harness — read-only graph, spreading recall, evidence chains, offline snapshots. 记忆星图：把 DSH 各工作区的记忆只读连成一张可交互星云。",
   "type": "module",
@@ -40,7 +40,9 @@
     "start": "node lib/standalone.mjs",
     "verify": "npm test && npm run check",
     "prepack": "npm run verify",
-    "doctor": "node scripts/doctor.mjs"
+    "doctor": "node scripts/doctor.mjs",
+    "verify:all": "node scripts/verify-all.mjs",
+    "verify:full": "node scripts/verify-all.mjs --full"
   },
   "publishConfig": {
     "access": "public"

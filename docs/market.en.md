@@ -79,6 +79,10 @@ Same-machine benchmark with 10,000 memories and 78,593 links:
 
 Above 3,000 memories it stays in the 2D nebula and asks you to filter before switching to 3D: software rendering would choke, and the map does not pretend otherwise.
 
+Transfer does not resend the whole graph either (1.8.0): `/graph`, single-file snapshots and the front-end scripts negotiate br / gzip, and the demo graph drops from 24KB to 4.4KB; refreshes revalidate with `ETag`, so a hit is a 304 with no body.
+
+Fifty thousand memories are handled in layers (1.9.0): the first screen sends 10,000 memories (4.26MB against a 22.3MB whole graph) and "load more" follows the importance ranking; above 20,000 memories, zoomed out, edges are drawn as cluster-to-cluster bundles and zoomed in only the edges inside the view survive — 11.5ms per frame at 50k nodes. Single-file snapshots cap at 20,000 memories and say "trimmed" on the page when they do.
+
 ![A 10,000-memory 2D nebula](assets/bench-10k.jpg)
 
 ## Install
@@ -86,13 +90,13 @@ Above 3,000 memories it stays in the 2D nebula and asks you to filter before swi
 Add this index in the DSH plugin market:
 
 ```text
-https://unpkg.com/dsh-memory-nebula@1.7.0/market/index.json
+https://unpkg.com/dsh-memory-nebula@1.11.38/market/index.json
 ```
 
 Then search for “Memory Nebula” and install. Or install the npm package directly:
 
 ```bash
-npm install dsh-memory-nebula@1.7.0
+npm install dsh-memory-nebula@1.11.38
 ```
 
 Run the read-only doctor after installing:

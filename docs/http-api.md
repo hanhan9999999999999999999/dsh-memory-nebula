@@ -1,7 +1,8 @@
 # 记忆星图 · HTTP 接口
 
-前缀固定为 `/api/memory-nebula`，只监听本机。所有响应 `no-store`，JSON 额外带 `nosniff` 与
-`referrer-policy: no-referrer`；HTML 另带 CSP 与 `X-Frame-Options: SAMEORIGIN`。
+前缀固定为 `/api/memory-nebula`，只监听本机。JSON 响应带 `nosniff` 与
+`referrer-policy: no-referrer`，默认 `cache-control: no-store`（`/graph` 与静态资源例外，见下）；
+HTML 另带 CSP 与 `X-Frame-Options: SAMEORIGIN`。
 
 ## 约定
 
@@ -19,6 +20,25 @@
 - 错误体：`{ "error": "人话说明" }`；参数错误 400，找不到 404，请求体过大 413，未预期异常 500。
 - 版本与构建：`/ping` 的 `version` 来自 `package.json`，`build` 是 `lib` 下全部 `.m?js` 的 mtime 最大值
   （改任何模块都会推进）。
+
+## 传输：压缩、缓存与 HEAD（1.8.0 起）
+
+- **压缩**：按 `Accept-Encoding` 协商 `br`（优先）/ `gzip` / `deflate`；只压文本类
+  （JSON、HTML、JS、CSS、SVG、纯文本）且正文 ≥ **1024B**。压缩响应带
+  `content-encoding` 与 `vary: accept-encoding`，`content-length` 是**压缩后**的长度。
+  `q=0` 是明确拒绝，`*` 表示接受任意；都不接受时回 identity，不报错。
+  涉及 `/graph`、`/share`、`/diagnostics`、`/export` 与静态资源；小响应不压。
+- **缓存**：`/graph` 用弱 `ETag: W/"<sig>-<build>"` 与 `cache-control: no-cache`——
+  浏览器可以存下来，刷新时带 `If-None-Match` 复验，命中回 **304**（无正文）；
+  `sig` 变了自然换 ETag，不会拿到旧图。`/graph` 的 304 也带 `vary: accept-encoding`。
+- **静态资源**：`cache-control: no-cache` + 强 `ETag`（mtime+size），复验命中 **304**；
+  压缩结果按 `name:mtime:encoding` 在进程内缓存，改文件立刻失效。
+- **HEAD**：按 GET 路由处理，返回同一组头与 `content-length`（压缩后长度），但**不写正文**；
+  `HEAD /app`、`HEAD /graph`、`HEAD /style.css` 都可用。
+- **超限请求体**：超过 256KB 回 **413** `{ "error": "请求体超过 256 KB" }` 并带
+  `connection: close`；服务端先停读、把响应写完再断开，客户端拿到的是 413 而不是连接重置。
+- **超长 URL / 请求头**：解析层（还没进路由）就判 >16KB 时回 **431**
+  `{ "error": "请求头或 URL 太长" }` + `connection: close`；坏请求行/坏 chunk 回 400 同样带 JSON 原因。
 
 ## `GET /ping`
 
@@ -87,11 +107,29 @@ lastError: none
 
 ## `GET /graph`
 
-查询参数：`refresh=1` 强制重建（等价 `POST /refresh`）。
+查询参数：`refresh=1` **看看有没有新东西**（指纹没变就不重建，页面加载与轮询走这条）；
+`force=1` **强制重建**（1.11.25 起与 `refresh=1` 分开）；`limit`、`offset`、`sig` 用于分页（1.9.0 起）。
 
-响应头带 `ETag: "<sig>-<build>"`；请求带 `If-None-Match` 且命中时返回 **304**（无 body）。
-body：`{ v: 2, version, build, demo, nodes: [...], edges: [{s,d,w,t,curated}], stats, builtAt }`。
-`edges` 用节点下标（不是 id）；节点只带绘制字段，正文/关键词/邻居按需走 `/node`。
+响应头带 `ETag: "W/<sig>-<build>"`；请求带 `If-None-Match` 且命中时返回 **304**（无 body）。
+**分页的 ETag 会追加上 `-p<offset>-<limit>`**，整图与某一页不会互相 304。
+body：`{ v: 2, version, build, demo, nodes: [...], edges: [...], stats, builtAt, page? }`。
+
+分页契约：
+
+- `limit` 取值 1–50000，缺省时超过 10000 的库只回前 **10000** 条；`limit=0` 视同缺省。
+- `offset` 为非负整数。非整数（`1.5`）、负数、超上限一律 **400**，错误文案说明是哪个参数。
+- 带 `sig` 且与本机当前图签名不符 → **409** `{ error: "图已更新，请从第一页重新加载", sig }`。
+  名次会随重建而变，跨签名接着取下页必然串页，所以宁可让前端从第一页重来。
+- 有分页时 `page = { total, offset, limit, next, order: 'importance' }`，`next` 为空表示到底了。
+  排序是 `importance → degree → id`，同一份图内稳定。
+
+边的编码：
+
+- 两端都在本次响应里 → `{ s, d }`，`s`/`d` 是**本次 `nodes` 数组的下标**。
+- 一端在本次响应、另一端在已加载的前页 → `{ a, b }`，用**节点 id**（前端合并时按 id 认）。
+- 两端都不在 → 不发这条边；前端合并后按 `a|b|t` 去重，重复请求同一页不会长重边。
+
+节点只带绘制字段，正文/关键词/邻居按需走 `/node`。
 
 ## `GET /node?id=<id>`
 
@@ -122,11 +160,86 @@ body：`{ v: 2, version, build, demo, nodes: [...], edges: [{s,d,w,t,curated}], 
 | `POST /unlink` | `{ a, b }` | 删一条手工边 |
 | `POST /mute` | `{ a, b }` | 屏蔽一对自动关联，重建也不再连 |
 | `POST /unmute` | `{ a, b }` | 解除屏蔽 |
-| `POST /refresh` | 无 | 重建图；与 `/graph` 同构返回 |
+| `POST /refresh` | 无 | 先比指纹，变了才重建；与 `/graph` 同构返回，另带 `rebuilt` / `unchanged` / `why` / `refreshMs`（1.11.24 起）；`?force=1` 强制重建 |
 | `POST /ingest` | `{ provider, items: [...] }` | 远端推送，落 `ingest/<provider>.jsonl` 后重建 |
 
 `link`/`mute` 的端点不存在时返回 **404**（`missingNodes` 带 `status=404`）；`a`/`b` 缺失 400；
 `ingest` 缺 `provider`、`items` 非数组 400，单次上限 5000 条。
+
+### `GET /progress`（1.11.32 起）
+
+建图期间的进度。**它不等待建图**——`/ping` 与 `/graph` 在冷启动时都要等图建完才应答，
+所以页面不能用它们问进度，只能用这一条。
+
+| 字段 | 含义 |
+| --- | --- |
+| `building` | 现在是不是在建图 |
+| `progress` | `{ stage, label, step, total, nodes, ms, at }`，不在建图时是 `null` |
+| `nodes` | 手上这张图有多少条（建完才有意义） |
+| `stale` | 现在给的这张图是不是上一版（见 1.11.30 的 `stale`） |
+
+阶段名固定为 `scan`、`nodes`、`df`、`sig`、`postings`、`cand`、`score`、`prune`、`sources`、`cluster`、`output` 之一。
+
+
+### `GET /ping` 的 scale 与 `/overview` 的 warnings（1.11.34 起）
+
+| 字段 | 在哪 | 含义 |
+| --- | --- | --- |
+| `scale.nodes` / `scale.edges` | `/ping`、`/progress`、`/overview` | 当前图的规模 |
+| `scale.level` | 同上 | `ok` 或 `large`（默认 ≥150,000 节点算 large） |
+| `scale.buildMs` | 同上 | 最近一次建图耗时 |
+| `warnings[].code` | `/overview` | 现在只有 `large-library`，`message` 里写清条数与耗时，可直接展示 |
+
+门槛可用环境变量 `NEBULA_LARGE_LIBRARY` 调整；探针靠它在一个小库上演出「库很大」这场戏。
+
+### `GET /graph` 的 refreshing 与 stale（1.11.30 起）
+
+| 字段 | 含义 |
+| --- | --- |
+| `refreshing` | 后端正在重建图；这一份是旧图，建完会换 |
+| `stale` | 这一份来自过期缓存（签名对不上），后台已经排了一轮重建 |
+
+两条都是「先给你这张，新的马上到」的说法，页面据此自己轮询 `/graph` 直到两者都为 false。
+
+### `GET /graph` 的两档刷新（1.11.25 起）
+
+| 请求 | 语义 | 没变时的成本 |
+|---|---|---|
+| `GET /graph` | 不碰来源，直接给当前图 | 18ms |
+| `GET /graph?refresh=1` | 比一次指纹，变了才重建 | **13ms**（5 万条库） |
+| `GET /graph?force=1` | 不看指纹，重建 | 5.8 秒（该建就得建） |
+
+前端首屏（`reload(false)`）与 12 秒轮询都用 `refresh=1`，所以「打开页面」不再等于「重建一次图」。
+
+### 建完图会先热一次检索缓存（1.11.27 起）
+
+`refresh()` / `POST /refresh` 成功之后，引擎会在 `NEBULA_PREWARM_DELAY`（默认 `1200` 毫秒）后，在后台把检索用的词频表算好；这张表只跟图对象有关，图一换就作废重算。
+
+- 已经被检索算过的图直接命中，不重复劳动。
+- 到点时若图已经被换掉、或正在建图，这次预热直接放弃（不阻塞、不重算旧图）。
+- 预热失败不影响 `/recall`，只是下一次检索自己现算（5 万条约 1.3 秒）。
+
+### 策展接口是就地的（1.11.26 起）
+
+`POST /link`、`POST /unlink`、`POST /mute` 只改这一条边，**不再跟着做一次全量重建**（5 万条库上从 6 秒降到几十毫秒）。
+`POST /unmute` 把当初删掉的那条原样放回；只有「放不回去」时才会退化成一次重建。
+策展之后 `GET /graph?refresh=1` 不会重建（签名里的人工连线用「条数 + 排序后的 id 对哈希」，不再用时间戳）。
+
+### `POST /refresh` 的三种结果（1.11.24 起）
+
+`refresh()` 里本来就有「来源指纹没变就跳过」的分支，但路由以前一律传 `force: true`，
+等于每次点击都全量重建。5 万条库上那是白付 5.5 秒。现在默认先比指纹：
+
+| 响应字段 | 含义 |
+| --- | --- |
+| `rebuilt: true` / `why: "rebuilt"` | 真的重建了，`refreshMs` 是这次重建耗时 |
+| `rebuilt: false` / `why: "unchanged"` | 来源一个字节都没变，直接把现有图还回去（实测 146ms，指纹比对本身 4ms） |
+| `rebuilt: false` / `why: "joined"` | 刚好有一轮重建在进行，这一次等它的结果 |
+
+`?force=1` 跳过指纹检查，永远重建（改过插件、怀疑缓存坏了时用）。
+三种情况都带上完整的图，所以调用方可以照旧原地替换，不用分叉处理。
+判定「没变」的指纹是：每个来源库的 size + mtime、会话账本目录的条目数与最新时间、
+人工边与屏蔽的数量 —— 任何一项变了就会重建。
 
 ## `GET /sources`
 
@@ -151,7 +264,11 @@ body：`{ v: 2, version, build, demo, nodes: [...], edges: [{s,d,w,t,curated}], 
   `stats` 与 `clusters` 都按切片重算，不是把全图数字原样带出。
 - 工作区/项目名大小写敏感，`scope` 不会整体转小写；空范围返回 **400**
   `{ "error": "这个范围里没有记忆：…" }`，未知节点同理。
-- CLI 等价物：`node lib/standalone.mjs --export <file> --format md|json [--scope …] [--hops N]`。
+- **参数拼错一律 400，不再静默按 `all` 导出**（1.8.0）：`format` 只认 `md` / `json`；
+  `scope` 只认 `all`、`ws:<值>`、`project:<值>`、`focus:<值>`。`scope=zzz:nope`、`scope=xingang`
+  （缺 `kind:`）、`scope=ws:`（缺取值）都是 400，避免「以为导了一个工作区、实际写了整库」。
+- CLI 等价物：`node lib/standalone.mjs --export <file> --format md|json [--scope …] [--hops N]`，
+  同一套校验，非法参数以 2 退出。
 
 ## `GET /share`
 
@@ -161,7 +278,8 @@ body：`{ v: 2, version, build, demo, nodes: [...], edges: [{s,d,w,t,curated}], 
 - `content-type: text/html; charset=utf-8`
 - `content-disposition: attachment; filename="memory-nebula-snapshot-[ws-|project-|focus-]YYYY-MM-DD-HH-mm.html"`
   （范围导出带 `-ws-` / `-project-` / `-focus-` 后缀；时间为本地时间）
-- `no-store`、`nosniff`、`no-referrer`
+- `no-store`、`nosniff`、`no-referrer`；接受 `Accept-Encoding`，快照会压缩传输
+  （示例库 420KB → br 约 113KB），下载后的文件仍是完整的 HTML。
 - 支持 `?demo=1`（导出示例星图）
 - **范围**：`scope=ws:<工作区>`、`scope=project:<项目>`、`scope=focus:<节点 id>`；
   `hops` 只对 focus 生效，默认 2，夹在 1–5。格式错误 400，范围为空 404。
@@ -172,12 +290,27 @@ body：`{ v: 2, version, build, demo, nodes: [...], edges: [{s,d,w,t,curated}], 
   焦点起点被隐藏 400。隐藏发生在范围切片之后，统计与体检只算剩余节点。
 - **脱敏**：`graph.sources` / `overview.sources` 只保留名字与规模，不带本机 `path` / `dbPath`；
   `overview` 顶层也不含 `dbPath` 与 `lastError`。分享文件里没有本机路径。
+- **切片上限**（1.9.0 起）：`limit` 默认 **20000**、上限 **50000**。超出时按
+  `importance → hits → createdAt → id` 取前 N 条，`scope.trimmed = {cap, total, shown, by:'importance'}`，
+  `scope.label` 追加「· 已裁剪 shown / total 条」，快照页面底部另有一条静态提示
+  「这是一份裁剪过的离线快照：已写入 X / Y 条…」。拼错的 `limit`（`abc` / `0` / `60000`）一律 400。
+  五万条的库实测：43.8MB → **16.6MB**（裁剪到 20000 条）。
 
 快照里的 `window.__NEBULA_SNAPSHOT__` 含 `{version, build, builtAt, sig, graph, overview, inventory, scope}`，
-`scope` 为 `{kind, value, label, hops, hidden, hide, nodes, edges}`。节点带全文（仅范围内的节点）。页面检测到该全局变量后进入只读快照模式：搜索、详情、证据链在浏览器本地完成，
+`scope` 为 `{kind, value, label, hops, hidden, hide, nodes, edges, trimmed}`。节点带全文（仅范围内的节点）。页面检测到该全局变量后进入只读快照模式：搜索、详情、证据链在浏览器本地完成，
 写接口、轮询与重建全部关闭。真实库 1800 节点约 2.6MB（含全部正文），生成耗时 ~0.3s。
+
+- **完整性（1.11.0 起）**：载荷不再直接赋值，而是写在
+  `<script type="application/json" id="nebula-snapshot-data">…</script>` 里，旁边的启动脚本
+  把它解析成 `window.__NEBULA_SNAPSHOT__`，并记
+  `window.__NEBULA_SNAPSHOT_INTEGRITY__ = {algo:'sha256', bytes, sha256}`。
+  `sha256` 算的是**这段原始文本**（不是重新序列化的对象），所以键序与数字写法不会造成假报警。
+  解析失败写入 `window.__NEBULA_SNAPSHOT_BROKEN__`，页面据此显示「读不出来，请重新导出」；
+  摘要不符显示「文件被改动过或没下载完整 · 期望 … 实际 …」。`bytes` 与 `sha256` 都是服务端算的，
+  客户端只做核对（`crypto.subtle`；不可用时退化为长度核对）。
 
 ## 静态资源
 
-`GET /`、`/app`、`/index.html` → 页面；`style.css / app.js / api.js / render.js / space3d.js` 白名单直出。
+`GET`（或 `HEAD`）`/`、`/app`、`/index.html` → 页面；`style.css / app.js / api.js / render.js / space3d.js / i18n.js / nav.js` 白名单直出。
+带 `ETag` 与 `cache-control: no-cache`，支持 304 与压缩（1.8.0）。
 其它路径 404；`/../package.json` 之类不会穿越（白名单 + 前缀路由）。

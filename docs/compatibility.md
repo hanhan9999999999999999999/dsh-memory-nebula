@@ -15,7 +15,7 @@
 | DSH 桌面运行时 | `@deepseek-ai/dsh-desktop-runtime 0.2.2-rc.1` | 宿主内嵌页面、`/api/memory-nebula` 路由、热载 |
 | 浏览器 | Microsoft Edge 157（headless，Chromium） | 0.5–0.9 的 CDP 截图与交互验收 |
 | 2D 星云 | 真实库约 2,000 条；10,000 条 / 78,593 边；20,000 条 / 156,993 边（合成库） | 10k 首屏 0.65–0.69s；20k 快照首屏 947ms，见 `benchmarks.md` |
-| 3D 星系 | WebGL2（ANGLE / D3D11） | 三视图验收；>3000 节点主动留在 2D |
+| 3D 星系 | WebGL2（ANGLE / D3D11） | 三视图验收；1.10.0 起超过 18,000 条按重要度取样绘制（`BALL_LIMIT`），不再拦人；50k 软件渲染一帧 47.1ms |
 | 离线快照 | `file://`，无网络请求 | 0.6–0.9 快照验收，`performance` 资源请求为 0 |
 | 窄屏 | 820×900、700×900，无横向溢出 | `dev/shot/narrow-*.png` 与 0.9 英文窄屏 |
 | 数据来源 | meow-memory（`.dsh-meow/memory.db`） | 真实库 9 个工作区、71 个会话 |

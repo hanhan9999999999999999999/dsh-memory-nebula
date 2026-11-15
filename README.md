@@ -1,4 +1,4 @@
-﻿# 记忆星图 · memory-nebula
+# 记忆星图 · memory-nebula
 
 [![CI](https://github.com/hanhan9999999999999999999/dsh-memory-nebula/actions/workflows/ci.yml/badge.svg)](https://github.com/hanhan9999999999999999999/dsh-memory-nebula/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/dsh-memory-nebula.svg)](https://www.npmjs.com/package/dsh-memory-nebula)
@@ -56,6 +56,8 @@
 | 证据链：两条记忆到底怎么连上的 | 选中后 `Shift` 点另一条 |
 | **跨插件补充包**：别的插件注入了什么，就补它强相关却没读的邻居 | `nebula_bridge`、每轮注入（可配预算） |
 | **接入新的记忆库**：SQLite / 笔记目录 / JSONL 推送 | `nebula_sources`、`sources.json` |
+| **坏库点名**：某个库读不动时不再安静显示 0 条 | 来源面板红色行、启动时一次 toast、`--diagnose` 的 `sourceErrors` |
+| **快照校验和**：单文件快照带 sha256，改过/截断过都会当场报出来 | 打开时 toast「校验通过」或顶部红横幅给出期望/实际摘要；解析失败直接说「读不出来」而不是白屏 |
 | **远端记忆服务推进来**（hindsight / openviking 之类） | `nebula_ingest`、`POST /ingest` |
 | 导出整张图：给人看的 MD 报告 / 给 AI 看的 JSON | `GET /export?format=md\|json`、顶栏「导出」 |
 | 纠错：把算错的关联按掉 | 详情里邻居右侧 `×`，或 `nebula_link(action="mute")` |
@@ -70,6 +72,11 @@
 | **一键诊断**：复制版本/环境/图规模/最近错误，不含正文与路径 | `?` →「复制诊断」、`GET /diagnostics`、`--diagnose` |
 | **首访引导**：搜一个词 → 看一条证据 → 走一条链，三步可跳过 | 首次打开自动出现，`?` 里可重看 |
 | **两万条级打开**：20,000 条 / 156,993 条连接，建图 2.53s、快照首屏 762ms | 无需切换；大图自动跳过生长动画，基准见 `docs/benchmarks.md` |
+| **五万条分页**：首屏 10,000 条 4.26MB（整图 22.3MB），底部「继续加载」按重要度取下一页 | 五万条实测 197,569 边 / 0 孤岛；`GET /graph?limit=&offset=` |
+| **视口裁剪**：只画视口内的边，缩小时边变簇间聚合线；5 万节点一帧 11.5ms | 自动，无需开关；`pick()` 走空间网格 |
+| **快照分片**：单文件快照默认最多 20,000 条，超出在页面上写明「已裁剪」 | `GET /share?limit=`（上限 50,000）、`--share` |
+| **三维大库取样**：超过 18,000 条按重要度取样绘制并明示，不再把大库挡在门外；5 万条软件渲染一帧约 47–51ms | 切「星系」视图自动生效；`docs/troubleshooting.md` 第 5 节 |
+| **大响应压缩**：`/graph`、快照与前端按 `Accept-Encoding` 走 br / gzip，刷新走 304 不再重下 | 浏览器自动协商；`HEAD` 可取长度，见 `docs/http-api.md` |
 | 时间回放（只看某天及之前） | 时间视图底部时间轴 |
 | **纯键盘 / 读屏**：方向键在星星之间按方向走、`[` `]` 沿连接走、`+` `-` 缩放、`Home` 跳枢纽 | 点一下画面（或 Tab 进星图）就能用；`?` 看全表 |
 | 快捷键一览 | `?` 或顶栏「?」 |
@@ -85,7 +92,7 @@ dsh plugin --profile web add dsh-memory-nebula
 ```
 
 也可以在 DSH 的「插件 → 发现」里添加索引
-`https://unpkg.com/dsh-memory-nebula@1.7.0/market/index.json`，搜索「记忆星图」安装。
+`https://unpkg.com/dsh-memory-nebula@1.11.38/market/index.json`，搜索「记忆星图」安装。
 装完按下面的 2.5 跑一次 doctor。
 
 想先看看，不装进 DSH：
@@ -101,7 +108,7 @@ npx -y -p dsh-memory-nebula memory-nebula --demo
 ```powershell
 # 1) 装进 profile（二选一）
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
-npm install <path>\dsh-memory-nebula-1.7.0.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.14.tgz --prefix <profile>
 
 # 2) profile 的 package.json 里加依赖与 bundles（只加 dependencies 不会重组）
 #    dependencies:         "dsh-memory-nebula": "file:../../plugins/dsh-memory-nebula"
@@ -161,6 +168,17 @@ node scripts/smoke.mjs   # 63 项接口契约（对运行中的实例）
 适配器契约、列名猜测规则、`sources.json` 全字段见 [docs/adapters.md](docs/adapters.md)。
 
 装卸（junction + `dsh.profile.bundles`）、热载边界、sidecar 过渡通道见 [docs/operations.md](docs/operations.md)。
+
+## 环境变量
+
+| 变量 | 作用 | 默认 |
+| --- | --- | --- |
+| `NEBULA_LARGE_LIBRARY` | 150000 | 多大的库算「该提醒你一声」（`/ping.scale`、`/overview.warnings`、来源面板那句实话） |
+
+| `NEBULA_HYGIENE_WARM=0` | 关掉「建完图顺手把体检算好」的后台预热（词频表预热照常） | 开 |
+| `NEBULA_CACHE=0` | 不读也不写盘上的图缓存（1.11.38 起） | 开 |
+| `NEBULA_PREWARM_DELAY` | 建完图后隔多久预热检索缓存（毫秒，1.11.38 起） | 1200 |
+| `NEBULA_HY_PROFILE=1` / `NEBULA_GRAPH_TIMING=1` / `NEBULA_REFRESH_PROFILE=1` / `NEBULA_SHARE_PROFILE=1` | 打分段计时到 stderr，排查慢在哪一段 | 关 |
 
 ## 文档
 
@@ -230,6 +248,6 @@ sidecar.ps1           Windows 独立引擎开关
 
 ## 版本与许可
 
-- 当前版本 `1.7.0`，MIT。
+- 当前版本 `1.11.38`，MIT。
 - 打包内容：`lib/`、`scripts/`、`docs/`、`cordis.patch.yml`、`README.md` / `README.en.md`、`CHANGELOG.md`、`LICENSE`、`sidecar.ps1`（`test/` 与 `dev/` 不进包）。
 - 前端改动刷新页面即生效；`lib/host/` 下所有引擎文件（含 `adapters/`、`bridge.js`、`ledger.js`）由 LiveEngine 热载，`http.js` / `index.js` / `live.js` 改动要重启 DSH 或走独立引擎。
