@@ -522,6 +522,15 @@ axe 审计以前只跑离线快照和官网。把审计扩到 5 万条库的八�
   `items` 只列前 40 对，比 pair 集合其实是在比「谁先被遍历到」；改成 8 条（28 对）才真的在测签名稳定性。
 - 还没做：`tok` 587–630ms 仍是分词的硬成本；`stale` 953–1,210ms 现在成了第二大头（瓶颈是扫描倒排链本身）。
 
+## 1.11.40「只读了前四千个，剩下的没进图，也没人说」（1.11.40 已交付）
+
+笔记来源按文件数封顶，到顶后静默停止：图里只有前 N 个文件，而且被排除文件的变化不会让图重建（签名只看读到的那些）。
+
+- `walkFiles` 回填 `{ scanned, truncated }`；notes 的 detect/scan 记 truncated 与 maxFiles。
+- `scanAll` 汇成 `warnings`（与 errors 分开）；`overview()` 多一条 `source-truncated` 告示；`graph.sources[]` 带 `truncated`。
+- 来源面板用琥珀色说明「只读了前 N 个文件，调大 maxFiles」。
+
+- 数字：`adapters/util.js` 覆盖 47.56% → 95.24%；单测 340 → 357；全部文件行覆盖 89.46% → 89.95%。
 ## 1.11.39「没人调用的那份，已经和真的那份不一样了」（1.11.39 已交付）
 
 `sources.js` 里的 `readStoreNodes` 全包无人调用，却已经和 `adapters/meow.js` 分家（阻塞读取、label 与时间戳语义不同、缺字段），注释还把 graph 的输入指向它。

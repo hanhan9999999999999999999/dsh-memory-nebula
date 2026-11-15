@@ -1535,6 +1535,37 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   for (const [f, needle] of docs39) if (!read(f).includes(needle)) fail("1.11.39 文档缺 " + f + " 的「" + needle + "」")
   ok("1.11.39 构件：重复实现已删 / MCP 不串条目 / 发现层十四项补测 / 文档五处")
 
+  // 1.11.40：文件数上限截断要说出来（walkFiles stats → notes → scanAll.warnings → overview）
+  const util40 = read("lib/host/adapters/util.js")
+  if (!util40.includes("opts.stats.truncated = out.length >= maxFiles")) fail("util.js 的 walkFiles 没报 truncated")
+  const notes40 = read("lib/host/adapters/notes.js")
+  if (!notes40.includes("truncated: Boolean(stats.truncated),")) fail("notes.js 的 detect 没记 truncated")
+  if (!notes40.includes("return { nodes, ledgers: [], truncated: Boolean(stats.truncated) }")) fail("notes.js 的 scan 没回传 truncated")
+  const idx40 = read("lib/host/adapters/index.js")
+  if (!idx40.includes("if (res.truncated) {")) fail("adapters/index.js 没把截断汇成告警")
+  if (!idx40.includes("return { nodes, ledgers, errors, warnings }")) fail("scanAllSteps 的返回值没带 warnings")
+  const neb40 = read("lib/host/nebula.js")
+  if (!neb40.includes("this.storeWarnings = Array.isArray(scanned.warnings)")) fail("nebula.js 没接住 warnings")
+  if (!neb40.includes("truncated: Boolean(s.truncated),")) fail("graph.sources 没带 truncated")
+  if (!neb40.includes('code: "source-truncated",')) fail("overview 告示里没有 source-truncated")
+  const app40 = read("lib/web/app.js")
+  if (!app40.includes("if (w.code === 'source-truncated')")) fail("界面没渲染 source-truncated 告示")
+  for (const p of ["test/adapters-util.test.mjs", "test/truncation-warning.test.mjs", "dev/probe-notes-cap.mjs", "dev/probe-truncation-warning.mjs"]) {
+    if (!exists(p)) fail("缺 " + p)
+  }
+  if (exists("test/truncation-warning.test.mjs") && !read("test/truncation-warning.test.mjs").includes("source-truncated")) {
+    fail("截断单测没有 overview 告示那一条")
+  }
+  const docs40 = [
+    ["CHANGELOG.md", "只读了前四千个，剩下的没进图，也没人说"],
+    ["docs/verified.md", "## 1.11.40（2026-11-15）"],
+    ["docs/roadmap.md", "1.11.40 已交付"],
+    ["docs/release.md", "## 1.11.40 实测"],
+    ["docs/benchmarks.md", "被上限截断的来源（1.11.40 更新）"],
+  ]
+  for (const [f, needle] of docs40) if (!read(f).includes(needle)) fail("1.11.40 文档缺 " + f + " 的「" + needle + "」")
+  ok("1.11.40 构件：截断一路到界面 / 两个探针 / 十七项补测 / 文档五处")
+
 }
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {

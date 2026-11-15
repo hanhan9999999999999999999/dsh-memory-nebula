@@ -98,6 +98,16 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.40 实测
+
+`node dev/probe-notes-cap.mjs`（上限 5、磁盘上 20 个文件）：
+
+- 改前：`detect` 只看见 5 个；改第 20 个文件后 size 仍 109、mtime 不变 → 签名不变、图不重建；界面无任何提示。
+- 改后：`store.truncated = true`、`scan.truncated = true`、`scanAll.warnings` 一条、`overview.warnings` 里 `code = "source-truncated"`（文案「来源被文件数上限截断：只读了前 5 个文件，其余没有进图。」）。
+
+覆盖：`adapters/util.js` 47.56% → **95.24%**（函数 95.83%）、全部文件 89.46% → **89.95%**；单测 340 → **357**。
+
+1.11.40 产物：dsh-memory-nebula-1.11.40.tgz · 95 个文件 · 3466420 字节 · sha256 62d3d1cbd0ef19dee7053ba683cb5d790a2994cf3277d8c8437c5af7b6468b88（包内记录的是上一刀的数字）。
 ## 1.11.39 实测
 
 - `sources.js` 行覆盖 54.04% → **93.66%**、函数 61.54% → **92.86%**；全部文件 88.26% → **89.46%**；单测 326 → **340**。
@@ -474,7 +484,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.39.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.40.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：

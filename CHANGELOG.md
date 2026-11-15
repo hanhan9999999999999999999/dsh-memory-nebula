@@ -2,6 +2,36 @@
 
 本文件记录「记忆星图」每个版本改了什么。日期为落盘日期。
 
+## 1.11.40 — 2026-11-15
+
+主题：**只读了前四千个，剩下的没进图，也没人说。**
+
+笔记类来源按文件数封顶（默认 4000，配置最多 20000）。到顶之后 `walkFiles` 就停下来了，而这件事**没有任何人知道**：
+
+- 图里只有前 4000 个文件，看起来却像「我的笔记都在图里」；
+- 更糟的是签名：`detect()` 用读到的那些文件算 size 与 mtime，所以**被排除在外的文件怎么改都不会让图重建**。实测（上限 5、磁盘上 20 个文件）：改第 20 个文件之后 size 仍是 109、mtime 一模一样，`/graph` 永远给你旧的那份。
+
+四处改动，把「截断」变成一句明话：
+
+1. `walkFiles(dir, opts)` 支持 `opts.stats`，回填 `{ scanned, truncated }`（正好等于上限也算到顶：可能还有没读的）。
+2. notes 适配器把 `truncated` 与 `maxFiles` 记在 store 上，`scan()` 也回传 `truncated`。
+3. `scanAll` 把截断汇成 `warnings`（**不进 errors**：它不是读坏了，是没读完）。
+4. `overview()` 里多一条 `code: "source-truncated"` 的告示，来源面板用琥珀色提示：「来源被截断：vault 只读了前 4000 个文件，其余没有进图（调大该来源的 maxFiles）」。`graph.sources[]` 也带上 `truncated`，探针能直接断言。
+
+还没解决的那一半，写在告示里：**截断之后，被排除文件的内容变化仍然发现不了**（签名只看读到的那些）。与其假装没这回事，不如让用户知道该调哪儿。
+
+| 项 | 改前 | 改后 |
+|---|---|---|
+| 上限 5 / 磁盘 20 个文件的图 | 5 个节点，无任何提示 | 5 个节点 + 一条告示 |
+| 改被排除的文件 | 签名不变、图不重建、用户不知道 | 仍在告示里说明「其余没有进图」 |
+| `adapters/util.js` 行 / 函数覆盖 | 47.56% / — | **95.24% / 95.83%** |
+| 全部文件 行覆盖 / 单测 | 89.46% / 340 | **89.95% / 357** |
+
+新增 `test/adapters-util.test.mjs` **13 项**（walkFiles 的扩展名 / 跳过目录 / 上限与 stats / 深度上限 / 目录不存在、`toMs` 的秒与毫秒与 ISO、`parseFrontmatter` 的数组两种写法与 BOM+CRLF、`firstLine` 与 `slugKey`、`toKeywordList` 与 `pick`、`readJsonSafe`/`readTextSafe`、`expandHome`、mtime 跟随）与 `test/truncation-warning.test.mjs` **4 项**（detect 与 scan 的 truncated、没到顶不乱报、scanAll 的 warnings 与 errors 分开、overview 里的 source-truncated）。
+
+一条教训：**上限本身不是错，悄悄到顶才是。** 用户看不见的那部分数据，必须有人替他记得。
+
+发布产物：dsh-memory-nebula-1.11.40.tgz · 95 个文件 · 3466420 字节 · sha256 62d3d1cbd0ef19dee7053ba683cb5d790a2994cf3277d8c8437c5af7b6468b88（包内记录的是上一刀的数字）。
 ## 1.11.39 — 2026-11-15
 
 主题：**没人调用的那份，已经和真的那份不一样了。**

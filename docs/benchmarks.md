@@ -652,3 +652,14 @@ node --test --experimental-test-coverage test/*.test.mjs
 | 普通插件被误列成 MCP | 会 | 不会 |
 
 复现：`node --test test/sources.test.mjs`。
+
+## 被上限截断的来源（1.11.40 更新）
+
+| 项 | 改前 | 改后 |
+|---|---|---|
+| 上限 5 / 20 个文件的图 | 5 节点、无提示 | 5 节点 + 告示 |
+| 改被排除文件后的签名 | 不变（图不重建） | 不变，但告示说明「其余没有进图」 |
+| `adapters/util.js` 行覆盖 | 47.56% | **95.24%** |
+| 单测 | 340 | 357 |
+
+复现：`node dev/probe-notes-cap.mjs`、`node dev/probe-truncation-warning.mjs`。

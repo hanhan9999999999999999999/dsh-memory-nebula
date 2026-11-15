@@ -2,6 +2,22 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.11.40（2026-11-15）
+
+被文件数上限截断的来源，现在会说出来。
+
+| 项 | 改前 | 改后 |
+|---|---|---|
+| 上限 5 / 20 个文件的笔记来源 | 5 个节点、无提示 | 5 个节点 + 一条告示 |
+| `graph.sources[].truncated` | 没有这个字段 | true / false |
+| `overview().warnings` | 只有 `large-library` | 多一条 `source-truncated` |
+| `adapters/util.js` 行 / 函数覆盖 | 47.56% / — | **95.24% / 95.83%** |
+| 全部文件 行覆盖 | 89.46% | **89.95%** |
+| 单测 | 340 | **357** |
+
+探针：`node dev/probe-notes-cap.mjs`（截断与签名不变）、`node dev/probe-truncation-warning.mjs`（适配器 → 汇总 → overview 整条链）。
+
+产物：dsh-memory-nebula-1.11.40.tgz · 95 个文件 · 3466420 字节 · sha256 62d3d1cbd0ef19dee7053ba683cb5d790a2994cf3277d8c8437c5af7b6468b88（包内记录的是上一刀的数字）。
 ## 1.11.39（2026-11-15）
 
 发现层补测，删掉一份会误导人的重复实现，修掉 MCP 嗅探串条目。
