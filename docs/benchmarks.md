@@ -788,3 +788,14 @@ node --test --experimental-test-coverage test/*.test.mjs
 | 文本层合并正则分支 | 提速 5%，20,000 条里 292 个实体对不上 | 回退 |
 | 单条超长记忆设上限 | 512KB 28ms / 3.3MB 147ms / 13MB 611ms | 不需要 |
 | 工具层覆盖率 | 81.23% 行 / 46.30% 分支 → 87.44% / 61.84% | 补 14 项契约 |
+
+## 同一个数字写在五个地方（1.11.54 更新）
+
+| 位置 | 改前 | 改后 |
+| --- | --- | --- |
+| `doctor` 的下界 | 写死 `22.13.0` | 读 `engines.node` → `24.0.0` |
+| `docs/release.md` / `troubleshooting.md` / `CONTRIBUTING.md` / `compatibility.md` | 22.13 | 24 |
+| `sources.json` 写坏 | 来源静默消失（概览无提示） | `config-unreadable` 告示 |
+| 截断上限缺失时的告示 | 「前 0 个文件」 | 取 `res.maxFiles`，数字正确 |
+
+覆盖率：`lib/host/adapters/index.js` 81.23% → **96.06%**（行），46.30% → **80.85%**（分支）。

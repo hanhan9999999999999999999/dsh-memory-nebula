@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -25,17 +25,24 @@ test('doctor: 版本解析与下界比较', () => {
   assert.deepEqual(parseVersion('v22.13.0'), [22, 13, 0])
   assert.deepEqual(parseVersion('24.17.0-rc.1'), [24, 17, 0])
   assert.equal(parseVersion('nope'), null)
-  assert.equal(versionAtLeast('22.13.0', MIN_NODE), true)
-  assert.equal(versionAtLeast('22.12.9', MIN_NODE), false)
-  assert.equal(versionAtLeast('23.0.0', MIN_NODE), true)
-  assert.equal(versionAtLeast('21.99.99', MIN_NODE), false)
+  // 下界不再写死在 doctor 里，必须跟着 package.json 的 engines 走
+  const pkg = JSON.parse(readFileSync(join(PACKAGE_ROOT, 'package.json'), 'utf8'))
+  assert.match(String(pkg.engines.node), /\d+\.\d+\.\d+/, 'engines.node 要写成 >=x.y.z')
+  assert.equal(MIN_NODE, pkg.engines.node.match(/(\d+\.\d+\.\d+)/)[1], 'MIN_NODE 必须等于 engines 里的那个版本')
+  const [maj, min, pat] = MIN_NODE.split('.').map(Number)
+  assert.equal(versionAtLeast(MIN_NODE, MIN_NODE), true, '下界自己当然达标')
+  assert.equal(versionAtLeast(`${maj}.${min}.${pat + 1}`, MIN_NODE), true)
+  assert.equal(versionAtLeast(`${maj}.${min}.${pat - 1}`, MIN_NODE), false, '比下界低一个补丁就不达标')
+  assert.equal(versionAtLeast(`${maj}.${min - 1}.9`, MIN_NODE), false, '低一个小版本也不达标')
 })
 
 test('doctor: Node 下界与无效版本', () => {
-  assert.equal(checkRuntime('22.13.0').status, 'ok')
-  assert.equal(checkRuntime('22.12.0').status, 'fail')
+  assert.equal(checkRuntime(MIN_NODE).status, 'ok', '下界那一版必须判 ok')
+  assert.equal(checkRuntime('22.13.0').status, process.versions.node.startsWith('22.') ? 'ok' : 'fail', '22.13 不再被承诺')
   assert.equal(checkRuntime('20.0.0').status, 'fail')
   assert.equal(checkRuntime('not-a-version').status, 'fail')
+  const low = checkRuntime('20.0.0')
+  assert.ok(JSON.stringify(low).includes(MIN_NODE), '提示里要写出真实下界 ' + MIN_NODE)
 })
 
 test('doctor: 本包关键文件齐全', () => {

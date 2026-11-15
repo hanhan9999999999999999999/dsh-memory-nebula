@@ -7,7 +7,7 @@
 
 | 项 | 范围 |
 | --- | --- |
-| Node | `>=22.13.0`（`node:sqlite` 的 `DatabaseSync` 需要） |
+| Node | `>=24.0.0`（`node:sqlite` 在 22 上还是实验实现，扫描时会把进程带走） |
 | DSH | 带 `webServer` / `tools` / `systemPrompt` 注入点的版本 |
 | 系统 | Windows / macOS / Linux；`sidecar.ps1` 仅 Windows，其它系统用 `node lib/standalone.mjs` |
 | 浏览器 | 支持 WebGL2 的现代浏览器（3D 视图需要；2D 不需要） |
@@ -98,6 +98,18 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.54 实测
+
+| 项 | 改前 | 改后 |
+| --- | --- | --- |
+| `MIN_NODE` | 写死 `22.13.0` | 读 engines → `24.0.0` |
+| 四处文档的 Node 下界 | `22.13` | `24` |
+| `sources.json` 写坏 | 来源静默消失 | 概览一条 `config-unreadable` |
+| `adapters/index.js` 覆盖率 | 81.23% 行 / 46.30% 分支 | **96.06% / 80.85%** |
+| 单测 | 416 | **422** |
+
+1.11.54 产物：第一刀：96 个文件 / 3,507,874 字节 / sha256 f0aeaff23054623c3a795614b066ad8d64bb0e71571887c3b38470328057b3d5（回填后重打，包内记录的是上一刀的数字）。
+
 ## 1.11.53 实测
 
 | 项 | 数字 |
@@ -590,7 +602,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.53.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.54.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：

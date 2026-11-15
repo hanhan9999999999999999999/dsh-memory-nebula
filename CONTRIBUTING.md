@@ -5,7 +5,7 @@ way to keep it healthy is to run the same checks CI runs.
 
 ## Setup
 
-- Node.js 22.13 or newer (CI covers 22.13 and 24).
+- Node.js 24 or newer (CI runs 24 on both Linux and Windows; 22 is not supported).
 - No install step: the package has no runtime or dev dependencies.
 - The repo is the plugin source. To try it inside DSH, point a profile at this
   directory or install the packed tarball; see `docs/distribution.md`.

@@ -1874,6 +1874,70 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   for (const [f, needle] of docs53) if (!read(f).includes(needle)) fail("1.11.53 文档缺 " + f + " 的「" + needle + "」")
   ok("1.11.53 构件：工具层失败也要说话")
 
+  // 1.11.54：Node 下界只有一个来源（engines）；sources.json 坏了要出声；不许有像测试的野脚本
+  const doc54 = read("lib/host/doctor.js")
+  if (!doc54.includes("function readEnginesFloor()")) fail("doctor 没有从 engines 读下界")
+  if (!doc54.includes("export const MIN_NODE = readEnginesFloor() || '24.0.0'")) fail("MIN_NODE 没有接 engines")
+  if (/MIN_NODE = '22\./.test(doc54)) fail("doctor 的下界还写死在 22.x")
+  const rel54 = read("docs/release.md")
+  if (!rel54.includes("`>=24.0.0`")) fail("docs/release.md 的 Node 下界没改成 24")
+  const tro54 = read("docs/troubleshooting.md")
+  if (!tro54.includes("`>=24.0.0`")) fail("docs/troubleshooting.md 的 Node 下界没改成 24")
+  const con54 = read("CONTRIBUTING.md")
+  if (!con54.includes("Node.js 24")) fail("CONTRIBUTING.md 还写着旧下界")
+  const com54 = read("docs/compatibility.md")
+  if (!com54.includes("Node < 24")) fail("docs/compatibility.md 还写着旧下界")
+  const neb54 = read("lib/host/nebula.js")
+  if (!neb54.includes("code: 'config-unreadable'")) fail("配置读不出来时没有告示")
+  if (!neb54.includes("this.configError = found.config && found.config.error")) fail("nebula 没留住配置错误")
+  const app54 = read("lib/web/app.js")
+  if (!app54.includes("w.code === 'config-unreadable'")) fail("界面没渲染 config-unreadable")
+  const ad54 = read("lib/host/adapters/index.js")
+  if (!ad54.includes("Number(store.maxFiles) || Number(res.maxFiles)")) fail("截断上限没有回落到 res.maxFiles")
+  if (!exists("test/adapters-index.test.mjs")) fail("缺 test/adapters-index.test.mjs")
+  if (exists("test/adapters-index.test.mjs") && !read("test/adapters-index.test.mjs").includes("config-unreadable")) {
+    fail("发现层单测没有覆盖 config-unreadable 告示")
+  }
+  const docT54 = read("test/doctor.test.mjs")
+  if (!docT54.includes("MIN_NODE 必须等于 engines")) fail("doctor 单测还是把下界写死")
+  // node --test 裸跑会执行 test/ 之外形如测试的文件；这种野脚本会让 CI 行为莫名其妙
+  const wildTest = []
+  const walk54 = (dir, depth) => {
+    if (depth > 3) return
+    let names = []
+    try {
+      names = readdirSync(dir)
+    } catch {
+      return
+    }
+    for (const n of names) {
+      if (n === 'node_modules' || n === '.git' || n === 'test' || n === 'tmp') continue
+      const full = join(dir, n)
+      let st
+      try {
+        st = statSync(full)
+      } catch {
+        continue
+      }
+      if (st.isDirectory()) {
+        walk54(full, depth + 1)
+        continue
+      }
+      if (/\.test\.mjs$/.test(n) || /-test\.mjs$/.test(n) || /^test-.+\.mjs$/.test(n)) wildTest.push(n)
+    }
+  }
+  walk54(ROOT, 0)
+  if (wildTest.length) fail("test/ 之外有像测试的文件（node --test 会当测试执行）：" + wildTest.join(", "))
+  const docs54 = [
+    ["CHANGELOG.md", "装不上时，第一个告诉你原因的工具说错了版本"],
+    ["docs/verified.md", "## 1.11.54（2026-11-16）"],
+    ["docs/roadmap.md", "1.11.54 已交付"],
+    ["docs/release.md", "## 1.11.54 实测"],
+    ["docs/benchmarks.md", "同一个数字写在五个地方（1.11.54 更新）"],
+  ]
+  for (const [f, needle] of docs54) if (!read(f).includes(needle)) fail("1.11.54 文档缺 " + f + " 的「" + needle + "」")
+  ok("1.11.54 构件：Node 下界只读 engines / 四处文档跟着 24 / 配置坏有告示 / 发现层补测 / 无野测试脚本 / 文档五处")
+
 }
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {

@@ -87,7 +87,8 @@ node lib/standalone.mjs --port 7891 --root "D:/document/Memory Universe"
 
 ## 10. Node 版本
 
-要求 Node `>=22.13.0`。低于这个版本，`doctor` 第一条就会 fail；升级 Node 后重装包，
+要求 Node `>=24.0.0`（下界只有 `package.json` 的 `engines.node` 一个来源，`doctor` 读的就是它）。
+低于这个版本，`doctor` 第一条就会 fail；升级 Node 后重装包，
 不要只替换 `node_modules` 里的一个文件。
 
 ## 11. 提交问题时带什么

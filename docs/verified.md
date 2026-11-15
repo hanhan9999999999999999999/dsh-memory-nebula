@@ -2,6 +2,45 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.11.54（2026-11-16）
+
+Node 下界只有一个来源（`lib/host/doctor.js`，读 `package.json` 的 `engines.node`）：
+
+| 断言 | 结果 |
+| --- | --- |
+| `MIN_NODE` 等于 `engines.node` 里那个版本 | ✔（现为 `24.0.0`） |
+| 下界自己那一版判 `ok` | ✔ |
+| 下界低一个补丁判 `fail` | ✔ |
+| 低一个小版本判 `fail` | ✔ |
+| `checkRuntime('20.0.0')` 的提示里出现真实下界 | ✔ |
+
+四处文档同时收口：`docs/release.md` 支持面、`docs/troubleshooting.md`、`CONTRIBUTING.md`、
+`docs/compatibility.md` 都改成 24（改前全停在 22.13）。
+
+sources.json 写坏时（概览告示）：
+
+| 断言 | 结果 |
+| --- | --- |
+| 坏配置 → 概览里出现 `config-unreadable` | ✔ |
+| 告示里写出是 `sources.json` 与后果（来源没有接入） | ✔ |
+| 配置正常时不出现这条告示 | ✔ |
+
+发现层契约（`test/adapters-index.test.mjs`，6 项）：
+
+| 断言 | 结果 |
+| --- | --- |
+| 配置：没有文件 / 正常 / 字段类型错 / 顶层不是对象 / 坏 JSON / 带 BOM | ✔ |
+| 发现层：两个内置可禁用、重复 root 不重复产出、未知适配器报错、空目录留一句、`enabled:false` 跳过 | ✔ |
+| 扫描层：`scanSteps` 与 `scan` 都在、账本两种形状、`storeId` 补全、不能扫描 / 返回 error / 抛异常三种失败 | ✔ |
+| 截断：上限取自 `store.maxFiles` 或 `res.maxFiles`，消息里的数字跟着变 | ✔ |
+| 同步与异步扫描结果一致；空输入给空结果 | ✔ |
+| 体检：未知适配器说明、已知适配器真被问 | ✔ |
+
+覆盖率：`lib/host/adapters/index.js` **81.23% 行 / 46.30% 分支 → 96.06% / 80.85%**；
+全量 **422/422**。
+
+产物：第一刀：96 个文件 / 3,507,874 字节 / sha256 f0aeaff23054623c3a795614b066ad8d64bb0e71571887c3b38470328057b3d5（回填后重打，包内记录的是上一刀的数字）。
+
 ## 1.11.53（2026-11-16）
 
 工具层契约（`test/tools.test.mjs`，14 项）：
