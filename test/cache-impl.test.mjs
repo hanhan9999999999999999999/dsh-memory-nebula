@@ -104,9 +104,14 @@ test('升级之后第一次启动：先给旧图（标 implStale），后台重�
       assert.ok(files.length >= 1, '应该写出了缓存文件')
       const old = readFileSync(join(dir, files[0]))
       const { brotliDecompress, brotliCompressSync } = await import('node:zlib')
-      const raw = JSON.parse((await new Promise((res, rej) => brotliDecompress(old, (e, v) => (e ? rej(e) : res(v))))).toString('utf8'))
+      const { parseCacheBytes } = await import('../lib/host/graphcache.js')
+      const { serialize } = await import('node:v8')
+      const unpacked = (await new Promise((res, rej) => brotliDecompress(old, (e, v) => (e ? rej(e) : res(v)))))
+      const { data: raw, legacyJson } = parseCacheBytes(unpacked)
+      // 解出来是什么格式就按什么格式写回去（1.11.47 起是 v8；老格式是 JSON）
       raw.impl = 'oldalgorithm0000'
-      const repacked = brotliCompressSync(Buffer.from(JSON.stringify(raw), 'utf8'))
+      const bytes = legacyJson ? Buffer.from(JSON.stringify(raw), 'utf8') : serialize(raw)
+      const repacked = brotliCompressSync(bytes)
       const { writeFileSync: wf } = await import('node:fs')
       wf(join(dir, files[0]), repacked)
 

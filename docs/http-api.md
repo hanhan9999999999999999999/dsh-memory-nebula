@@ -201,6 +201,18 @@ body：`{ v: 2, version, build, demo, nodes: [...], edges: [...], stats, builtAt
 
 两条都是「先给你这张，新的马上到」的说法，页面据此自己轮询 `/graph` 直到两者都为 false。
 
+### `buildMs` 与 `cacheAgeMs`（1.11.47 起）
+
+读盘恢复不是重建：`buildMs` 是**这一轮真建了多久**（恢复时为 0），
+`cacheAgeMs` 是**手上这张图多大年纪**。两个字段都出现在 `GET /ping` 与 `GET /overview` 里。
+
+```
+GET /api/memory-nebula/ping     → { ..., buildMs: 0, cacheAgeMs: 43780, builtAt, stats }
+```
+
+以前恢复会把年纪写进 `buildMs`（20 万条上显示 43780ms，像刚建了 43 秒），
+现在分开给，任何按 `buildMs` 判断「要不要等」的客户端都不会再被骗。
+
 ### `GET /overview` 的 hygiene / hygienePending 与 `GET /hygiene`（1.11.46 起）
 
 `GET /overview` 默认**不再等体检**：有缓存就带上，没算过就给 `hygiene: null`、

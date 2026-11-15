@@ -1289,7 +1289,7 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
 {
   const gc = read('lib/host/graphcache.js')
   // 1.11.33 起格式升到 3（文件里多记一个来源集合指纹），2 与 3 都算「升过」
-  if (!gc.includes('const VERSION = 2') && !gc.includes('const VERSION = 3')) fail('缓存格式没升过（旧缓存要能被认出来）')
+  if (!/const VERSION = [2-9]/.test(gc)) fail('缓存格式没升过（旧缓存要能被认出来）')
   if (!gc.includes('const IMPL_FILES = ')) fail('缺算法指纹的文件清单')
   if (!gc.includes('export function implFingerprint()')) fail('缺 implFingerprint')
   if (!gc.includes('impl: impl || implFingerprint()')) fail('写盘没记下算法指纹')
@@ -1695,6 +1695,42 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   ]
   for (const [f, needle] of docs46) if (!read(f).includes(needle)) fail("1.11.46 文档缺 " + f + " 的「" + needle + "」")
   ok("1.11.46 构件：概览不等体检 / 体检单独一条路 / 空清单不冒充干净 / 六处文档")
+
+  // 1.11.47 构件：缓存 v8 与 buildMs/cacheAgeMs 分家
+  const gc47 = read("lib/host/graphcache.js")
+  if (!gc47.includes("import { deserialize, serialize } from 'node:v8'")) fail('graphcache 没接 node:v8')
+  if (!gc47.includes('const VERSION = 4')) fail('缓存格式没升到 4')
+  if (!gc47.includes('const LEGACY_VERSION = 3')) fail('缺老格式的版本号（老缓存要能读）')
+  if (!gc47.includes('export function parseCacheBytes(raw)')) fail('缺 parseCacheBytes（按内容认格式）')
+  if (!gc47.includes("obj.enc === 'v8'")) fail('parseCacheBytes 没按 enc 认 v8')
+  if (!gc47.includes('JSON.parse(raw.toString(\'utf8\'))')) fail('parseCacheBytes 没留 JSON 回退')
+  if (!gc47.includes('legacyJson ? LEGACY_VERSION : VERSION')) fail('读盘校验没分新旧版本')
+  if (!gc47.includes('serialize(payload)')) fail('写盘没走 v8.serialize')
+  const neb47 = read("lib/host/nebula.js")
+  if (!neb47.includes("enc: saved.enc || 'json'")) fail('lastCache 没记下这次用的编码')
+  if (!neb47.includes('this.lastBuildMs = 0') || !neb47.includes('this.cacheAgeMs = hit.builtAt')) {
+    fail('读盘恢复还是把年纪当成了建图耗时')
+  }
+  if (!neb47.includes('cacheAgeMs: this.cacheAgeMs || 0,')) fail('overview 没把 cacheAgeMs 给出去')
+  const http47 = read("lib/host/http.js")
+  if (!http47.includes('cacheAgeMs: src.cacheAgeMs || 0,')) fail('/ping 没把 cacheAgeMs 给出去')
+  if (!exists("test/cache-v8.test.mjs")) fail('缺 test/cache-v8.test.mjs')
+  if (exists("test/cache-v8.test.mjs")) {
+    const t47 = read("test/cache-v8.test.mjs")
+    if (!t47.includes('v3 的旧 JSON 缓存照旧读得出来')) fail('v8 单测没有「老缓存仍可读」的回归用例')
+    if (!t47.includes('读盘命中时 buildMs 应该是 0')) fail('v8 单测没守住 buildMs 与 cacheAgeMs 的分家')
+  }
+  if (!exists("dev/probe-restore-v8.mjs")) fail('缺 dev/probe-restore-v8.mjs（真机读盘）')
+  const docs47 = [
+    ["CHANGELOG.md", "四条路量过三条，只有一条值得走"],
+    ["docs/verified.md", "## 1.11.47（2026-11-15）"],
+    ["docs/roadmap.md", "1.11.47 已交付"],
+    ["docs/release.md", "## 1.11.47 实测"],
+    ["docs/benchmarks.md", "读盘格式：v8 与 JSON 各量一次（1.11.47 更新）"],
+    ["docs/http-api.md", "### `buildMs` 与 `cacheAgeMs`（1.11.47 起）"],
+  ]
+  for (const [f, needle] of docs47) if (!read(f).includes(needle)) fail('1.11.47 文档缺 ' + f + ' 的「' + needle + '」')
+  ok('1.11.47 构件：缓存 v8 与 buildMs/cacheAgeMs 分家')
 
 }
 for (const n of notes) console.log(`  ✔ ${n}`)
