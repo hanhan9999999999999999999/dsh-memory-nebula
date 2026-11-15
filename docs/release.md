@@ -98,6 +98,15 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.52 实测
+
+- 全量单测 **402/402**；`scripts/release-check.mjs` 全部通过。
+- `maxRounds: null` 改前会让注入每轮都不发生（`0 >= null` 为真），现在回到默认值 2 并在日志里写一条。
+- `maxRounds: "two"` 改前每轮都注入（NaN 比较恒假），现在同样回到 2。
+- `hops: 99`、`maxChars: 10`、`minWeight: 3` 都在读配置这一步就夹到边界。
+
+1.11.52 产物：第一刀：96 个文件 / 3,500,949 字节 / sha256 d0c0f69d564b52ecf619efa29c64811b62e6381301efd71459628a76fa8faca6（回填后重打，包内记录的是上一刀的数字）。
+
 ## 1.11.51 实测
 
 - 全量单测 **392/392**；`scripts/release-check.mjs` 全部通过。
@@ -570,7 +579,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.51.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.52.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：

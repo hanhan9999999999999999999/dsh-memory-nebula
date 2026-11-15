@@ -99,7 +99,9 @@ for (const f of codeFiles) {
 ok(`node --check ${codeFiles.length} 个脚本`)
 
 // 5. 相对 import 可解析
-for (const f of codeFiles) {
+//    dev/ 里是探查脚本，经常在字符串里引用别的文件（比如给探针生成的补丁脚本），
+//    它们不进包，也不参与运行时，所以不在这里核对。
+for (const f of codeFiles.filter((p) => !String(rel(p)).startsWith('dev/'))) {
   const src = readFileSync(f, 'utf8')
   for (const m of src.matchAll(/(?:from|import)\s*\(?\s*['"](\.[^'"]+)['"]/g)) {
     const target = resolve(dirname(f), m[1])
@@ -1819,6 +1821,37 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   ]
   for (const [f, needle] of docs51) if (!read(f).includes(needle)) fail("1.11.51 文档缺 " + f + " 的「" + needle + "」")
   ok("1.11.51 构件：端口按边界比对 / 版本提示读 engines / 脚本带 BOM / 六项契约测试 / 文档五处")
+
+  // 1.11.52：inject.json 逐项校验
+  if (!exists("lib/host/injectcfg.js")) fail("缺 lib/host/injectcfg.js")
+  if (exists("lib/host/injectcfg.js")) {
+    const ic = read("lib/host/injectcfg.js")
+    if (!ic.includes("export const INJECT_LIMITS")) fail("injectcfg 里没有范围表")
+    if (!ic.includes("export const INJECT_DEFAULTS")) fail("injectcfg 里没有默认值")
+    if (!ic.includes("export function normalizeInjectConfig")) fail("injectcfg 没有 normalizeInjectConfig")
+    if (!ic.includes("export function readInjectConfig")) fail("injectcfg 没有 readInjectConfig")
+    if (!ic.includes("超出 ")) fail("超范围时没有说明")
+    if (!ic.includes("不认识的键")) fail("拼错的键没有被指出")
+  }
+  const idx52 = read("lib/index.js")
+  if (!idx52.includes("readInjectConfig(nebulaHome())")) fail("index.js 没走带校验的读取")
+  if (!idx52.includes("inject.json：")) fail("写错配置时没有写日志")
+  if (/value = \{ \.\.\.INJECT_DEFAULTS, \.\.\.raw \}/.test(idx52)) fail("index.js 还在原样合并 inject.json")
+  if (!exists("test/injectcfg.test.mjs")) fail("缺 test/injectcfg.test.mjs")
+  if (exists("test/injectcfg.test.mjs")) {
+    const it52 = read("test/injectcfg.test.mjs")
+    if (!it52.includes("拼错的")) fail("injectcfg 单测没有拼错键的用例")
+    if (!it52.includes("不抱怨")) fail("injectcfg 单测没有「没配置不抱怨」的用例")
+  }
+  const docs52 = [
+    ["CHANGELOG.md", "写错一个键，注入就悄悄关了"],
+    ["docs/verified.md", "## 1.11.52（2026-11-15）"],
+    ["docs/roadmap.md", "1.11.52 已交付"],
+    ["docs/release.md", "## 1.11.52 实测"],
+    ["docs/benchmarks.md", "手改的配置文件也是输入（1.11.52 更新）"],
+  ]
+  for (const [f, needle] of docs52) if (!read(f).includes(needle)) fail("1.11.52 文档缺 " + f + " 的「" + needle + "」")
+  ok("1.11.52 构件：注入配置有范围校验 / 写错留痕 / 十项测试 / 文档五处")
 
 }
 for (const n of notes) console.log(`  ✔ ${n}`)
