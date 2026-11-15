@@ -2,6 +2,17 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.11.44（2026-11-15）
+
+CI 的 `verify` 作业从「只跑 ubuntu」改成 `ubuntu-latest` + `windows-latest` 两个系统。
+
+| 项 | 改前 | 改后 |
+|---|---|---|
+| `verify` 作业的系统 | ubuntu-latest | **ubuntu-latest + windows-latest** |
+| 作业名 | `Node 24` | `Node 24 on ubuntu-latest` / `Node 24 on windows-latest` |
+| 本机模拟（autocrlf 克隆） | — | **check 通过 · 357/357** |
+
+产物：dsh-memory-nebula-1.11.44.tgz · 95 个文件 · 3474236 字节 · sha256 b5b7d1b825099750e3864e39333ab19ddc4ff605363d9e02e223fd87389371c8（包内记录的是上一刀的数字）。
 ## 1.11.43（2026-11-15）
 
 Node 22 上 `node:sqlite` 实验实现会让测试进程直接崩（`exitCode 3221225477` = `0xC0000005`）。下限提到 24。

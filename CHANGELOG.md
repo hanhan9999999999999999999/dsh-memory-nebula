@@ -2,6 +2,23 @@
 
 本文件记录「记忆星图」每个版本改了什么。日期为落盘日期。
 
+## 1.11.44 — 2026-11-15
+
+主题：**用户全在 Windows，CI 只在 Linux 上跑。**
+
+插件带着 `sidecar.ps1`、默认监听 `127.0.0.1`、路径全按 Windows 写，README 里却一直只贴 Linux 风格的命令——而 CI 的 `verify` 作业从来只在 `ubuntu-latest` 上跑。也就是说：**我们发布前的每一次验证，都发生在用户不用（或很少用）的那个系统上。**这不算 bug，是验证的盲区。
+
+这一版把它补上：
+
+1. `verify` 作业改成矩阵 `os: [ubuntu-latest, windows-latest]` × `node: ['24']`，作业名带上系统（`Node 24 on windows-latest`），红了能一眼看出是哪个系统。
+2. 两个系统都显式用 `bash`（Git Bash 在 windows-latest 上自带），免得同一段脚本在 pwsh 与 bash 下行为不同。
+3. 打包与安装那条 `Package install` 仍留在 ubuntu——它验的是 tarball 内容，与系统无关。
+
+先在本机模拟了一遍 CI 的取文件方式（`git clone`，`core.autocrlf=true` 会把 `package.json`、`test/*.mjs` 这类 LF 文件转成 CRLF）：`release-check` 全部通过、单测 **357/357**。也就是说这条作业该绿；如果它红了，红的就是真问题。
+
+一句教训：**「我这边能跑」只覆盖了我这边的系统。** 发布的验收面，得跟用户的系统重合。
+
+发布产物：dsh-memory-nebula-1.11.44.tgz · 95 个文件 · 3474236 字节 · sha256 b5b7d1b825099750e3864e39333ab19ddc4ff605363d9e02e223fd87389371c8（包内记录的是上一刀的数字）。
 ## 1.11.43 — 2026-11-15
 
 主题：**22 上，测试把自己打崩了。**

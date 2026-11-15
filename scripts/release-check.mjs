@@ -1617,6 +1617,20 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   for (const [f, needle] of docs42) if (!read(f).includes(needle)) fail("1.11.42 文档缺 " + f + " 的「" + needle + "」")
   ok("` + MARK + ` / 标签触发 / contents: write / tgz + SHA256SUMS / 文档三处")
 
+  // 1.11.44：CI 的 verify 作业必须同时跑 Windows（用户几乎都在 Windows）
+  const ci44 = read(".github/workflows/ci.yml")
+  if (!ci44.includes("os: [ubuntu-latest, windows-latest]")) fail("CI 没同时跑 ubuntu 与 windows")
+  if (!ci44.includes("runs-on: ${{ matrix.os }}")) fail("CI 的 runs-on 没接矩阵的系统")
+  if (!ci44.includes("name: Node ${{ matrix.node }} on ${{ matrix.os }}")) fail("CI 作业名没带系统")
+  if (!ci44.includes("shell: bash")) fail("CI 没统一用 bash（跨系统一致）")
+  const docs44 = [
+    ["CHANGELOG.md", "用户全在 Windows，CI 只在 Linux 上跑"],
+    ["docs/verified.md", "## 1.11.44（2026-11-15）"],
+    ["docs/release.md", "## 1.11.44 实测"],
+  ]
+  for (const [f, needle] of docs44) if (!read(f).includes(needle)) fail("1.11.44 文档缺 " + f + " 的「" + needle + "」")
+  ok("` + MARK + ` / ubuntu + windows / 作业名带系统 / 统一 bash / 文档三处")
+
 }
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {
