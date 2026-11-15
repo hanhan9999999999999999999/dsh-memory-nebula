@@ -18,11 +18,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22.15.0'
+          node-version: '24'
 
       - name: Pack
         run: |
-          npm pack
+          npm pack --ignore-scripts
           sha256sum ./*.tgz > SHA256SUMS.txt
           cat SHA256SUMS.txt
 

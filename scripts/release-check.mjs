@@ -253,7 +253,7 @@ ok('1.1.2 构件：市场索引 / unpkg / 双语详情 / 图标')
 
 const ciSrc = read('.github/workflows/ci.yml')
 // 1.11.41：下限提到 22.15（node:zlib 的 zstd、node:sqlite 都在这一版可用）
-if (!ciSrc.includes("'22.15.0'") || !ciSrc.includes("'24'")) fail('CI 矩阵缺 Node 22.15/24')
+if (!ciSrc.includes("'24'")) fail('CI 矩阵缺 Node 24（22 的 node:sqlite 是实验实现，会把测试进程打崩）')
 if (!ciSrc.includes('npm run check')) fail('CI 没跑 release-check')
 if (!pkg.repository?.url?.includes('github.com/hanhan9999999999999999999/dsh-memory-nebula')) fail('package.json 缺 repository')
 if (!pkg.homepage?.includes('github.com/hanhan9999999999999999999/dsh-memory-nebula')) fail('package.json 缺 homepage')
@@ -1588,10 +1588,10 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
     fail("transcripts 测试没有「没有 zstd 就跳过」的开关")
   }
   const pkg41 = JSON.parse(read("package.json"))
-  if (!/^>=\s*22\.1[5-9]/.test(pkg41.engines.node)) fail("engines.node 没提到 22.15 以上：" + pkg41.engines.node)
+  if (!/^>=\s*(22\.1[5-9]|2[3-9]|\d\d)/.test(pkg41.engines.node)) fail("engines.node 没提到可用版本：" + pkg41.engines.node)
   if (pkg41.scripts.test !== "node --test") fail("npm test 还依赖 glob 写法：" + pkg41.scripts.test)
   const ci41 = read(".github/workflows/ci.yml")
-  if (!ci41.includes("'22.15.0'")) fail("CI 矩阵没跟上 22.15")
+  if (!ci41.includes("'24'")) fail("CI 矩阵没跟上 Node 24")
   if (!ci41.includes("name: Environment")) fail("CI 缺 Environment 步骤（node / zstd / sqlite）")
   if (!exists("dev/sim-clean-clone.mjs")) fail("缺干净克隆模拟探针")
   const docs41 = [
@@ -1606,7 +1606,7 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
 
   // 1.11.42：打标签就自动建 Release 并挂附件
   const rel42 = read(".github/workflows/release.yml")
-  for (const needle of ["tags: ['v*']", 'contents: write', 'npm pack', 'SHA256SUMS.txt', 'gh release create']) {
+  for (const needle of ["tags: ['v*']", 'contents: write', 'npm pack', 'SHA256SUMS.txt', 'gh release create', "node-version: '24'"]) {
     if (!rel42.includes(needle)) fail("release.yml 缺「" + needle + "」")
   }
   const docs42 = [

@@ -98,6 +98,13 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.43 实测
+
+`npx -y node@22.15.0 --test test/scan-steps.test.mjs`：进程直接死，`exitCode 3221225477`（`0xC0000005`，访问违例），不是断言失败。Node 22 的 `node:sqlite` 仍是实验实现。
+
+改后：`engines.node` = `>=24.0.0`，CI 只跑 Node 24；24 上 357/357 通过。
+
+1.11.43 产物：dsh-memory-nebula-1.11.43.tgz · 95 个文件 · 3472689 字节 · sha256 312d3cc38c93010bdbedf852e33eb207ef0a687d375f328fe6d81f0cd16fd0c7（包内记录的是上一刀的数字）。
 ## 1.11.42 实测
 
 GitHub Releases 之前停在 `v1.6.4`：1.11.x 全系列都没有附件，「从 GitHub 安装」无从下手。新增 `release.yml`，推 `v*` 标签自动打包并挂附件。
@@ -499,7 +506,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.42.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.43.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：

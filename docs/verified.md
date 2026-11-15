@@ -2,6 +2,20 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.11.43（2026-11-15）
+
+Node 22 上 `node:sqlite` 实验实现会让测试进程直接崩（`exitCode 3221225477` = `0xC0000005`）。下限提到 24。
+
+| 项 | 改前 | 改后 |
+|---|---|---|
+| `engines.node` | >=22.15.0 | **>=24.0.0** |
+| CI 矩阵 | `['22.15.0', '24']` | **`['24']`** |
+| 22.15 上跑单测 | 进程崩（scan-steps / recall 两处） | 不再承诺支持 |
+| 24 上跑单测 | 357/357 | **357/357** |
+
+复现：`npx -y node@22.15.0 --test test/scan-steps.test.mjs`。
+
+产物：dsh-memory-nebula-1.11.43.tgz · 95 个文件 · 3472689 字节 · sha256 312d3cc38c93010bdbedf852e33eb207ef0a687d375f328fe6d81f0cd16fd0c7（包内记录的是上一刀的数字）。
 ## 1.11.42（2026-11-15）
 
 打标签即建 Release：`.github/workflows/release.yml` → `npm pack` → `SHA256SUMS.txt` → `gh release create --verify-tag`。
