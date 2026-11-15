@@ -1,3 +1,20 @@
+## 1.11.62（2026-11-16）
+
+用真实库（`D:/document`，1,888 节点 / 9,479 连接）与临时 `DSH_HOME` 验的：
+
+| 检查 | 结果 |
+| --- | --- |
+| 建完图立刻删除进程（改前） | 缓存目录空；第二个进程 `rebuilt`，1,084ms |
+| 建完图 `await flushCache()`（改后） | 盘上出现 `graph-*.json.br`；第二个进程 `cached`，105ms |
+| 同一 home 连跑三次 --export | 1,287ms / 168ms / 162ms，三次 exit 0，输出字节完全一致 |
+| 命中缓存那一次的报告 | 带 clusters（团）；以前这里崩在 `.map` 上 |
+| `--share` 跑两次 | 两次 exit 0（2,270,723 / 2,242,883 字节，快照带时间戳） |
+| `--diagnose --json` 跑两次 | 改前两次都 exit 1（JSON 却是好的）；改后两次 exit 0 |
+| 老缓存（没有 clusters 字段） | `graph.clusters = undefined` 时导出报告不崩，团为空数组 |
+| 单元测试 | `test/cache-flush.test.mjs` 5 项全过；全量 461 项 |
+
+产物：第一刀：96 个文件 / 3,537,668 字节 / sha256 d7bd9b63280bc990b3b03155de2cdf6bcb48279a470c972c39124c4ad97c933d（回填后重打，包内记录的是上一刀的数字）。
+
 ## 1.11.61（2026-11-16）
 
 用真实 meow 库（`D:/document/Remote Connect DSH/.dsh-meow/memory.db`，704,512 B，旁边 `-wal` 4,120,032 B）的副本验的：

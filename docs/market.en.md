@@ -90,13 +90,13 @@ Fifty thousand memories are handled in layers (1.9.0): the first screen sends 10
 Add this index in the DSH plugin market:
 
 ```text
-https://unpkg.com/dsh-memory-nebula@1.11.61/market/index.json
+https://unpkg.com/dsh-memory-nebula@1.11.62/market/index.json
 ```
 
 Then search for “Memory Nebula” and install. Or install the npm package directly:
 
 ```bash
-npm install dsh-memory-nebula@1.11.61
+npm install dsh-memory-nebula@1.11.62
 ```
 
 Run the read-only doctor after installing:

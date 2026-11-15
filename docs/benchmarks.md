@@ -854,3 +854,15 @@ CI 的机器比本机慢，而且 `node --test` 会并发跑多个文件，这�
 
 meow 库是 WAL 模式，写进去的记忆先进 `memory.db-wal`。真实库 704,512 B 的主库旁边躺着 4 MB 的 `-wal`，主库 mtime 停在两天前——只看主库的签名永远认为「没有变化」。补上非空 `-wal` 的大小与 mtime 之后，写一条记忆签名立刻变、`refresh` 一次就到图里；空的 `-wal`（自己读库时建出来的）不算，避免「读完必变」导致永远重建。
 
+## 一次性命令也要能重用缓存（1.11.62 更新）
+
+`--export` / `--share` / `--diagnose` 建完图就退出，缓存是「开始写、不等它」——命令一走写盘就被掐掉，
+下次启动又得整张图重算。实测同一份 `DSH_HOME`：
+
+| 做法 | 缓存目录 | 第二次启动 |
+| --- | --- | --- |
+| 建完直接 `process.exit` | 空 | `rebuilt`，1,084ms |
+| `await flushCache()` | `graph-*.json.br` | `cached`，105ms |
+
+同一 home 连跑三次 `--export`：1,287ms / 168ms / 162ms。缓存里还要带上 clusters（团），
+否则恢复出来的图只有 nodes/edges/stats，导出报告会在 `.map` 上撞 undefined。

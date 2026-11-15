@@ -2166,6 +2166,44 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
     if (!read(p).includes(needle)) fail("文档缺内容：" + p)
   }
 }
+
+// 1.11.62：一次性命令、缓存与盘上的团
+if (true) {
+  const neb = read("lib/host/nebula.js")
+  if (!neb.includes("async flushCache(timeoutMs = 20000) {")) fail("nebula 没有 flushCache")
+  if (!neb.includes("Promise.race([pending.catch(() => null), guard])")) fail("flushCache 没有等写盘那一半")
+  if (!neb.includes("const allClusters = Array.isArray(g.clusters) ? g.clusters : []")) fail("导出报告没有兜住缺失的 clusters")
+  if (!neb.includes("if (!Array.isArray(this.graph.clusters)) this.graph.clusters = []")) fail("读盘恢复没有补 clusters")
+
+  const cache = read("lib/host/graphcache.js")
+  if (!cache.includes("clusters: (graph.clusters || []).map((c) => ({")) fail("缓存里没存 clusters，恢复出来的图会少一团")
+
+  const cli = read("lib/standalone.mjs")
+  const readyCount = (cli.match(/const ready = ok \|\| \(probe\.graph && probe\.graph\.nodes\.length > 0\)/g) || []).length
+  if (readyCount < 3) fail("三处一次性命令都要判「图里有内容」，现在只有 " + readyCount + " 处")
+  if (!cli.includes("if (ready) await probe.flushCache()")) fail("一次性命令没等缓存落盘")
+  if (!cli.includes("await nebula.flushCache(1200)")) fail("退出时没等缓存落盘")
+  if (!cli.includes("process.exit(ready ? 0 : 1)")) fail("--diagnose 还是把「命中缓存」当成失败")
+  if (cli.includes("process.exit(ok ? 0 : 1)")) fail("--diagnose 仍在用 ok 判退出码（命中缓存时会 exit 1）")
+
+  const cf = "test/cache-flush.test.mjs"
+  if (!existsReal(cf)) fail("缺 " + cf)
+  const cft = read(cf)
+  if (!cft.includes("flushCache 会把缓存真的写到盘上")) fail("缓存测试没有验 flushCache 真的落盘")
+  if (!cft.includes("连跑两次 --export")) fail("缓存测试没有验「一次性命令跑第二次」")
+  if (!cft.includes("旧缓存里没有 clusters")) fail("缓存测试没有验老缓存缺字段")
+
+  for (const [p, needle] of [
+    ["CHANGELOG.md", "一次性命令跑第二次，就说「建图失败」"],
+    ["docs/verified.md", "同一 home 连跑三次 --export"],
+    ["docs/roadmap.md", "1.11.62「一次性命令跑第二次"],
+    ["docs/release.md", "1.11.62 实测"],
+    ["docs/benchmarks.md", "一次性命令也要能重用缓存"],
+  ]) {
+    if (!read(p).includes(needle)) fail("文档缺内容：" + p)
+  }
+}
+
 }
 
 for (const n of notes) console.log(`  ✔ ${n}`)
