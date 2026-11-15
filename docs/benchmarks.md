@@ -738,3 +738,15 @@ node --test --experimental-test-coverage test/*.test.mjs
 
 慢的不是检索，是量它的时候脚下有别人在施工。验收环境也是产品的一部分。
 
+
+## 看不见 dev/ 的门禁（1.11.49 更新）
+
+同一份 `scripts/release-check.mjs` 在两种视野下的结果：
+
+| 视野 | 修复前 | 修复后 |
+| --- | --- | --- |
+| 本机（带 `dev/`） | 通过 | 通过 |
+| `NEBULA_NO_DEV=1`（干净克隆视野） | 1 个问题 | 通过 |
+
+干净克隆整体（163 个跟踪文件、无 `dev/`、无 `node_modules`）：check ✔ · test ✔ · 16.0s。
+

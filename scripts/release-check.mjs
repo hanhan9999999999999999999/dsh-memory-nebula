@@ -14,10 +14,12 @@ const fail = (m) => problems.push(m)
 const ok = (m) => notes.push(m)
 
 const read = (p) => readFileSync(join(ROOT, p), 'utf8')
-const existsReal = (p) => existsSync(join(ROOT, p))
+const existsReal = (p) => (DEV_HIDDEN && isDev(p) ? false : existsSync(join(ROOT, p)))
 // dev/ 是本地工作件：.gitignore 整目录忽略，干净克隆（CI、别人的机器）里没有。
 // 证据脚本只在本机核对，缺失记一条备注，不当发布门禁（1.11.41 修：否则 CI 永远红）。
 const isDev = (p) => p === 'dev' || p.startsWith('dev/') || p.startsWith('../dev/')
+// NEBULA_NO_DEV=1：把 dev/ 当成不存在，本地就能复现 CI 的视野（1.11.49）
+const DEV_HIDDEN = process.env.NEBULA_NO_DEV === '1'
 const exists = (p) => (isDev(p) ? true : existsReal(p))
 const readDev = (p) => (existsReal(p) ? readFileSync(join(ROOT, p), 'utf8') : '')
 const noteDev = (p) => { if (!existsReal(p)) notes.push('（本地证据脚本不在干净克隆里：' + p + '）') }
@@ -1741,8 +1743,9 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   const v20 = readDev("../dev/verify-20k.mjs")
   if (v20 && v20.includes("const ovh = await get('/overview?hygiene=1')") === false) fail("大库验收还在假设概览一定带体检")
   if (v20 && !v20.includes("概览说清了体检是否在算")) fail("大库验收缺 hygienePending 那条断言")
-  if (!existsReal("dev/probe-step-home.mjs")) fail("缺 dev/probe-step-home.mjs")
-  if (existsReal("dev/probe-step-home.mjs") && !read("dev/probe-step-home.mjs").includes("每步一个家")) {
+  noteDev("dev/probe-step-home.mjs")
+  if (!exists("dev/probe-step-home.mjs")) fail("缺 dev/probe-step-home.mjs")
+  if (existsReal("dev/probe-step-home.mjs") && !readDev("dev/probe-step-home.mjs").includes("每步一个家")) {
     fail("probe-step-home 没有「每步一个家」的结果行")
   }
   const docs48 = [
@@ -1754,6 +1757,27 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   ]
   for (const [f, needle] of docs48) if (!read(f).includes(needle)) fail("1.11.48 文档缺 " + f + " 的「" + needle + "」")
   ok("1.11.48 构件：验收每步一个家 / 体检断言跟新语义 / 文档五处")
+
+  // 1.11.49：CI 看不见 dev/，所以门禁要能被这样跑一遍；存在性断言不许用 existsReal
+  const self49 = read("scripts/release-check.mjs")
+  if (!self49.includes("const DEV_HIDDEN = process.env.NEBULA_NO_DEV === '1'")) fail("门禁缺 NEBULA_NO_DEV 开关")
+  if (!self49.includes("const existsReal = (p) => (DEV_HIDDEN && isDev(p) ? false : existsSync(join(ROOT, p)))")) {
+    fail("existsReal 没跟着 NEBULA_NO_DEV 一起装看不见")
+  }
+  if (!self49.includes("const exists = (p) => (isDev(p) ? true : existsReal(p))")) fail("exists() 没对 dev/ 放行")
+  if (/(^|[^.\w])!existsReal\(\s*["'](?:\.\.\/)?dev\//.test(self49.replace("const existsReal = (p) => (DEV_HIDDEN && isDev(p) ? false : existsSync(join(ROOT, p)))", ""))) {
+    fail("还有地方拿 existsReal 判断 dev/ 在不在（干净克隆里必红）")
+  }
+  if (!read("dev/sim-clean-clone.mjs").includes("NEBULA_NO_DEV")) fail("sim-clean-clone 没有「看不见 dev/」那一趟")
+  const docs49 = [
+    ["CHANGELOG.md", "本机看不见的那一半"],
+    ["docs/verified.md", "## 1.11.49（2026-11-15）"],
+    ["docs/roadmap.md", "1.11.49 已交付"],
+    ["docs/release.md", "## 1.11.49 实测"],
+    ["docs/benchmarks.md", "看不见 dev/ 的门禁（1.11.49 更新）"],
+  ]
+  for (const [f, needle] of docs49) if (!read(f).includes(needle)) fail("1.11.49 文档缺 " + f + " 的「" + needle + "」")
+  ok("1.11.49 构件：门禁能在看不见 dev/ 的视野下跑 / 存在性断言不碰 existsReal / 文档五处")
 
 }
 for (const n of notes) console.log(`  ✔ ${n}`)
