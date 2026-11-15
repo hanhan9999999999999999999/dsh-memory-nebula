@@ -1,3 +1,19 @@
+## 1.11.61（2026-11-16）
+
+用真实 meow 库（`D:/document/Remote Connect DSH/.dsh-meow/memory.db`，704,512 B，旁边 `-wal` 4,120,032 B）的副本验的：
+
+| 检验 | 结果 |
+| --- | --- |
+| 写入连接开着时写一条 fact | 主库 size 不变、mtime 不变（这就是坑） |
+| 改前签名 | 与写入前完全相同 → `refresh` 返回 false、`lastRefresh.why = unchanged` |
+| 改前节点数 | 535 → 535（新记忆没进图） |
+| 改后签名 | 变了（WAL 那一段） |
+| 改后 `refresh` | `lastRefresh.why = rebuilt`，535 → 536，新记忆在图里 |
+| 关库（checkpoint）后什么都没写 | 签名两次相同、`refresh` 返回 false（空的 `-wal` 不算变化） |
+| 单元测试 | `test/wal-signature.test.mjs` 3 项全过 |
+
+产物：第一刀：96 个文件 / 3,533,847 字节 / sha256 e027de8a326724dff0ea87805605d623d738d6699fec9f9e5543b6d9222f8376（回填后重打，包内记录的是上一刀的数字）。
+
 # 记忆星图 · 验证过的事实
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。

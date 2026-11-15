@@ -98,6 +98,16 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.61 实测
+
+- 真实库（535 条）：写入连接开着时写一条 fact，主库 704,512 B 与 mtime 都没变，`-wal` 8,272 B。
+- 改前：签名不变 → `refresh` 返回 false、535 → 535；强制重算才 536。
+- 改后：签名变 → `rebuilt`、535 → 536、新记忆在图里。
+- 空 `-wal` 不算变化：关库后什么都没写，两次签名相同、`refresh` 返回 false。
+- `test/wal-signature.test.mjs` 3 项；全量单测 456 项。
+
+产物：第一刀：96 个文件 / 3,533,847 字节 / sha256 e027de8a326724dff0ea87805605d623d738d6699fec9f9e5543b6d9222f8376（回填后重打，包内记录的是上一刀的数字）。
+
 ## 1.11.60 实测
 
 | 项 | 结果 |
@@ -676,7 +686,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.60.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.61.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：

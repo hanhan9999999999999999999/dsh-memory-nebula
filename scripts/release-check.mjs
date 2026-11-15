@@ -2137,7 +2137,37 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   if (existsReal("dev/probe-unlink-auto.mjs") && !readDev("dev/probe-unlink-auto.mjs").includes("取消的是自己那根线")) fail("dev/probe-unlink-auto.mjs 没有在问「取消的是不是只有自己那根线」")
   ok("1.11.60 构件：人工连线看得见 / 取消连线保留系统边 / 文档五处")
 
+
+// 1.11.61 构件：WAL 也要算进签名
+{
+  const neb61 = read("lib/host/nebula.js")
+  if (!neb61.includes("const wal = statSync(store.dbPath + '-wal')")) fail("nebula 没在看 -wal")
+  if (!neb61.includes("if (wal.size > 0) parts.push(")) fail("空的 -wal 不能算变化（否则读完必变）")
+  if (!neb61.includes("WAL 模式是持久设置在库里")) fail("缺空 -wal 的说明注释")
+
+  const walTest = "test/wal-signature.test.mjs"
+  if (!existsReal(walTest)) fail("缺 " + walTest)
+  const wt = read(walTest)
+  if (!wt.includes("第二条记忆")) fail("WAL 测试没有真的写第二条记忆")
+  if (!wt.includes("签名不该抖动")) fail("WAL 测试没有验「空的 -wal 不该算变化」")
+
+  noteDev("dev/probe-wal-stale.mjs")
+  if (existsReal("../dev/probe-wal-stale.mjs") && !readDev("../dev/probe-wal-stale.mjs").includes("结论")) {
+    fail("探针没有给结论行")
+  }
+
+  for (const [p, needle] of [
+    ["CHANGELOG.md", "新写的记忆，星图说「没有变化」"],
+    ["docs/verified.md", "改后签名"],
+    ["docs/roadmap.md", "1.11.61「新写的记忆"],
+    ["docs/release.md", "1.11.61 实测"],
+    ["docs/benchmarks.md", "文件没变，不等于数据没变"],
+  ]) {
+    if (!read(p).includes(needle)) fail("文档缺内容：" + p)
+  }
 }
+}
+
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {
   console.log('\n全部通过。\n')
