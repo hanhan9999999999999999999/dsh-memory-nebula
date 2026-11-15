@@ -2085,6 +2085,32 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   if (existsReal("dev/probe-hebbian-real.mjs") && !readDev("dev/probe-hebbian-real.mjs").includes("共激活")) fail("dev/probe-hebbian-real.mjs 没有在真实库上数共激活边")
   ok("1.11.58 构件：共激活按会话数算 / 权重封顶 0.44 / 账本只认活动键 / 文档五处")
 
+  // 1.11.59：屏蔽记录不许被「建图那一刻的快照」盖过去
+  const neb59 = read("lib/host/nebula.js")
+  if (!neb59.includes("const muted = this.demo ? [] : listMutes()")) fail("读盘恢复没有再读一次屏蔽记录")
+  if (!neb59.includes("droppedByMute")) fail("读盘恢复没有统计「按屏蔽摘掉了几条边」")
+  if (!neb59.includes("this.graph.muteCount = muted.length")) fail("读盘恢复没有把 muteCount 对齐到库里的记录")
+  if (!neb59.includes("if (this.graph.stats) this.graph.stats.edges = this.graph.edges.length")) fail("摘边之后 stats.edges 没有跟着改（会留一个旧数字）")
+  if (!neb59.includes("按屏蔽记录摘边失败")) fail("屏蔽表读不出来时没有兜住（不该让整张图起不来）")
+  const muteBody = neb59.slice(neb59.indexOf("  mute(a, b, note = '')"))
+  if (!muteBody.slice(0, 600).includes("this.graph.muteCount = this.mutes().length")) fail("mute() 没有立刻更新 muteCount")
+  const unmuteBody = neb59.slice(neb59.indexOf("  unmute(a, b)"))
+  if (!unmuteBody.slice(0, 600).includes("this.graph.muteCount = this.mutes().length")) fail("unmute() 没有立刻更新 muteCount")
+  const mr59 = read("test/mute-restore.test.mjs")
+  if (!mr59.includes("重启读盘之后也不许回来")) fail("test/mute-restore.test.mjs 没有「重启之后不许回来」这条")
+  if (!mr59.includes("需要重算")) fail("test/mute-restore.test.mjs 没有「撤销屏蔽要说清需要重算」这条")
+  if (!mr59.includes("stats.edges")) fail("test/mute-restore.test.mjs 没有核对 stats.edges")
+  const docs59 = [
+    ["CHANGELOG.md", "屏蔽过的边，重启之后又长回来了"],
+    ["docs/verified.md", "屏蔽后重启：那条边不再出现"],
+    ["docs/roadmap.md", "1.11.59「屏蔽过的边，重启之后又长回来了」"],
+    ["docs/release.md", "1.11.59 实测"],
+    ["docs/benchmarks.md", "读盘恢复的代价（1.11.59 更新）"],
+  ]
+  for (const [f, needle] of docs59) if (!read(f).includes(needle)) fail("1.11.59 文档缺 " + f + " 的「" + needle + "」")
+  if (existsReal("dev/probe-mute-restore.mjs") && !readDev("dev/probe-mute-restore.mjs").includes("屏蔽被重启吃掉")) fail("dev/probe-mute-restore.mjs 没有在数「屏蔽被重启吃掉」")
+  ok("1.11.59 构件：读盘恢复按屏蔽记录摘边 / 计数跟着改动 / 文档五处")
+
 }
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {
