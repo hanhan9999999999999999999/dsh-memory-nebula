@@ -1511,6 +1511,30 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   for (const [f, needle] of docs38) if (!read(f).includes(needle)) fail("1.11.38 文档缺 " + f + " 的「" + needle + "」")
   ok("1.11.38 构件：推送 uid 按内容哈希 / 非数组有护栏 / 十四项补测 / 文档五处")
 
+  // 1.11.39：删掉重复的 readStoreNodes；MCP 嗅探看到下一个条目就停；发现层补测
+  const src39 = read("lib/host/sources.js")
+  if (src39.includes("export function readStoreNodes")) fail("sources.js 里还留着没人调用的 readStoreNodes")
+  if (!src39.includes("const nextId = lines.findIndex(")) fail("sources.js 的 MCP 嗅探还是固定窗口")
+  if (!src39.includes("const stop = nextId < 0 ? Math.min(lines.length, i + 24) : nextId")) {
+    fail("sources.js 的 MCP 嗅探没在下一个条目处停下")
+  }
+  const g39 = read("lib/host/graph.js")
+  if (g39.includes("来自 sources.readStoreNodes")) fail("graph.js 的注释还指着已删除的 readStoreNodes")
+  if (!g39.includes("来自适配器层（lib/host/adapters/*）扫描出的所有节点")) fail("graph.js 的注释没指向适配器层")
+  if (!exists("test/sources.test.mjs")) fail("缺 test/sources.test.mjs")
+  if (exists("test/sources.test.mjs") && !read("test/sources.test.mjs").includes("普通插件被误列成 MCP")) {
+    fail("sources 单测没有 MCP 串条目的回归用例")
+  }
+  const docs39 = [
+    ["CHANGELOG.md", "没人调用的那份，已经和真的那份不一样了"],
+    ["docs/verified.md", "## 1.11.39（2026-11-15）"],
+    ["docs/roadmap.md", "1.11.39 已交付"],
+    ["docs/release.md", "## 1.11.39 实测"],
+    ["docs/benchmarks.md", "删掉那份重复实现（1.11.39 更新）"],
+  ]
+  for (const [f, needle] of docs39) if (!read(f).includes(needle)) fail("1.11.39 文档缺 " + f + " 的「" + needle + "」")
+  ok("1.11.39 构件：重复实现已删 / MCP 不串条目 / 发现层十四项补测 / 文档五处")
+
 }
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {

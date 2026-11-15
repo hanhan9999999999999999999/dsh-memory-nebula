@@ -98,6 +98,13 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.39 实测
+
+- `sources.js` 行覆盖 54.04% → **93.66%**、函数 61.54% → **92.86%**；全部文件 88.26% → **89.46%**；单测 326 → **340**。
+- MCP 嗅探：同一份 patch 里 `unrelated-plugin`（普通插件，紧跟在一个 MCP 条目后面）改前被列进 MCP 清单，改后不再出现；真正的两个（`dsh-memory-nebula` stdio、`drawio` streamable-http）照旧。
+- 删掉 `readStoreNodes` 后 `graph.js` 仍 1,642 行、`sources.js` 由 322 行降到 264 行，`node --check` 与 340 项单测全过。
+
+1.11.39 产物：dsh-memory-nebula-1.11.39.tgz · 95 个文件 · 3462769 字节 · sha256 dcd781daf372c20bd416af85b770109f63ca002691d686595c4a0801c5f81949（包内记录的是上一刀的数字）。
 ## 1.11.38 实测
 
 `node dev/probe-ingest.mjs`（临时 DSH_HOME，同一批两条推送两次）：
@@ -467,7 +474,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.38.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.39.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：

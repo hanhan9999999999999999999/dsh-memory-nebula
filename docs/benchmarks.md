@@ -641,3 +641,14 @@ node --test --experimental-test-coverage test/*.test.mjs
 | `ingest.js` 行 / 函数覆盖 | 33.51% | **97.97% / 100%** |
 
 复现：`node dev/probe-ingest.mjs`（包内 `dev/`）。
+
+## 发现层：删掉那份重复实现（1.11.39 更新）
+
+| 项 | 改前 | 改后 |
+|---|---|---|
+| `sources.js` 行 / 函数覆盖 | 54.04% / 61.54% | **93.66% / 92.86%** |
+| 全部文件 行覆盖 | 88.26% | 89.46% |
+| 单测 | 326 | 340 |
+| 普通插件被误列成 MCP | 会 | 不会 |
+
+复现：`node --test test/sources.test.mjs`。
