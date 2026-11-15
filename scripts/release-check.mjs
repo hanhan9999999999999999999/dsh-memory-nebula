@@ -1853,6 +1853,27 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   for (const [f, needle] of docs52) if (!read(f).includes(needle)) fail("1.11.52 文档缺 " + f + " 的「" + needle + "」")
   ok("1.11.52 构件：注入配置有范围校验 / 写错留痕 / 十项测试 / 文档五处")
 
+  // 1.11.53：工具层那一半，第一次有人问它话
+  if (!exists("test/tools.test.mjs")) fail("缺 test/tools.test.mjs")
+  if (exists("test/tools.test.mjs")) {
+    const t53 = read("test/tools.test.mjs")
+    if (!t53.includes("九个工具都注册上了")) fail("工具层单测没覆盖九个工具注册")
+    if (!t53.includes("nebula_link 没做成：")) fail("工具层单测没覆盖 link 的失败话术")
+    if (!t53.includes("waitReady")) fail("工具层单测没等图建好就开始问")
+  }
+  const idx53 = read("lib/index.js")
+  if (!idx53.includes("nebula_link 没做成：")) fail("nebula_link 失败时还是把异常丢给宿主")
+  if (!idx53.includes("} catch (err) {")) fail("nebula_link 外面没有 try/catch")
+  const docs53 = [
+    ["CHANGELOG.md", "工具层没人管的那一半"],
+    ["docs/verified.md", "## 1.11.53（2026-11-16）"],
+    ["docs/roadmap.md", "1.11.53 已交付"],
+    ["docs/release.md", "## 1.11.53 实测"],
+    ["docs/benchmarks.md", "那一层没人问过它话（1.11.53 更新）"],
+  ]
+  for (const [f, needle] of docs53) if (!read(f).includes(needle)) fail("1.11.53 文档缺 " + f + " 的「" + needle + "」")
+  ok("1.11.53 构件：工具层失败也要说话")
+
 }
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {
