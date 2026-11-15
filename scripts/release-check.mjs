@@ -2058,6 +2058,33 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   if (existsReal("dev/probe-flaky-wait.mjs") && !readDev("dev/probe-flaky-wait.mjs").includes("忙起来")) fail("dev/probe-flaky-wait.mjs 没有把机器压满的那一段")
   ok("1.11.57 构件：测试等条件 / 端口现取 / CI 自己报失败用例 / 文档五处")
 
+  // 1.11.58：共激活的门槛与权重，必须按会话数算，且不许冒充实体级硬关系
+  const graph58 = read("lib/host/graph.js")
+  if (!graph58.includes("rec.n += 1")) fail("graph.js 的共激活没有按会话数累加（rec.n += 1）")
+  if (!graph58.includes("if (rec.n < 2) continue")) fail("graph.js 的共激活门槛不是「≥2 次会话」")
+  if (graph58.includes("if (co < " + "1.6)")) fail("graph.js 还在用 co < 1.6 那道与注释相反的门")
+  if (!graph58.includes("const coRec = coAct.get(coKey(a, b))")) fail("graph.js 没有按 { n, d } 读共激活记录")
+  if (!graph58.includes("0.44,")) fail("共激活权重没有封顶 0.44（不该越过 STRONG_W 0.45）")
+  if (!graph58.includes("次会话里一起被点亮")) fail("共激活的理由文案没写清「在几次会话里」")
+  if (graph58.includes("同会话共激活")) fail("graph.js 还在用「同会话共激活 N 次」那句旧文案（那说的是加权和）")
+  const meow58 = read("lib/host/adapters/meow.js")
+  if (!meow58.includes("export const LEDGER_KINDS")) fail("meow.js 没有 LEDGER_KINDS（账本只认活动键）")
+  if (!meow58.includes("if (!LEDGER_KINDS.has(kind)) continue")) fail("meow.js 的账本没有按 LEDGER_KINDS 过滤")
+  const hb58 = read("test/hebbian.test.mjs")
+  if (!hb58.includes("2 次会话")) fail("test/hebbian.test.mjs 没有「2 次会话就够」的断言")
+  if (!hb58.includes("projectsQueried")) fail("test/hebbian.test.mjs 没有 projectsQueried 不算点亮的断言")
+  if (!hb58.includes("不归零")) fail("test/hebbian.test.mjs 没有「大会话权重低但不归零」的断言")
+  const docs58 = [
+    ["CHANGELOG.md", "共激活的门槛，两头互相否掉"],
+    ["docs/verified.md", "共激活在两次会话后成立"],
+    ["docs/roadmap.md", "1.11.58「共激活的门槛，两头互相否掉」"],
+    ["docs/release.md", "1.11.58 实测"],
+    ["docs/benchmarks.md", "共激活的门槛（1.11.58 更新）"],
+  ]
+  for (const [f, needle] of docs58) if (!read(f).includes(needle)) fail("1.11.58 文档缺 " + f + " 的「" + needle + "」")
+  if (existsReal("dev/probe-hebbian-real.mjs") && !readDev("dev/probe-hebbian-real.mjs").includes("共激活")) fail("dev/probe-hebbian-real.mjs 没有在真实库上数共激活边")
+  ok("1.11.58 构件：共激活按会话数算 / 权重封顶 0.44 / 账本只认活动键 / 文档五处")
+
 }
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {
