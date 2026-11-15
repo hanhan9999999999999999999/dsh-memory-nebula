@@ -2,6 +2,33 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.11.56（2026-11-16）
+
+截断不劈字（`test/text-cut.test.mjs` 9 项，全量 437）：
+
+| 场景 | 实测 |
+| --- | --- |
+| `cut` 短于上限 | 原样返回，不改写空白 |
+| 切点落在代理对中间 | 少吃一个，返回 `A` 而不是 `A` + 半个 🌊 |
+| ZWJ 连字 👨‍👩‍👧 | 0–9 任何切点都没有半个字符，也不以 ZWJ 收尾 |
+| 变体选择符 ❤️ / 肤色修饰符 👋🏽 | 不以零件收尾；够长时整颗保留 |
+| 数据自身带半个字符 | `A\ud83cB` → `AB` |
+| 上限 0 / 负数 / NaN / null | 空串，不抛异常 |
+| `clip` 写进 UTF-8 | 不再出现 `U+FFFD`（替换符） |
+| 整条链路（ingest → 建图 → detail.preview） | 尾部 `AAA…`，无半个字符 |
+
+代价：`clip` 5 万条 243ms → 330ms（`\s+` 归一化本身占 240ms，守卫只多 87ms）。
+
+附带两处（都是本轮验收时抓到的）：
+
+| 场景 | 改前 | 改后 |
+| --- | --- | --- |
+| 空库上跑 `scripts/smoke.mjs` | `TypeError ... reading 'id'`，退出码 `0xC0000409` | 明说「规模相关的检查跳过」，退出码 1（有真失败时）或 0 |
+| `GET /sources` 的 live | stores=0 / nodes=0 / errors=1（`scanAll is not defined`） | stores=1 / nodes=2 / errors=0 |
+| 还没建过图就调 `sourcesReport()` | `live.stores` 为空（面板只会说「0 个来源」） | 先算一次指纹，直接列出接了的来源（`test/sources-report.test.mjs` 3 项） |
+
+产物：第一刀：96 个文件 / 3,518,680 字节 / sha256 6d7c935bd76b49fdee8d74ef91a5832475406caa75731c1d755b7ed1fe765c99（回填后重打，包内记录的是上一刀的数字）。
+
 ## 1.11.55（2026-11-16）
 
 `lib/host/store.js` 的自愈路径（`test/store-recovery.test.mjs` 6 项）：

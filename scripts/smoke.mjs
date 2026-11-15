@@ -3,6 +3,15 @@
 // 退出码 0 = 全过；1 = 有失败（可直接挂到 CI / 发布前手跑）。
 const base = process.argv[2] || process.env.NEBULA_BASE || 'http://127.0.0.1:7891/api/memory-nebula'
 
+// 自己崩了也要说清楚是哪一行：未捕获异常直接 exit(1)，
+// 否则 Windows 上带在途 fetch 句柄的崩溃会以 0xC0000409 退出，把真错误盖掉。
+const die = (err) => {
+  console.error('smoke 自己出错了：' + ((err && err.stack) || err))
+  process.exit(1)
+}
+process.on('uncaughtException', die)
+process.on('unhandledRejection', die)
+
 let fails = 0
 const ok = (name, cond, extra) => {
   if (cond) console.log('  ✓ ' + name + (extra ? '  ' + extra : ''))
@@ -23,12 +32,17 @@ const post = async (p, body) => {
   return r.json()
 }
 
-function checkGraph(tag, g) {
+function checkGraph(tag, g, opts = {}) {
+  const empty = opts.allowEmpty === true
   ok(tag + ' v=2', g.v === 2, 'v=' + g.v)
-  ok(tag + ' nodes>0', Array.isArray(g.nodes) && g.nodes.length > 0, g.nodes?.length + ' 条')
-  ok(tag + ' edges>0', Array.isArray(g.edges) && g.edges.length > 0, g.edges?.length + ' 条')
+  if (empty) {
+    console.log('  － ' + tag + ' 库是空的（0 条记忆）：规模相关的检查跳过')
+  } else {
+    ok(tag + ' nodes>0', Array.isArray(g.nodes) && g.nodes.length > 0, g.nodes?.length + ' 条')
+    ok(tag + ' edges>0', Array.isArray(g.edges) && g.edges.length > 0, g.edges?.length + ' 条')
+  }
   const e0 = g.edges?.[0]
-  ok(tag + ' 边是 v2 下标形状', !!e0 && typeof e0.s === 'number' && typeof e0.d === 'number', JSON.stringify(e0))
+  ok(tag + ' 边是 v2 下标形状', empty || (!!e0 && typeof e0.s === 'number' && typeof e0.d === 'number'), JSON.stringify(e0))
   let bad = 0
   for (const e of g.edges || []) {
     if (!(e.s >= 0 && e.s < g.nodes.length && e.d >= 0 && e.d < g.nodes.length)) bad++
@@ -48,37 +62,44 @@ console.log('base =', base)
 
 // 1) ping
 const ping = await get('/ping')
-ok('ping.stats', !!ping.stats && ping.stats.nodes > 0, ping.stats?.nodes + ' 条记忆')
+const rawGraph = await get('/graph')
+const isEmpty = (rawGraph.nodes || []).length === 0
+ok('ping.stats', !!ping.stats && (isEmpty ? ping.stats.nodes === 0 : ping.stats.nodes > 0), ping.stats?.nodes + ' 条记忆')
 ok('ping 带 build 指纹', typeof ping.build === 'number' && ping.build > 0)
 
 // 2) graph
-const g = checkGraph('graph', await get('/graph'))
+const g = checkGraph('graph', rawGraph, { allowEmpty: isEmpty })
 
 // 3) refresh 后形状必须与 graph 同构（历史上就是这里漏了展开 → 连线消失）
-const r = checkGraph('refresh', await post('/refresh'))
+const r = checkGraph('refresh', await post('/refresh'), { allowEmpty: isEmpty })
 ok('refresh 与 graph 规模同量级', Math.abs(r.nodes.length - g.nodes.length) <= 50, `${g.nodes.length} → ${r.nodes.length}`)
 
 // 4) 单条详情
-// 挑一个有连接的节点：孤立节点本来就没有邻居，不算失败
-const first = r.nodes.find((n) => n.level !== 'source' && (n.degree || 0) > 0) || r.nodes[0]
-const d = await get('/node?id=' + encodeURIComponent(first.id))
-const dn = d && (d.node || d)
-ok('node 详情', !!dn && dn.id === first.id, (dn?.label || '').slice(0, 24))
-ok('node 带邻居', Array.isArray(d?.neighbors) && d.neighbors.length > 0, 'neighbors=' + (d?.neighbors?.length || 0))
-
-// 5) 扩散检索
-const rc = await get('/recall?q=' + encodeURIComponent('记忆') + '&limit=5')
-ok('recall 有结果', Array.isArray(rc?.hits) && rc.hits.length > 0, rc.hits?.length + ' 条')
-ok('recall 每条约带 why', (rc.hits || []).every((h) => Array.isArray(h.why) || h.why), '')
-
-// 6) 证据链：从一条记忆跳到它的一个邻居
-const nb = (d?.neighbors || [])[0]
-if (nb && nb.id) {
-  const p = await get(`/path?a=${encodeURIComponent(first.id)}&b=${encodeURIComponent(nb.id)}`)
-  ok('path 能连上直接邻居', !!p && p.found === true && (p.nodes || []).length >= 2,
-    `hops=${p?.hops} score=${p?.score}`)
+let d = null
+if (isEmpty) {
+  console.log('  － 空库：单条详情 / 扩散检索 / 证据链这三步跳过（没有节点可挑）')
 } else {
-  ok('path（无邻居可测）', true, 'skipped')
+  // 挑一个有连接的节点：孤立节点本来就没有邻居，不算失败
+  const first = r.nodes.find((n) => n.level !== 'source' && (n.degree || 0) > 0) || r.nodes[0]
+  d = await get('/node?id=' + encodeURIComponent(first.id))
+  const dn = d && (d.node || d)
+  ok('node 详情', !!dn && dn.id === first.id, (dn?.label || '').slice(0, 24))
+  ok('node 带邻居', Array.isArray(d?.neighbors) && d.neighbors.length > 0, 'neighbors=' + (d?.neighbors?.length || 0))
+
+  // 5) 扩散检索
+  const rc = await get('/recall?q=' + encodeURIComponent('记忆') + '&limit=5')
+  ok('recall 有结果', Array.isArray(rc?.hits) && rc.hits.length > 0, rc.hits?.length + ' 条')
+  ok('recall 每条约带 why', (rc.hits || []).every((h) => Array.isArray(h.why) || h.why), '')
+
+  // 6) 证据链：从一条记忆跳到它的一个邻居
+  const nb = (d?.neighbors || [])[0]
+  if (nb && nb.id) {
+    const p = await get(`/path?a=${encodeURIComponent(first.id)}&b=${encodeURIComponent(nb.id)}`)
+    ok('path 能连上直接邻居', !!p && p.found === true && (p.nodes || []).length >= 2,
+      `hops=${p?.hops} score=${p?.score}`)
+  } else {
+    ok('path（无邻居可测）', true, 'skipped')
+  }
 }
 
 // 7) 体检 / 总览
@@ -90,8 +111,16 @@ const src = await get('/sources')
 ok('sources 有适配器清单', Array.isArray(src?.adapters) && src.adapters.length >= 4,
   (src?.adapters || []).map((a) => a.id).join('/'))
 ok('sources 报了配置文件位置', typeof src?.config?.path === 'string' && src.config.path.length > 0)
-ok('sources 至少接了一个来源', (src?.live?.stores || []).length > 0, (src?.live?.stores || []).length + ' 个来源')
-ok('sources 读过节点', (src?.live?.nodes || 0) > 0, (src?.live?.nodes || 0) + ' 条')
+const srcStores = (src?.live?.stores || []).length
+const srcNodes = src?.live?.nodes || 0
+if (isEmpty && srcStores === 0) {
+  // 干净的机器上（没有工作区、没有任何插件落盘）一个来源都没有，这不是失败：
+  // 空库就是空库，别让发布验收在沙箱里报假警。
+  console.log('  － 空库：这台机器没有可读来源，来源层两条断言跳过')
+} else {
+  ok('sources 至少接了一个来源', srcStores > 0, srcStores + ' 个来源')
+  ok('sources 读过节点', srcNodes > 0, srcNodes + ' 条')
+}
 const srcErrors = (src?.live?.errors || []).length
 ok('sources 没有读取失败', srcErrors === 0, srcErrors + ' 条错误')
 

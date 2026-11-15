@@ -1969,6 +1969,61 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   for (const [f, needle] of docs55) if (!read(f).includes(needle)) fail("1.11.55 文档缺 " + f + " 的「" + needle + "」")
   ok("1.11.55 构件：坏库挪开重建 / 内存兜底 / 概览告示 / 界面一行 / 单测 6 项 / 文档六处")
 
+  // 1.11.56：截断不许把 emoji 劈成半个（半个字符写进 UTF-8 就是方块问号）
+  const text56 = read("lib/host/text.js")
+  if (!text56.includes("export function cut(text, max = 160)")) fail("text.js 没有 cut()")
+  if (!text56.includes("if (last >= 0xd800 && last <= 0xdbff) end -= 1")) fail("cut 没有退开代理对（高代理在末尾要吃少一个）")
+  if (!text56.includes("cp === 0x200d || cp === 0xfe0f")) fail("cut 没有处理 ZWJ / 变体选择符")
+  if (!text56.includes("cp >= 0x1f3fb && cp <= 0x1f3ff")) fail("cut 没有处理肤色修饰符")
+  if (!text56.includes("return cut(s, Math.max(0, width - 1)) + '…'")) fail("clip 没有走 cut()")
+  if (text56.includes("return s.slice(0, Math.max(0, max - 1)) + '…'")) fail("clip 还在裸 slice，会把 emoji 劈开")
+  const meow56 = read("lib/host/adapters/meow.js")
+  if (meow56.includes("function clipText(text, max)")) fail("meow 适配器还留着自己那份截断实现")
+  if (!meow56.includes("clip(") || meow56.includes("function clipText")) fail("meow 适配器没有并回 text.js 的 clip")
+  const graph56 = read("lib/host/graph.js")
+  if (!graph56.includes("const desc = cut(String((item && item.description) || ''), 200)")) fail("来源描述还在裸 slice")
+  const index56 = read("lib/index.js")
+  if (!index56.includes("cut(it.label || '', 50)")) fail("体检清单标签还在裸 slice（50）")
+  if (!index56.includes("cut(it.a.label || '', 40)")) fail("重复项标签还在裸 slice（40）")
+  if (!exists("test/text-cut.test.mjs")) fail("缺 test/text-cut.test.mjs")
+  if (existsReal("test/text-cut.test.mjs")) {
+    const t56 = read("test/text-cut.test.mjs")
+    if (!t56.includes("代理对")) fail("截断单测没有代理对用例")
+    if (!t56.includes("ZWJ")) fail("截断单测没有 ZWJ 连字用例")
+    if (!t56.includes("替换符")) fail("截断单测没有断言 UTF-8 里不许出现替换符")
+    if (!t56.includes("detail.preview")) fail("截断单测没有整条链路（ingest → 建图 → detail.preview）")
+  }
+  const docs56 = [
+    ["CHANGELOG.md", "截断的时候，别把字劈成两半"],
+    ["docs/verified.md", "截断不劈字"],
+    ["docs/roadmap.md", "1.11.56「截断的时候，别把字劈成两半」"],
+    ["docs/release.md", "1.11.56 实测"],
+    ["docs/benchmarks.md", "截断也得按字来（1.11.56 更新）"],
+  ]
+  for (const [f, needle] of docs56) if (!read(f).includes(needle)) fail("1.11.56 文档缺 " + f + " 的「" + needle + "」")
+  ok("1.11.56 构件：cut() 不劈代理对 / 零件整颗退 / clip 走 cut / meow 并回主链路 / 单测 9 项 / 文档五处")
+
+  // 1.11.56 构件：验收脚本不许自己崩、不许报假警报
+  {
+    const smokeSrc = read('scripts/smoke.mjs')
+    if (!smokeSrc.includes('const die = (err) =>')) fail('smoke.mjs：未捕获错误要先讲清楚再退出（缺 die）')
+    if (!smokeSrc.includes("process.on('uncaughtException', die)")) fail('smoke.mjs：缺 uncaughtException 兜底')
+    if (!smokeSrc.includes("process.on('unhandledRejection', die)")) fail('smoke.mjs：缺 unhandledRejection 兜底')
+    if (!smokeSrc.includes('const empty = opts.allowEmpty === true')) fail('smoke.mjs：checkGraph 不认空库（缺 allowEmpty）')
+    if (!smokeSrc.includes('const isEmpty = (rawGraph.nodes || []).length === 0')) fail('smoke.mjs：没有先判空就往下取节点')
+    const nebSrc = read('lib/host/nebula.js')
+    if (!nebSrc.includes('async sourcesReport() {')) fail('nebula.js：sourcesReport 必须是 async（要 await 异步扫）')
+    if (!nebSrc.includes('await scanAllAsync(this.stores || [])')) fail('nebula.js：来源体检没走 scanAllAsync')
+    if (nebSrc.includes(': scanAll(this.stores || [])')) fail('nebula.js：还在调不存在的同步 scanAll')
+    if (!read('lib/host/http.js').includes('await src.sourcesReport()')) fail('http.js：/sources 没有 await sourcesReport')
+    if (!read('lib/index.js').includes('await nebula.sourcesReport()')) fail('index.js：nebula_sources 工具没有 await sourcesReport')
+    if (!read('CHANGELOG.md').includes('顺带修的两处')) fail('CHANGELOG 1.11.56 缺「顺带修的两处」')
+    if (!read('docs/verified.md').includes('空库上跑')) fail('verified 1.11.56 缺空库那一行')
+    if (!read('docs/release.md').includes('scanAll is not defined')) fail('release 1.11.56 缺 /sources live 的实测')
+    noteDev('dev/probe-smoke-empty.mjs')
+    if (existsReal('dev/probe-smoke-empty.mjs') && !readDev('dev/probe-smoke-empty.mjs').includes('空库上 smoke 干净退出')) fail('dev/probe-smoke-empty.mjs 缺「空库上 smoke 干净退出」')
+  }
+
 }
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {
