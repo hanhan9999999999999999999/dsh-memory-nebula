@@ -98,6 +98,19 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.60 实测
+
+| 项 | 结果 |
+| --- | --- |
+| 全量单测 | 453 通过 / 0 失败 |
+| 夹具（5 条同主题 / 10 条自动边）取消连线 | 改前 9 条边（系统那条被吞）→ 改后 10 条 |
+| 手动连线后的边类型 | 改前 `semantic`（看不出人工）→ 改后 `explicit` + 原证据 |
+| demo | 64 节点 / 78 连接 |
+| smoke · security · fuzz | 全部通过 / `fail = 0 / 34` |
+| 安装副本 | `/ping` 1.11.60 · `verify-all` 2/0/4 |
+
+| 打包 | 第一刀：96 个文件 / 3,531,143 字节 / sha256 3c47e21278b0198031ad045d0aba7388a7b191fd8d37fbc758febebcf336641a（回填后重打，包内记录的是上一刀的数字）。 |
+
 ## 1.11.59 实测
 
 | 项 | 结果 |
@@ -663,7 +676,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.59.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.60.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：

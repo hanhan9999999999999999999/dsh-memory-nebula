@@ -1152,7 +1152,7 @@ ok('1.11.25 构件：refresh=1 与 force=1 分开 / HTTP 层单测 / 文档六�
 // --- 1.11.26：策展一条关联就地生效，不再重建整张图 ---
 {
   const neb = read('lib/host/nebula.js')
-  if (!neb.includes('#applyCurated(kind, aId, bId, note)')) fail('nebula.js 没有 #applyCurated')
+  if (!neb.includes('#applyCurated(kind, aId, bId, note)') && !neb.includes('#applyCurated(kind, aId, bId, note, opts = {})')) fail('nebula.js 没有 #applyCurated')
   if (!neb.includes('#restoreCurated(aId, bId)')) fail('nebula.js 没有 #restoreCurated')
   if (!neb.includes('takeRebuildFlag()')) fail('nebula.js 没有 takeRebuildFlag')
   if (!neb.includes("const pair = l.a < l.b ? l.a + '>' + l.b : l.b + '>' + l.a")) fail('签名还在用 updatedAt，没换成 id 对')
@@ -2110,6 +2110,32 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   for (const [f, needle] of docs59) if (!read(f).includes(needle)) fail("1.11.59 文档缺 " + f + " 的「" + needle + "」")
   if (existsReal("dev/probe-mute-restore.mjs") && !readDev("dev/probe-mute-restore.mjs").includes("屏蔽被重启吃掉")) fail("dev/probe-mute-restore.mjs 没有在数「屏蔽被重启吃掉」")
   ok("1.11.59 构件：读盘恢复按屏蔽记录摘边 / 计数跟着改动 / 文档五处")
+
+  // 1.11.60：人工连线要看得见，取消连线不许把系统那条关系一起拿走
+  const neb60 = read("lib/host/nebula.js")
+  if (!neb60.includes("#applyCurated(kind, aId, bId, note, opts = {})")) fail("applyCurated 没有接住「这是取消连线还是屏蔽」")
+  if (!neb60.includes("this._curatedAuto = this._curatedAuto || new Map()")) fail("没有记住「被人工顶掉的那条系统边」")
+  if (!neb60.includes("this._curatedAuto.set(s + '|' + t, prev)")) fail("撞上已有边时没有把原来那份存起来")
+  if (!neb60.includes("...keepWhy")) fail("升级成人工边时把原有证据丢了")
+  if (!neb60.includes("if (opts.keepAuto)")) fail("drop 分支没有区分「取消连线」与「屏蔽」")
+  if (!neb60.includes("g.edges[at] = auto")) fail("取消连线没有把系统原本那条边放回去")
+  const unlinkBody = neb60.slice(neb60.indexOf("  unlink(a, b) {")).slice(0, 900)
+  if (!unlinkBody.includes("keepAuto: true")) fail("unlink() 没有走「保留系统边」那条路")
+  if (!unlinkBody.includes("listMutes()")) fail("unlink() 没有先看这一对是否被屏蔽（屏蔽优先）")
+  const cl60 = read("test/curated-link.test.mjs")
+  if (!cl60.includes("边升级成人工")) fail("test/curated-link.test.mjs 没有「升级成人工」这条")
+  if (!cl60.includes("取消人工连线不该把系统那条一起摘掉")) fail("test/curated-link.test.mjs 没有「取消连线不许摘掉系统边」这条")
+  if (!cl60.includes("屏蔽着的对，取消连线也不该把边放回来")) fail("test/curated-link.test.mjs 没有「屏蔽优先」这条")
+  const docs60 = [
+    ["CHANGELOG.md", "我取消的是自己那根线"],
+    ["docs/verified.md", "取消连线：系统原本那条关系回来"],
+    ["docs/roadmap.md", "1.11.60「我取消的是自己那根线」"],
+    ["docs/release.md", "1.11.60 实测"],
+    ["docs/benchmarks.md", "取消连线比重建便宜（1.11.60 更新）"],
+  ]
+  for (const [f, needle] of docs60) if (!read(f).includes(needle)) fail("1.11.60 文档缺 " + f + " 的「" + needle + "」")
+  if (existsReal("dev/probe-unlink-auto.mjs") && !readDev("dev/probe-unlink-auto.mjs").includes("取消的是自己那根线")) fail("dev/probe-unlink-auto.mjs 没有在问「取消的是不是只有自己那根线」")
+  ok("1.11.60 构件：人工连线看得见 / 取消连线保留系统边 / 文档五处")
 
 }
 for (const n of notes) console.log(`  ✔ ${n}`)
