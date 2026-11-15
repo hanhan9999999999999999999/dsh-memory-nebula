@@ -98,6 +98,20 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.55 实测
+
+`dev/probe-broken-store.mjs`（临时 `DSH_HOME` + 一个正常工作区 + 内容不是 sqlite 的 `nebula.db`）：
+
+| 指标 | 改前 | 改后 |
+| --- | --- | --- |
+| `refresh()` | 抛 `file is not a database` | 正常返回 |
+| 图里节点 | 0 | 1（= 记忆库里的条数） |
+| 坏文件位置 | 原地 | `nebula.db.broken-2026-11-15T18-17-40-983Z` |
+| 目录内容 | `nebula.db` / `nebula.log` | `nebula.db` / `-wal` / `-shm` / `nebula.db.broken-*` / `nebula.log` |
+| 概览告示 | 无 | `store-recovered`（带路径、挪去的文件名、原错误） |
+
+1.11.55 产物：第一刀：96 个文件 / 3,512,983 字节 / sha256 3546bbbd166510c7ec096c372064e8eccdfd4d53fb7ad127bf19298be247a06e（回填后重打，包内记录的是上一刀的数字）。
+
 ## 1.11.54 实测
 
 | 项 | 改前 | 改后 |
@@ -602,7 +616,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.54.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.55.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：

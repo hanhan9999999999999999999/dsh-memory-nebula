@@ -2,6 +2,21 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.11.55（2026-11-16）
+
+`lib/host/store.js` 的自愈路径（`test/store-recovery.test.mjs` 6 项）：
+
+| 场景 | 断言 |
+| --- | --- |
+| 好库 | `storeRecovery() === null`，连边写读正常 |
+| 文件不是 sqlite | 挪到 `nebula.db.broken-*`（文件确实存在）、原路径有新库、连边与屏蔽都能写读 |
+| 同一进程再开一次 | 复用同一个句柄，不重复挪、不重复报 |
+| 库路径是个目录 | 照样自愈并可用 |
+| `closeStore()` | `recovery` 归零，不污染下一个 `DSH_HOME` |
+| 坏库 + 正常工作区 | `refresh()` 不抛，记忆进图；概览 `warnings` 含 `store-recovered` |
+
+全量单测 428 通过 / 0 失败；产物：第一刀：96 个文件 / 3,512,983 字节 / sha256 3546bbbd166510c7ec096c372064e8eccdfd4d53fb7ad127bf19298be247a06e（回填后重打，包内记录的是上一刀的数字）。
+
 ## 1.11.54（2026-11-16）
 
 Node 下界只有一个来源（`lib/host/doctor.js`，读 `package.json` 的 `engines.node`）：

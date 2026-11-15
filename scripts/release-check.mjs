@@ -1938,6 +1938,37 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   for (const [f, needle] of docs54) if (!read(f).includes(needle)) fail("1.11.54 文档缺 " + f + " 的「" + needle + "」")
   ok("1.11.54 构件：Node 下界只读 engines / 四处文档跟着 24 / 配置坏有告示 / 发现层补测 / 无野测试脚本 / 文档五处")
 
+  // 1.11.55：星图自己的小库（nebula.db）坏了要自愈，并且要说出来
+  const store55 = read("lib/host/store.js")
+  if (!store55.includes("function tryOpen(file)")) fail("openStore 没有拆出 tryOpen")
+  if (!store55.includes("export function storeRecovery()")) fail("没有 storeRecovery()，坏库修好了没人知道")
+  if (!store55.includes("function moveAside(file)")) fail("坏文件没有被挪开的路径")
+  if (!store55.includes("db = tryOpen(':memory:')")) fail("连重建都失败时没有内存库兜底")
+  if (!store55.includes("recovery = null\n}") && !store55.includes("recovery = null")) fail("closeStore 没有清掉 recovery")
+  const neb55 = read("lib/host/nebula.js")
+  if (!neb55.includes("code: 'store-recovered'")) fail("概览没有 store-recovered 告示")
+  if (!neb55.includes("storeRecovery")) fail("nebula 没有读 storeRecovery()")
+  const app55 = read("lib/web/app.js")
+  if (!app55.includes("w.code === 'store-recovered'")) fail("界面没渲染 store-recovered")
+  const i18n55 = read("lib/web/i18n.js")
+  if (!i18n55.includes("星图自己的小库重建了：")) fail("i18n 缺「星图自己的小库重建了：」")
+  if (!exists("test/store-recovery.test.mjs")) fail("缺 test/store-recovery.test.mjs")
+  if (existsReal("test/store-recovery.test.mjs")) {
+    const st55 = read("test/store-recovery.test.mjs")
+    if (!st55.includes("坏库不该挡住建图")) fail("小库自愈单测没有「坏库不该挡住建图」这一项")
+    if (!st55.includes("store-recovered")) fail("小库自愈单测没断言概览告示")
+  }
+  const docs55 = [
+    ["CHANGELOG.md", "星图自己的小库坏了，整张图跟着起不来"],
+    ["docs/verified.md", "自愈路径（"],
+    ["docs/roadmap.md", "1.11.55「星图自己的小库坏了，整张图跟着起不来」"],
+    ["docs/release.md", "1.11.55 实测"],
+    ["docs/benchmarks.md", "自己的旁路库（1.11.55 更新）"],
+    ["docs/troubleshooting.md", "星图自己的小库坏了（nebula.db）"],
+  ]
+  for (const [f, needle] of docs55) if (!read(f).includes(needle)) fail("1.11.55 文档缺 " + f + " 的「" + needle + "」")
+  ok("1.11.55 构件：坏库挪开重建 / 内存兜底 / 概览告示 / 界面一行 / 单测 6 项 / 文档六处")
+
 }
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {
