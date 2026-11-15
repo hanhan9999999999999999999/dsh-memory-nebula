@@ -13,7 +13,8 @@ const notes = []
 const fail = (m) => problems.push(m)
 const ok = (m) => notes.push(m)
 
-const read = (p) => readFileSync(join(ROOT, p), 'utf8')
+// NEBULA_NO_DEV=1 时，读 dev/ 的文件直接给空串：干净克隆里它本来就不在，读会抛 ENOENT（1.11.50）
+const read = (p) => (DEV_HIDDEN && (p === 'dev' || p.startsWith('dev/') || p.startsWith('../dev/')) ? '' : readFileSync(join(ROOT, p), 'utf8'))
 const existsReal = (p) => (DEV_HIDDEN && isDev(p) ? false : existsSync(join(ROOT, p)))
 // dev/ 是本地工作件：.gitignore 整目录忽略，干净克隆（CI、别人的机器）里没有。
 // 证据脚本只在本机核对，缺失记一条备注，不当发布门禁（1.11.41 修：否则 CI 永远红）。
@@ -1768,7 +1769,9 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   if (/(^|[^.\w])!existsReal\(\s*["'](?:\.\.\/)?dev\//.test(self49.replace("const existsReal = (p) => (DEV_HIDDEN && isDev(p) ? false : existsSync(join(ROOT, p)))", ""))) {
     fail("还有地方拿 existsReal 判断 dev/ 在不在（干净克隆里必红）")
   }
-  if (!read("dev/sim-clean-clone.mjs").includes("NEBULA_NO_DEV")) fail("sim-clean-clone 没有「看不见 dev/」那一趟")
+  const sim49 = readDev("dev/sim-clean-clone.mjs")
+  if (sim49 && !sim49.includes("NEBULA_NO_DEV")) fail("sim-clean-clone 没有「看不见 dev/」那一趟")
+  if (/(?:^|[^.\w])read\(\s*["'](?:\.\.\/)?dev\//.test(self49)) fail("还有地方直接 read dev/（干净克隆里会 ENOENT，要用 readDev）")
   const docs49 = [
     ["CHANGELOG.md", "本机看不见的那一半"],
     ["docs/verified.md", "## 1.11.49（2026-11-15）"],
@@ -1778,6 +1781,21 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   ]
   for (const [f, needle] of docs49) if (!read(f).includes(needle)) fail("1.11.49 文档缺 " + f + " 的「" + needle + "」")
   ok("1.11.49 构件：门禁能在看不见 dev/ 的视野下跑 / 存在性断言不碰 existsReal / 文档五处")
+
+  // 1.11.50：read 一个本机才有的路径，在干净克隆里是异常而不是 false
+  const self50 = read("scripts/release-check.mjs")
+  if (!self50.includes("const read = (p) => (DEV_HIDDEN && (p === 'dev'")) fail("read() 没认 NEBULA_NO_DEV")
+  if (/(?:^|[^.\w])read\(\s*["'](?:\.\.\/)?dev\//.test(self50)) fail("还有地方直接 read dev/（干净克隆里会 ENOENT）")
+  if (!self50.includes("const sim49 = readDev(")) fail("sim-clean-clone 那条断言没改成「在才核对」")
+  const docs50 = [
+    ["CHANGELOG.md", "读不到」和「是空的」不是一回事"],
+    ["docs/verified.md", "## 1.11.50（2026-11-15）"],
+    ["docs/roadmap.md", "1.11.50 已交付"],
+    ["docs/release.md", "## 1.11.50 实测"],
+    ["docs/benchmarks.md", "读不到的路径（1.11.50 更新）"],
+  ]
+  for (const [f, needle] of docs50) if (!read(f).includes(needle)) fail("1.11.50 文档缺 " + f + " 的「" + needle + "」")
+  ok("1.11.50 构件：读不到的路径跳过而不是崩 / 门禁禁止直读 dev/ / 三种视野 / 文档五处")
 
 }
 for (const n of notes) console.log(`  ✔ ${n}`)
