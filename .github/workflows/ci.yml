@@ -30,7 +30,26 @@ jobs:
           node -v
           node -e "console.log('zstd:', typeof require('node:zlib').zstdCompressSync, 'sqlite:', (() => { try { require('node:sqlite'); return 'ok' } catch (e) { return e.code || e.message } })())"
       - name: Unit tests
-        run: npm test
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee unit-tests.log
+      - name: Report failing tests
+        if: failure()
+        run: |
+          if [ ! -f unit-tests.log ]; then
+            echo "::error::unit-tests.log 没生成（上一步没跑到被测代码就挂了）"
+            exit 0
+          fi
+          {
+            echo "### 失败的用例"
+            echo "```"
+            grep -nE '^not ok |^    not ok |not ok [0-9]+ - ' unit-tests.log | head -n 40 || true
+            echo "```"
+          } >> "$GITHUB_STEP_SUMMARY"
+          grep -E '^not ok |^    not ok ' unit-tests.log | head -n 10 | while IFS= read -r line; do
+            echo "::error::${line}"
+          done
+          exit 0
       - name: Release checks
         run: npm run check
 
