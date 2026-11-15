@@ -98,6 +98,15 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.57 实测
+
+| 项 | 值 |
+| --- | --- |
+| 全量单测 | 440 项全过 |
+| 忙机器对比 | 老写法红 / 新写法绿（`dev/probe-flaky-wait.mjs`） |
+| 打包 | 第一刀：96 个文件 / 3,521,671 字节 / sha256 3b2647a42ec546d8fae1607ef78d641c31f2aab6316d3b338071802027d904fd（回填后重打，包内记录的是上一刀的数字）。 |
+
+
 ## 1.11.56 实测
 
 | 项 | 值 |
@@ -628,7 +637,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.56.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.57.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：

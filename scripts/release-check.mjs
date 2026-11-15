@@ -1808,7 +1808,8 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   if (!exists("test/sidecar-script.test.mjs")) fail("缺 test/sidecar-script.test.mjs")
   if (exists("test/sidecar-script.test.mjs")) {
     const st = read("test/sidecar-script.test.mjs")
-    if (!st.includes("不许动 63411")) fail("sidecar 单测没有「停前缀端口不许杀掉别的实例」这一条")
+    if (!st.includes("停前缀端口不许动长端口上的那个实例")) fail("sidecar 单测没有「停前缀端口不许杀掉别的实例」这一条")
+        if (st.includes("const PORT = 63411")) fail("sidecar 单测还写死 63411（固定端口是抽奖）")
     if (!st.includes("0xef, 0xbb, 0xbf")) fail("sidecar 单测没有 BOM 断言")
     if (!st.includes("engines.node")) fail("sidecar 单测没有核对 engines 的值")
   }
@@ -2023,6 +2024,39 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
     noteDev('dev/probe-smoke-empty.mjs')
     if (existsReal('dev/probe-smoke-empty.mjs') && !readDev('dev/probe-smoke-empty.mjs').includes('空库上 smoke 干净退出')) fail('dev/probe-smoke-empty.mjs 缺「空库上 smoke 干净退出」')
   }
+
+  // 1.11.57：测试不能把「本机有多快」写进断言
+  const kit57 = read("testkit/wait.mjs")
+  if (!kit57.includes("export async function waitFor(label, check")) fail("testkit/wait.mjs 没有 waitFor()")
+  if (!kit57.includes("msg") && !kit57.includes("等不到")) fail("waitFor 超时的时候没有说清等的是什么")
+  if (!kit57.includes("export function freePort()")) fail("testkit/wait.mjs 没有 freePort()")
+  if (!kit57.includes("export async function freePortPair()")) fail("testkit/wait.mjs 没有 freePortPair()")
+  const warm57 = read("test/hygiene-warm.test.mjs")
+  if (!warm57.includes("testkit/wait.mjs")) fail("hygiene-warm 没有用 testkit 的等待工具")
+  if (warm57.includes("await sleep(600)")) fail("hygiene-warm 还在用固定的 600 毫秒")
+  if (!warm57.includes("词频表与体检都预热完")) fail("hygiene-warm 没有等「预热完」这个条件")
+  const pre57 = read("test/prewarm.test.mjs")
+  if (!pre57.includes("testkit/wait.mjs")) fail("prewarm 没有用 testkit 的等待工具")
+  if (pre57.includes("await sleep(260)")) fail("prewarm 还在用固定的 260 毫秒")
+  if (!pre57.includes("词频表预热完成")) fail("prewarm 没有等「预热完成」这个条件")
+  const side57 = read("test/sidecar-script.test.mjs")
+  if (side57.includes("const PORT = 63411")) fail("sidecar 测试还写死 63411（固定端口是抽奖）")
+  if (!side57.includes("freePortPair()")) fail("sidecar 测试没有现取一对前缀端口")
+  const ci57 = read(".github/workflows/ci.yml")
+  if (!ci57.includes("tee unit-tests.log")) fail("CI 的 Unit tests 没有留 log（失败时看不到是谁）")
+  if (!ci57.includes("Report failing tests")) fail("CI 没有「把失败用例说出来」这一步")
+  if (!ci57.includes("::error::")) fail("CI 没有把失败的用例写成注解")
+  const docs57 = [
+    ["CHANGELOG.md", "测试里那些固定的等待和固定的端口"],
+    ["docs/verified.md", "测试等的是条件，不是毫秒"],
+    ["docs/roadmap.md", "1.11.57「测试里那些固定的等待和固定的端口」"],
+    ["docs/release.md", "1.11.57 实测"],
+    ["docs/benchmarks.md", "别人机器上的那 600 毫秒（1.11.57 更新）"],
+  ]
+  for (const [f, needle] of docs57) if (!read(f).includes(needle)) fail("1.11.57 文档缺 " + f + " 的「" + needle + "」")
+  noteDev("dev/probe-flaky-wait.mjs")
+  if (existsReal("dev/probe-flaky-wait.mjs") && !readDev("dev/probe-flaky-wait.mjs").includes("忙起来")) fail("dev/probe-flaky-wait.mjs 没有把机器压满的那一段")
+  ok("1.11.57 构件：测试等条件 / 端口现取 / CI 自己报失败用例 / 文档五处")
 
 }
 for (const n of notes) console.log(`  ✔ ${n}`)

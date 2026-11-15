@@ -8,6 +8,7 @@ import { DatabaseSync } from 'node:sqlite'
 
 import { Nebula } from '../lib/host/nebula.js'
 import { closeStore } from '../lib/host/store.js'
+import { waitFor } from '../testkit/wait.mjs'
 
 // 夹具同 graph-cache.test.mjs：<root>/<ws>/.dsh-meow/memory.db，表名 fact，插入包事务。
 const ROWS = 120
@@ -67,7 +68,8 @@ test('建完图在后台把体检算好，点开看板时是现成的', async ()
       const nb = new Nebula({ roots: [fx.root], log: () => {}, prewarmDelayMs: 20 })
       await nb.refresh()
       await nb.cacheWriteDone()
-      await sleep(600) // 等预热那一轮跑完（词频表 → 体检）
+      // 等条件成立，不等固定的 600ms：CI 机器慢、并发跑的时候固定表会红一次
+      await waitFor('词频表与体检都预热完', () => nb.lastPrewarm?.done === true && nb.lastHygieneWarm?.done === true)
       assert.equal(nb.lastPrewarm?.done, true, '词频表该预热完')
       assert.equal(nb.lastHygieneWarm?.done, true, '体检该预热完')
       assert.ok(nb.lastHygieneWarm.ms >= 0)
@@ -89,7 +91,8 @@ test('关掉预热就没人先算：_hygiene 一直是空的', async () => {
       const nb = new Nebula({ roots: [fx.root], log: () => {}, prewarmDelayMs: 20, hygieneWarm: false })
       await nb.refresh()
       await nb.cacheWriteDone()
-      await sleep(600)
+      await waitFor('词频表预热完', () => nb.lastPrewarm?.done === true)
+      await sleep(150) // 再空一拍：被关掉的体检不该在这之后冒出来
       assert.equal(nb.lastPrewarm?.done, true, '词频表照常预热（那是另一件事）')
       assert.equal(nb.lastHygieneWarm, null, '关掉之后不该去算体检')
       // 注意：没算过的时候这个字段是 undefined（不是 null），只在 restamp 时被显式置空。
@@ -107,7 +110,7 @@ test('预热出来的体检与当场算的结果一致', async () => {
       const warm = new Nebula({ roots: [fx.root], log: () => {}, prewarmDelayMs: 20 })
       await warm.refresh()
       await warm.cacheWriteDone()
-      await sleep(600)
+      await waitFor('体检预热完', () => warm.lastHygieneWarm?.done === true)
       const a = warm.overview().hygiene.counts
 
       closeStore()

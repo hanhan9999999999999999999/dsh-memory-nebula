@@ -8,6 +8,7 @@ import { DatabaseSync } from 'node:sqlite'
 import { Nebula } from '../lib/host/nebula.js'
 import { closeStore } from '../lib/host/store.js'
 import { tokenCacheReady } from '../lib/host/recall.js'
+import { waitFor } from '../testkit/wait.mjs'
 
 // 布局同 curate-incremental.test.mjs：<root>/<ws>/.dsh-meow/memory.db，表名 fact。
 // 每组 8 条共享三个稀有词，才长得出边（4 条一组时一个像样的权重都凑不出来）。
@@ -75,15 +76,13 @@ async function withNebula(fn, opts = {}) {
   }
 }
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
-
 test('建完图隔一拍，词频表自己在后台算好', async () => {
   await withNebula(
     async ({ nebula }) => {
       const graph = nebula.graph
       assert.equal(tokenCacheReady(graph), false, '刚建完图时不该已经有词频表')
       assert.equal(nebula.lastPrewarm?.scheduled, true, '应该有一次待办的预热')
-      await sleep(260)
+      await waitFor('词频表预热完成', () => tokenCacheReady(graph))
       assert.equal(tokenCacheReady(graph), true, '预热没跑起来')
       assert.equal(nebula.lastPrewarm.done, true, 'lastPrewarm 应该记成已完成')
       assert.ok(nebula.lastPrewarm.ms >= 0, 'lastPrewarm.ms 应该是个数字')
@@ -102,7 +101,7 @@ test('预热过的检索结果，与现算的一模一样', async () => {
   try {
     const a = new Nebula({ roots: [hot.root], log: () => {}, prewarmDelayMs: 10 })
     await a.refresh()
-    await sleep(260)
+    await waitFor('a 这台预热完成', () => tokenCacheReady(a.graph))
     assert.equal(tokenCacheReady(a.graph), true, '这台应该已经预热过')
 
     // 另一台：把预热推到很远，等于从不算（同一份库、同样的图）
@@ -138,7 +137,7 @@ test('重建之后预热跟着换到新图上，旧图不再被提起', async ()
   await withNebula(
     async ({ nebula }) => {
       const first = nebula.graph
-      await sleep(200)
+      await waitFor('第一张图预热完成', () => tokenCacheReady(first))
       assert.equal(tokenCacheReady(first), true, '第一张图应该预热过')
 
       await nebula.refresh({ force: true })
@@ -146,7 +145,7 @@ test('重建之后预热跟着换到新图上，旧图不再被提起', async ()
       assert.notEqual(second, first, '强制重建应该换了一个 graph 对象')
       assert.equal(tokenCacheReady(second), false, '新图刚建好时还没有词频表')
       assert.equal(nebula.lastPrewarm.scheduled, true, '新图应该排上一次新的预热')
-      await sleep(260)
+      await waitFor('第二张图预热完成', () => tokenCacheReady(second))
       assert.equal(tokenCacheReady(second), true, '第二次预热没跑起来')
     },
     { prewarmDelayMs: 20 },
