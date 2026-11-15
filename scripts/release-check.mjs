@@ -14,7 +14,13 @@ const fail = (m) => problems.push(m)
 const ok = (m) => notes.push(m)
 
 const read = (p) => readFileSync(join(ROOT, p), 'utf8')
-const exists = (p) => existsSync(join(ROOT, p))
+const existsReal = (p) => existsSync(join(ROOT, p))
+// dev/ 是本地工作件：.gitignore 整目录忽略，干净克隆（CI、别人的机器）里没有。
+// 证据脚本只在本机核对，缺失记一条备注，不当发布门禁（1.11.41 修：否则 CI 永远红）。
+const isDev = (p) => p === 'dev' || p.startsWith('dev/') || p.startsWith('../dev/')
+const exists = (p) => (isDev(p) ? true : existsReal(p))
+const readDev = (p) => (existsReal(p) ? readFileSync(join(ROOT, p), 'utf8') : '')
+const noteDev = (p) => { if (!existsReal(p)) notes.push('（本地证据脚本不在干净克隆里：' + p + '）') }
 const list = (dir, out = []) => {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name)
@@ -246,7 +252,8 @@ if (!pkg.files?.includes('market') || !pkg.files?.includes('locale')) fail('pack
 ok('1.1.2 构件：市场索引 / unpkg / 双语详情 / 图标')
 
 const ciSrc = read('.github/workflows/ci.yml')
-if (!ciSrc.includes("'22.13.0'") || !ciSrc.includes("'24'")) fail('CI 矩阵缺 Node 22.13/24')
+// 1.11.41：下限提到 22.15（node:zlib 的 zstd、node:sqlite 都在这一版可用）
+if (!ciSrc.includes("'22.15.0'") || !ciSrc.includes("'24'")) fail('CI 矩阵缺 Node 22.15/24')
 if (!ciSrc.includes('npm run check')) fail('CI 没跑 release-check')
 if (!pkg.repository?.url?.includes('github.com/hanhan9999999999999999999/dsh-memory-nebula')) fail('package.json 缺 repository')
 if (!pkg.homepage?.includes('github.com/hanhan9999999999999999999/dsh-memory-nebula')) fail('package.json 缺 homepage')
@@ -745,7 +752,7 @@ console.log(`\n发布检查：${pkg.name} v${pkg.version}\n`)
   const bench118 = read('docs/benchmarks.md')
   if (!bench118.includes('5 万条：在浏览器里一页页点到头（1.11.8）')) fail('benchmarks 缺 1.11.8 一节')
   if (!bench118.includes('node dev/verify-page2.mjs')) fail('benchmarks 缺 1.11.8 的复跑命令')
-  if (!exists('../dev/verify-page2.mjs')) fail('缺 5 万条浏览器验收脚本')
+  noteDev('../dev/verify-page2.mjs'); if (!exists('../dev/verify-page2.mjs')) fail('缺 5 万条浏览器验收脚本')
   const roadmap118 = read('docs/roadmap.md')
   if (!roadmap118.includes('1.11.8 已交付')) fail('roadmap 缺 1.11.8 交付记录')
   if (!roadmap118.includes('~~5 万条的浏览器验收目前跑在合成基准上~~')) fail('roadmap 的待做项没划掉浏览器验收')
@@ -766,8 +773,8 @@ ok('1.11.8 构件：5 万条浏览器验收 / 第二页与全图预算 / 收尾�
   if (!s3d.includes('state.force.running ? [] : state.drawEdges')) fail('收敛期没有省掉连线重传')
   if (!s3d.includes('glCheck ? gl.getError() : 0')) fail('gl.getError 没有改成按需')
   if (!s3d.includes('state.needDraw = true')) fail('收敛结束没有补一次重画')
-  if (!exists('../dev/probe-3d-gpu.mjs')) fail('缺三维真 GPU 探针')
-  if (!exists('../dev/shot-3d.mjs')) fail('缺三维收敛期截图脚本')
+  noteDev('../dev/probe-3d-gpu.mjs'); if (!exists('../dev/probe-3d-gpu.mjs')) fail('缺三维真 GPU 探针')
+  noteDev('../dev/shot-3d.mjs'); if (!exists('../dev/shot-3d.mjs')) fail('缺三维收敛期截图脚本')
   const bench119 = read('docs/benchmarks.md')
   if (!bench119.includes('三维：真 GPU 与软件渲染（1.11.9）')) fail('benchmarks 缺 1.11.9 一节')
   if (!bench119.includes('node dev/probe-3d-gpu.mjs')) fail('benchmarks 缺 1.11.9 的复跑命令')
@@ -799,9 +806,10 @@ ok('1.11.9 构件：力场分片 / 收敛期算画解耦 / 真 GPU 探针 / 文�
   }
   if (!read('lib/web/style.css').includes(':where(#hits, #filters, #sources, #detail, #d-body, #pb-body, #boards-body, #cmdk-list, #lb-body, #cards-grid):focus-visible')) fail('滚动区域缺 focus-visible 描边')
   if (!read('lib/web/app.js').includes('showDetail, showPath, renderHits')) fail('调试钩子没补 showDetail / showPath / renderHits')
-  if (!exists('../dev/verify-axe-states.mjs')) fail('缺多状态 axe 审计脚本')
-  if (!exists('../dev/verify-taborder.mjs')) fail('缺 Tab 序列脚本')
-  if (!read('../dev/verify-axe-states.mjs').includes('没有状态断言，不敢审')) fail('axe 审计缺状态断言')
+  noteDev('../dev/verify-axe-states.mjs'); if (!exists('../dev/verify-axe-states.mjs')) fail('缺多状态 axe 审计脚本')
+  noteDev('../dev/verify-taborder.mjs'); if (!exists('../dev/verify-taborder.mjs')) fail('缺 Tab 序列脚本')
+  const axeSrc = readDev('../dev/verify-axe-states.mjs')
+if (axeSrc && !axeSrc.includes('没有状态断言，不敢审')) fail('axe 审计缺状态断言')
   if (!read('docs/accessibility.md').includes('scrollable-region-focusable')) fail('accessibility 文档没写这条违例')
   if (!read('docs/verified.md').includes('1.11.10（2026-11-15）')) fail('verified 缺 1.11.10 段')
   if (!read('docs/roadmap.md').includes('1.11.10 已交付')) fail('roadmap 缺 1.11.10 交付记录')
@@ -820,7 +828,7 @@ ok('1.11.10 构件：十个可聚焦滚动区域 / 焦点描边 / 两把验收�
   if (!graph111.includes('const ordered = [...list].sort')) fail('stale 倒排没先按 updatedAt 排序')
   if (!graph111.includes("mark('sig')")) fail('缺签名段计时')
   if (!exists('test/hygiene-sig.test.mjs')) fail('缺签名等价性单测')
-  if (!exists('../dev/probe-sig-equivil.mjs')) fail('缺新旧签名逐节点比对的探针')
+  noteDev('../dev/probe-sig-equivil.mjs'); if (!exists('../dev/probe-sig-equivil.mjs')) fail('缺新旧签名逐节点比对的探针')
   if (!read('docs/verified.md').includes('1.11.11（2026-11-15）')) fail('verified 缺 1.11.11 段')
   if (!read('docs/roadmap.md').includes('1.11.11 已交付')) fail('roadmap 缺 1.11.11 交付记录')
   if (!read('docs/release.md').includes('1.11.11 实测')) fail('release.md 缺 1.11.11 实测')
@@ -1023,7 +1031,7 @@ ok('1.11.19 构件：三个适配器都逐行让路 / 调度优先走 scanSteps 
   if (!g.includes('const idfById = new Float64Array(tokenId.size)')) fail('idf 没预算成按编号索引的数组')
   if (!g.includes('const w = idfById[id]')) fail('挑签名没按编号取权重')
   if (!g.includes('const pickI = new Int32Array(SIG_TOP)')) fail('签名槽位不是定长数组')
-  if (!exists('../dev/ab-1120.mjs')) fail('缺 1.11.20 的 A/B 脚本')
+  noteDev('../dev/ab-1120.mjs'); if (!exists('../dev/ab-1120.mjs')) fail('缺 1.11.20 的 A/B 脚本')
   if (!read('docs/verified.md').includes('1.11.20（2026-11-15）')) fail('verified 缺 1.11.20 段')
   if (!read('docs/roadmap.md').includes('1.11.20 已交付')) fail('roadmap 缺 1.11.20 交付记录')
   if (!read('docs/release.md').includes('## 1.11.20 实测')) fail('release.md 缺 1.11.20 实测')
@@ -1039,8 +1047,8 @@ ok('1.11.20 构件：编号表 / idfById / 定长槽位 / A-B 脚本 / 文档五
   if (!g.includes('node.sigIds = ids')) fail('节点签名没换成编号数组')
   if (!g.includes('while (xa < aIds.length && yb < bIds.length)')) fail('打分没改成双指针合并')
   if (!g.includes('if (tokenDF[id] > tokenLimit) continue')) fail('候选倒排没直接读 df 数组')
-  if (!exists('../dev/ab-1121.mjs')) fail('缺 1.11.21 的 A/B 脚本')
-  if (!exists('../dev/probe-heap-1121.mjs')) fail('缺 1.11.21 的堆测量脚本')
+  noteDev('../dev/ab-1121.mjs'); if (!exists('../dev/ab-1121.mjs')) fail('缺 1.11.21 的 A/B 脚本')
+  noteDev('../dev/probe-heap-1121.mjs'); if (!exists('../dev/probe-heap-1121.mjs')) fail('缺 1.11.21 的堆测量脚本')
   if (!read('docs/verified.md').includes('1.11.21（2026-11-15）')) fail('verified 缺 1.11.21 段')
   if (!read('docs/roadmap.md').includes('1.11.21 已交付')) fail('roadmap 缺 1.11.21 交付记录')
   if (!read('docs/release.md').includes('## 1.11.21 实测')) fail('release.md 缺 1.11.21 实测')
@@ -1056,8 +1064,8 @@ ok('1.11.21 构件：编号签名 / 双指针 / df 读数组 / 两个脚本 / �
   if (!g.includes('const entScoreOf = (key) =>')) fail('缺 entScoreOf')
   if (!g.includes('const rec = entScoreOf(s.ent[i])')) fail('实体循环没走缓存')
   if (!g.includes('push(tokenPost, id, node.i)')) fail('倒排键没换成词编号')
-  if (!exists('../dev/ab-1122.mjs')) fail('缺 1.11.22 的 A/B 脚本')
-  if (!exists('../dev/probe-entities-combined.mjs')) fail('缺合成正则的反例探针')
+  noteDev('../dev/ab-1122.mjs'); if (!exists('../dev/ab-1122.mjs')) fail('缺 1.11.22 的 A/B 脚本')
+  noteDev('../dev/probe-entities-combined.mjs'); if (!exists('../dev/probe-entities-combined.mjs')) fail('缺合成正则的反例探针')
   if (!read('docs/verified.md').includes('1.11.22（2026-11-15）')) fail('verified 缺 1.11.22 段')
   if (!read('docs/roadmap.md').includes('1.11.22 已交付')) fail('roadmap 缺 1.11.22 交付记录')
   if (!read('docs/release.md').includes('## 1.11.22 实测')) fail('release.md 缺 1.11.22 实测')
@@ -1075,7 +1083,7 @@ ok('1.11.22 构件：实体分缓存 / 倒排编号键 / 交错 A-B / 合成正�
   if (!read('lib/web/app.js').includes("T(' 个库读不动')")) fail('概览标题没带计数')
   if (!read('lib/web/index.html').includes('id="readerr" role="status" aria-live="polite"')) fail('横幅缺 status/aria-live')
   if (!exists('test/read-errors.test.mjs')) fail('缺读不动的单测')
-  if (!exists('../dev/verify-readerr.mjs')) fail('缺读不动的浏览器验收脚本')
+  noteDev('../dev/verify-readerr.mjs'); if (!exists('../dev/verify-readerr.mjs')) fail('缺读不动的浏览器验收脚本')
   if (!read('docs/verified.md').includes('1.11.23（2026-11-15）')) fail('verified 缺 1.11.23 段')
   if (!read('docs/roadmap.md').includes('1.11.23 已交付')) fail('roadmap 缺 1.11.23')
   if (!read('docs/release.md').includes('## 1.11.23 实测')) fail('release.md 缺 1.11.23 实测')
@@ -1099,8 +1107,8 @@ ok('1.11.23 构件：readErrors / 常驻横幅 / 快照脱敏横幅 / 单测与�
   if (!a.includes("T('什么都没变，没重建：')")) fail('界面没这句文案')
   if (!read('lib/web/i18n.js').includes('"什么都没变，没重建："')) fail('i18n 缺「什么都没变」')
   if (!exists('test/refresh-skip.test.mjs')) fail('缺 test/refresh-skip.test.mjs')
-  if (!exists('../dev/probe-refresh-skip.mjs')) fail('缺 dev/probe-refresh-skip.mjs')
-  if (!exists('../dev/verify-refresh-toast.mjs')) fail('缺 dev/verify-refresh-toast.mjs')
+  noteDev('../dev/probe-refresh-skip.mjs'); if (!exists('../dev/probe-refresh-skip.mjs')) fail('缺 dev/probe-refresh-skip.mjs')
+  noteDev('../dev/verify-refresh-toast.mjs'); if (!exists('../dev/verify-refresh-toast.mjs')) fail('缺 dev/verify-refresh-toast.mjs')
   if (!read('docs/verified.md').includes('1.11.24（2026-11-15）什么都没变，就别重建')) fail('verified 缺 1.11.24 段')
   if (!read('docs/roadmap.md').includes('1.11.24 已交付')) fail('roadmap 缺 1.11.24')
   if (!read('docs/release.md').includes('1.11.24 实测')) fail('release.md 缺 1.11.24 实测')
@@ -1122,7 +1130,7 @@ ok('1.11.24 构件：指纹跳过 / 三态回报 / 界面照实说 / 两把新�
   const t = read('test/refresh-skip.test.mjs')
   if (!t.includes('HTTP：/graph?refresh=1 没变时不动图')) fail('单测没有覆盖 /graph?refresh=1')
   if (!t.includes('HTTP：POST /refresh 第二次说 unchanged')) fail('单测没有覆盖 HTTP 层的 unchanged')
-  if (!exists('../dev/probe-refresh-skip.mjs')) fail('缺 dev/probe-refresh-skip.mjs')
+  noteDev('../dev/probe-refresh-skip.mjs'); if (!exists('../dev/probe-refresh-skip.mjs')) fail('缺 dev/probe-refresh-skip.mjs')
   if (!read('docs/verified.md').includes('1.11.25（2026-11-15）页面每开一次，就白建一次图')) fail('verified 缺 1.11.25 段')
   if (!read('docs/roadmap.md').includes('1.11.25 已交付')) fail('roadmap 缺 1.11.25')
   if (!read('docs/release.md').includes('1.11.25 实测')) fail('release.md 缺 1.11.25 实测')
@@ -1148,9 +1156,9 @@ ok('1.11.25 构件：refresh=1 与 force=1 分开 / HTTP 层单测 / 文档六�
   const t = read('test/curate-incremental.test.mjs')
   if (!t.includes('HTTP：POST /link 就地生效')) fail('单测没有覆盖 HTTP 层 /link')
   if (!t.includes('closeStore()')) fail('策展单测没有关 sidecar 库，会互相污染')
-  if (!exists('../dev/probe-curate-speed.mjs')) fail('缺 dev/probe-curate-speed.mjs')
-  if (!exists('../dev/probe-curate-recount.mjs')) fail('缺 dev/probe-curate-recount.mjs')
-  if (!exists('../dev/probe-curate-diff.mjs')) fail('缺 dev/probe-curate-diff.mjs')
+  noteDev('../dev/probe-curate-speed.mjs'); if (!exists('../dev/probe-curate-speed.mjs')) fail('缺 dev/probe-curate-speed.mjs')
+  noteDev('../dev/probe-curate-recount.mjs'); if (!exists('../dev/probe-curate-recount.mjs')) fail('缺 dev/probe-curate-recount.mjs')
+  noteDev('../dev/probe-curate-diff.mjs'); if (!exists('../dev/probe-curate-diff.mjs')) fail('缺 dev/probe-curate-diff.mjs')
   if (!read('CHANGELOG.md').includes('## 1.11.26')) fail('CHANGELOG 缺 1.11.26')
   if (!read('docs/verified.md').includes('## 1.11.26（2026-11-15）')) fail('verified 缺 1.11.26 段')
   if (!read('docs/roadmap.md').includes('1.11.26 已交付')) fail('roadmap 缺 1.11.26')
@@ -1175,7 +1183,7 @@ ok('1.11.26 构件：就地策展 / 稳定签名 / closeStore / 探针与单测 
   if (!api.includes("post('/refresh', {}, REFRESH_TIMEOUT_MS)")) fail('api.js 的 refresh 没用 REFRESH_TIMEOUT_MS')
   if (!read('CHANGELOG.md').includes('附带修复：重建的请求不该被自己的慢判成失败')) fail('CHANGELOG 没写附带修复')
   if (!exists('test/prewarm.test.mjs')) fail('缺 test/prewarm.test.mjs')
-  if (!exists('../dev/probe-prewarm.mjs')) fail('缺 dev/probe-prewarm.mjs')
+  noteDev('../dev/probe-prewarm.mjs'); if (!exists('../dev/probe-prewarm.mjs')) fail('缺 dev/probe-prewarm.mjs')
   if (!read('CHANGELOG.md').includes('## 1.11.27')) fail('CHANGELOG 缺 1.11.27')
   if (!read('docs/verified.md').includes('## 1.11.27')) fail('verified 缺 1.11.27 段')
   if (!read('docs/roadmap.md').includes('1.11.27 已交付')) fail('roadmap 缺 1.11.27')
@@ -1200,8 +1208,8 @@ ok('1.11.27 构件：后台预热 / 可关可让位 / 单测与探针 / 文档�
   if (!neb.includes('cacheWriteDone()')) fail('写盘没给出等待入口')
   if (!neb.includes('saveGraphCache(this.cacheDir, signature')) fail('建完图没写盘')
   if (!exists('test/graph-cache.test.mjs')) fail('缺 test/graph-cache.test.mjs')
-  if (!exists('../dev/probe-cache-start.mjs')) fail('缺 dev/probe-cache-start.mjs')
-  if (!exists('../dev/probe-cache-size.mjs')) fail('缺 dev/probe-cache-size.mjs')
+  noteDev('../dev/probe-cache-start.mjs'); if (!exists('../dev/probe-cache-start.mjs')) fail('缺 dev/probe-cache-start.mjs')
+  noteDev('../dev/probe-cache-size.mjs'); if (!exists('../dev/probe-cache-size.mjs')) fail('缺 dev/probe-cache-size.mjs')
   if (!read('CHANGELOG.md').includes('## 1.11.28')) fail('CHANGELOG 缺 1.11.28')
   if (!read('docs/verified.md').includes('## 1.11.28')) fail('verified 缺 1.11.28 段')
   if (!read('docs/roadmap.md').includes('1.11.28 已交付')) fail('roadmap 缺 1.11.28')
@@ -1221,7 +1229,7 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   if (!neb.includes('await this.hygieneAsync()')) fail('预热没去算体检')
   if (!exists('test/hygiene-warm.test.mjs')) fail('缺体检预热单测')
   else if (!read('test/hygiene-warm.test.mjs').includes('也不该留下体检缓存')) fail('体检预热单测缺「关掉就不算」那条')
-  if (!exists('../dev/probe-overview-warm.mjs')) fail('缺 dev/probe-overview-warm.mjs')
+  noteDev('../dev/probe-overview-warm.mjs'); if (!exists('../dev/probe-overview-warm.mjs')) fail('缺 dev/probe-overview-warm.mjs')
   const docs29 = [
     ['CHANGELOG.md', '## 1.11.29 — 2026-11-15'],
     ['docs/verified.md', '## 1.11.29（2026-11-15）'],
@@ -1258,9 +1266,9 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   if (!app.includes('API.graph({ refresh: 1 })')) fail('首屏没顺手问一句有没有新东西')
   if (!exists('test/bg-refresh.test.mjs')) fail('缺 test/bg-refresh.test.mjs')
   else if (!read('test/bg-refresh.test.mjs').includes('先把上一份图给出来')) fail('缺「先给旧图」那条单测')
-  if (!exists('../dev/verify-bg-refresh.mjs')) fail('缺 dev/verify-bg-refresh.mjs')
-  if (!exists('dev/probe-stale-start.mjs')) fail('缺 dev/probe-stale-start.mjs')
-  if (!exists('../dev/probe-cache-restore.mjs')) fail('缺 dev/probe-cache-restore.mjs')
+  noteDev('../dev/verify-bg-refresh.mjs'); if (!exists('../dev/verify-bg-refresh.mjs')) fail('缺 dev/verify-bg-refresh.mjs')
+  noteDev('dev/probe-stale-start.mjs'); if (!exists('dev/probe-stale-start.mjs')) fail('缺 dev/probe-stale-start.mjs')
+  noteDev('../dev/probe-cache-restore.mjs'); if (!exists('../dev/probe-cache-restore.mjs')) fail('缺 dev/probe-cache-restore.mjs')
   const docs30 = [
     ['CHANGELOG.md', '## 1.11.30 — 2026-11-15'],
     ['docs/verified.md', '## 1.11.30（2026-11-15）'],
@@ -1290,7 +1298,7 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   if (!neb.includes('refreshInBackground(forceBg ? { force: true } : {})')) fail('后台那一轮没带 force')
   if (!exists('test/cache-impl.test.mjs')) fail('缺 test/cache-impl.test.mjs')
   else if (!read('test/cache-impl.test.mjs').includes('旧算法写的缓存')) fail('缺「旧算法缓存不被当成答案」那条单测')
-  if (!exists('dev/probe-impl-upgrade.mjs')) fail('缺 dev/probe-impl-upgrade.mjs')
+  noteDev('dev/probe-impl-upgrade.mjs'); if (!exists('dev/probe-impl-upgrade.mjs')) fail('缺 dev/probe-impl-upgrade.mjs')
   const docs31 = [
     ['CHANGELOG.md', '## 1.11.31 — 2026-11-15'],
     ['docs/verified.md', '## 1.11.31（2026-11-15）'],
@@ -1322,7 +1330,7 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   if (!app.includes('const stopProgress = watchBuildProgress()')) fail('首屏取图前后没收尾进度轮询')
   if (!exists('test/build-progress.test.mjs')) fail('缺 test/build-progress.test.mjs')
   else if (!read('test/build-progress.test.mjs').includes('BUILD_STAGES')) fail('单测没断言阶段名')
-  if (!exists('../dev/verify-build-progress.mjs')) fail('缺 ../dev/verify-build-progress.mjs')
+  noteDev('../dev/verify-build-progress.mjs'); if (!exists('../dev/verify-build-progress.mjs')) fail('缺 ../dev/verify-build-progress.mjs')
   const docs32 = [
     ['CHANGELOG.md', '## 1.11.32 — 2026-11-15'],
     ['docs/verified.md', '## 1.11.32（2026-11-15）'],
@@ -1565,6 +1573,49 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   ]
   for (const [f, needle] of docs40) if (!read(f).includes(needle)) fail("1.11.40 文档缺 " + f + " 的「" + needle + "」")
   ok("1.11.40 构件：截断一路到界面 / 两个探针 / 十七项补测 / 文档五处")
+
+  // 1.11.41：干净克隆里也要能过——门禁不许依赖 dev/，node 下限要写实
+  const self41 = read("scripts/release-check.mjs")
+  if (!self41.includes("const isDev = (p) => p === 'dev'")) fail("release-check 没把 dev/ 当本地工作件放行")
+  if (!self41.includes("const exists = (p) => (isDev(p) ? true : existsReal(p))")) fail("exists() 没对 dev/ 放行")
+  if (!self41.includes("const readDev = (p) =>")) fail("缺 readDev() 这个「有才核对」的读法")
+  if (!self41.includes("if (axeSrc && !axeSrc.includes('没有状态断言，不敢审'))")) fail("axe 断言还是硬读 dev 文件")
+  const tr41 = read("lib/host/transcripts.js")
+  if (tr41.includes("import { zstdDecompressSync } from 'node:zlib'")) fail("transcripts.js 还在具名导入 zstd（老 node 会崩）")
+  if (!tr41.includes("typeof zlib.zstdDecompressSync === 'function'")) fail("transcripts.js 没有特性探测 zstd")
+  if (!tr41.includes("这个 node 没有 zstd 解码")) fail("transcripts.js 缺 zstd 的人话错误")
+  if (exists("test/transcripts.test.mjs") && !read("test/transcripts.test.mjs").includes("const it = hasZstd")) {
+    fail("transcripts 测试没有「没有 zstd 就跳过」的开关")
+  }
+  const pkg41 = JSON.parse(read("package.json"))
+  if (!/^>=\s*22\.1[5-9]/.test(pkg41.engines.node)) fail("engines.node 没提到 22.15 以上：" + pkg41.engines.node)
+  if (pkg41.scripts.test !== "node --test") fail("npm test 还依赖 glob 写法：" + pkg41.scripts.test)
+  const ci41 = read(".github/workflows/ci.yml")
+  if (!ci41.includes("'22.15.0'")) fail("CI 矩阵没跟上 22.15")
+  if (!ci41.includes("name: Environment")) fail("CI 缺 Environment 步骤（node / zstd / sqlite）")
+  if (!exists("dev/sim-clean-clone.mjs")) fail("缺干净克隆模拟探针")
+  const docs41 = [
+    ["CHANGELOG.md", "CI 红了两版，因为没人看 Actions"],
+    ["docs/verified.md", "## 1.11.41（2026-11-15）"],
+    ["docs/roadmap.md", "1.11.41 已交付"],
+    ["docs/release.md", "## 1.11.41 实测"],
+    ["docs/benchmarks.md", "干净的机器才是发布条件（1.11.41 更新）"],
+  ]
+  for (const [f, needle] of docs41) if (!read(f).includes(needle)) fail("1.11.41 文档缺 " + f + " 的「" + needle + "」")
+  ok("1.11.41 构件：门禁不依赖 dev/ / zstd 特性探测 / engines 22.15 / CI 环境步骤 / 干净克隆探针 / 文档五处")
+
+  // 1.11.42：打标签就自动建 Release 并挂附件
+  const rel42 = read(".github/workflows/release.yml")
+  for (const needle of ["tags: ['v*']", 'contents: write', 'npm pack', 'SHA256SUMS.txt', 'gh release create']) {
+    if (!rel42.includes(needle)) fail("release.yml 缺「" + needle + "」")
+  }
+  const docs42 = [
+    ["CHANGELOG.md", "从 GitHub 装不上"],
+    ["docs/verified.md", "## 1.11.42（2026-11-15）"],
+    ["docs/release.md", "## 1.11.42 实测"],
+  ]
+  for (const [f, needle] of docs42) if (!read(f).includes(needle)) fail("1.11.42 文档缺 " + f + " 的「" + needle + "」")
+  ok("` + MARK + ` / 标签触发 / contents: write / tgz + SHA256SUMS / 文档三处")
 
 }
 for (const n of notes) console.log(`  ✔ ${n}`)

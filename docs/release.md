@@ -98,6 +98,21 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.42 实测
+
+GitHub Releases 之前停在 `v1.6.4`：1.11.x 全系列都没有附件，「从 GitHub 安装」无从下手。新增 `release.yml`，推 `v*` 标签自动打包并挂附件。
+
+1.11.42 产物：dsh-memory-nebula-1.11.42.tgz · 95 个文件 · 3471277 字节 · sha256 fe044825dc7b30001c8c7be48177a56fefba2a9f99b8e26698d195bf9018fa62（包内记录的是上一刀的数字）。
+## 1.11.41 实测
+
+`node dev/sim-clean-clone.mjs`（只复制 git 跟踪的 158 个文件，没有 dev/、没有 node_modules）：
+
+- 改前：`release-check` 报缺 27 个 `dev/…`；22.13 上单测因 `zstdDecompressSync` 导入失败整组挂。
+- 改后：`check` 通过；单测 **357/357**，16.8 秒。
+
+本机 `node scripts/release-check.mjs`：全部通过（1586 行）。
+
+1.11.41 产物：dsh-memory-nebula-1.11.41.tgz · 95 个文件 · 3469995 字节 · sha256 b9f33652a53ae8a0ce0837748cab4476ee02c84741e17f1a2352526ecc3718f1（包内记录的是上一刀的数字）。
 ## 1.11.40 实测
 
 `node dev/probe-notes-cap.mjs`（上限 5、磁盘上 20 个文件）：
@@ -484,7 +499,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.40.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.42.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：

@@ -663,3 +663,13 @@ node --test --experimental-test-coverage test/*.test.mjs
 | 单测 | 340 | 357 |
 
 复现：`node dev/probe-notes-cap.mjs`、`node dev/probe-truncation-warning.mjs`。
+
+## 干净的机器才是发布条件（1.11.41 更新）
+
+| 项 | 改前 | 改后 |
+|---|---|---|
+| 干净克隆 `npm run check` | 红（缺 27 个 dev/ 探针） | **通过** |
+| 干净克隆 `npm test` | 红（zstd 导入失败） | **357/357 · 16.8s** |
+| CI 作业 | 三红 | 待复核 |
+
+复现：`node dev/sim-clean-clone.mjs`。

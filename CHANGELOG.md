@@ -2,6 +2,46 @@
 
 本文件记录「记忆星图」每个版本改了什么。日期为落盘日期。
 
+## 1.11.42 — 2026-11-15
+
+主题：**「从 GitHub 装不上」，因为 Releases 里没有包。**
+
+排查 CI 时顺手看清了一件事：GitHub Releases 只到 `v1.6.4`，1.11.x 一个 Release 都没建过。所以「点进 Releases 下载」这条路一直是空的——不是这一个版本坏了，是从 1.7 起就没有过。
+
+这一版补上自动化，不靠人手记得上传：新增 `.github/workflows/release.yml`，推一个 `v*` 标签就自动 `npm pack`、算 `SHA256SUMS.txt`、建 Release 并挂上这两个文件（用仓库自带的 `GITHUB_TOKEN`，`contents: write`）。pnpm/npm 之外，任何人也都能直接从 Release 拿 tgz 安装。
+
+同时把「安装方式」写清：`npm i dsh-memory-nebula` 拿最新版；要锁版本就用 Release 里的 tgz（附校验和）。
+
+发布产物：dsh-memory-nebula-1.11.42.tgz · 95 个文件 · 3471277 字节 · sha256 fe044825dc7b30001c8c7be48177a56fefba2a9f99b8e26698d195bf9018fa62（包内记录的是上一刀的数字）。
+## 1.11.41 — 2026-11-15
+
+主题：**CI 红了两版，因为没人看 Actions。**
+
+1.11.39 与 1.11.40 推上去之后，GitHub Actions 三个作业全是红的——`Unit tests`（Node 22.13.0）、`Release checks`（Node 24）、`Pack`。本机一直全绿，所以我们两版都没察觉。两个根因，都不在功能上：
+
+**一、发布门禁把「本地工作件」当成了必要条件。** `scripts/release-check.mjs` 里 27 处 `if (!exists("dev/…")) fail(…)`，而 `.gitignore` 把整个 `dev/` 忽略了——干净克隆里必然缺，check 必红；`prepack` 又跑 `npm run verify`（测试 + check），于是 `npm pack` 也跟着红。
+
+**二、node 下限写错了。** `lib/host/transcripts.js` 顶部是 `import { zstdDecompressSync } from 'node:zlib'`，而 `node:zlib` 的 zstd 是 **22.15** 才有的；`engines` 写着 `>=22.13.0`，于是 22.13 一加载这个模块就报「没有这个导出」，整个插件连带测试全挂。
+
+四处改动：
+
+1. `exists()` 对 `dev/` 一律放行，并在注释里写明理由；每处仍留一条 `noteDev()` 备注，本机缺了能看见。唯一一处「读 dev 文件内容」的断言（axe 脚本里那句「没有状态断言，不敢审」）改成「文件在才核对」。
+2. `transcripts.js` 改成命名空间导入 + 特性探测：没有 zstd 时 `decompressTranscript` 返回一句人话错误，只关掉「读会话转写」这一件事，插件照常起。
+3. `engines` → `>=22.15.0`；CI 矩阵 `['22.15.0', '24']`；CI 多一步 `Environment`，把 node 版本、`zstd` 与 `node:sqlite` 是否可用打出来——下次红了能一眼分清是环境还是代码。
+4. `npm test` 从 `node --test "test/*.test.mjs"` 改成 `node --test`：不依赖 shell 与 glob 的实现细节，22 与 24 都稳。
+
+新增探针 `dev/sim-clean-clone.mjs`：只复制 git 跟踪的文件（**没有 `dev/`、没有 `node_modules`**），在里面跑 `release-check` 与全部单测——把这个「CI 看到的世界」搬到本机。
+
+| 项 | 改前 | 改后 |
+|---|---|---|
+| 干净克隆里 `npm run check` | 红（缺 27 个 dev/ 探针） | **通过** |
+| 干净克隆里 `npm test` | 红（22.13 上 zstd 导入即崩） | **357/357 · 16.8s** |
+| `engines.node` | `>=22.13.0` | **`>=22.15.0`** |
+| GitHub Actions | 三作业全红（39、40 两版） | 待这版推上去复核 |
+
+两条教训：**「本机全绿」不是发布条件，干净的机器才是。** 以及：**门禁只能要求发布物里真有的东西**——本地探针是证据，不是构件。
+
+发布产物：dsh-memory-nebula-1.11.41.tgz · 95 个文件 · 3469995 字节 · sha256 b9f33652a53ae8a0ce0837748cab4476ee02c84741e17f1a2352526ecc3718f1（包内记录的是上一刀的数字）。
 ## 1.11.40 — 2026-11-15
 
 主题：**只读了前四千个，剩下的没进图，也没人说。**

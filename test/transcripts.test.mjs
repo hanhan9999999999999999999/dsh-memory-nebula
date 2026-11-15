@@ -4,7 +4,14 @@ import { mkdirSync, mkdtempSync, rmSync, utimesSync, writeFileSync } from 'node:
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test from 'node:test'
-import { zstdCompressSync } from 'node:zlib'
+import * as zlib from 'node:zlib'
+
+// 22.13 的 node:zlib 还没有 zstd：这一组测试要造 zstd 夹具，只能跳过（不是失败）。
+const hasZstd = typeof zlib.zstdCompressSync === 'function'
+const zstdCompressSync = zlib.zstdCompressSync
+const it = hasZstd
+  ? test
+  : (name) => test(name, { skip: '这个 node 没有 zstd（node:zlib 的 zstd 是 22.15 起才有的）' }, () => {})
 
 const HOME = mkdtempSync(join(tmpdir(), 'nebula-transcripts-'))
 process.env.DSH_HOME = HOME
@@ -40,7 +47,7 @@ const writeSession = (ws, id, text) => {
 
 // ---------- 多帧 zstd ----------
 
-test('单帧 zstd 能解出原文，帧数也报对', () => {
+it('单帧 zstd 能解出原文，帧数也报对', () => {
   const buf = zstdCompressSync(Buffer.from('hello 星图', 'utf8'))
   const r = t.decompressTranscript(buf)
   assert.equal(r.error, undefined)
@@ -48,7 +55,7 @@ test('单帧 zstd 能解出原文，帧数也报对', () => {
   assert.equal(r.frames, 1)
 })
 
-test('多帧拼在一起的转写要全部解出来（node 的 zstd 只解第一帧，所以自己切）', () => {
+it('多帧拼在一起的转写要全部解出来（node 的 zstd 只解第一帧，所以自己切）', () => {
   const a = zstdCompressSync(Buffer.from('第一段\n', 'utf8'))
   const b = zstdCompressSync(Buffer.from('第二段\n', 'utf8'))
   const buf = Buffer.concat([a, b])
@@ -59,7 +66,7 @@ test('多帧拼在一起的转写要全部解出来（node 的 zstd 只解第一
   assert.equal(r.text, '第一段\n第二段\n')
 })
 
-test('可跳过的帧（skip frame）要跳过，不喂给 zstd', () => {
+it('可跳过的帧（skip frame）要跳过，不喂给 zstd', () => {
   const real = zstdCompressSync(Buffer.from('真的内容', 'utf8'))
   const payload = Buffer.from('随便什么', 'utf8')
   const head = Buffer.alloc(8)
@@ -72,7 +79,7 @@ test('可跳过的帧（skip frame）要跳过，不喂给 zstd', () => {
   assert.equal(t.decompressTranscript(buf).text, '真的内容')
 })
 
-test('不是 zstd 的东西要给 error，不是抛异常', () => {
+it('不是 zstd 的东西要给 error，不是抛异常', () => {
   const r = t.decompressTranscript(Buffer.from('这不是 zstd，只是普通文本'))
   assert.match(r.error, /bad magic/)
   assert.equal(r.text, undefined)
@@ -80,7 +87,7 @@ test('不是 zstd 的东西要给 error，不是抛异常', () => {
 
 // ---------- 主人说过的话 ----------
 
-test('只留主人真说过的：滤掉注入块、非 user 来源、超长文本、坏行', () => {
+it('只留主人真说过的：滤掉注入块、非 user 来源、超长文本、坏行', () => {
   const file = writeSession(
     'ws-a',
     'u1',
@@ -105,7 +112,7 @@ test('只留主人真说过的：滤掉注入块、非 user 来源、超长文�
   )
 })
 
-test('文件不存在 / 读不动的转写都是空数组，不抛', () => {
+it('文件不存在 / 读不动的转写都是空数组，不抛', () => {
   assert.deepEqual(t.readUserMessages(join(HOME, '没有这个文件')), [])
   const dir = sessionDir('ws-a', 'u2')
   const file = join(dir, 'session.v4.jsonl.zstd')
@@ -113,7 +120,7 @@ test('文件不存在 / 读不动的转写都是空数组，不抛', () => {
   assert.deepEqual(t.readUserMessages(file), [])
 })
 
-test('同一份文件不重复读（mtime 没变就走缓存）', () => {
+it('同一份文件不重复读（mtime 没变就走缓存）', () => {
   const file = writeSession('ws-a', 'u3', userLine('缓存这一句', 10))
   const first = t.readUserMessages(file)
   const second = t.readUserMessages(file)
@@ -122,7 +129,7 @@ test('同一份文件不重复读（mtime 没变就走缓存）', () => {
 
 // ---------- 索引 ----------
 
-test('新开的会话会在下一轮扫描里出现（索引不能停在开机那一刻）', () => {
+it('新开的会话会在下一轮扫描里出现（索引不能停在开机那一刻）', () => {
   t.resetTranscriptIndex()
   const a = t.transcriptStats()
   const fileB = writeSession('ws-b', 'u4', userLine('新会话', 20))
@@ -135,7 +142,7 @@ test('新开的会话会在下一轮扫描里出现（索引不能停在开机�
   assert.equal(idx.get('session-u4').file, fileB)
 })
 
-test('有效期设成 30 秒时，窗口内不重扫（省）', () => {
+it('有效期设成 30 秒时，窗口内不重扫（省）', () => {
   process.env.NEBULA_TRANSCRIPT_INDEX_TTL = '30000'
   t.resetTranscriptIndex()
   const a = t.transcriptStats()
@@ -146,7 +153,7 @@ test('有效期设成 30 秒时，窗口内不重扫（省）', () => {
   assert.equal(t.transcriptStats().sessions, a.sessions + 1, '有效期到点之后要看得见')
 })
 
-test('sessions 目录不存在时给空索引，不抛', () => {
+it('sessions 目录不存在时给空索引，不抛', () => {
   const saved = process.env.DSH_HOME
   process.env.DSH_HOME = join(HOME, '根本不存在')
   t.resetTranscriptIndex()
@@ -157,7 +164,7 @@ test('sessions 目录不存在时给空索引，不抛', () => {
 
 // ---------- 记忆出处 ----------
 
-test('origin 取「写下这条记忆之前最近的那句话」，超时就不算', () => {
+it('origin 取「写下这条记忆之前最近的那句话」，超时就不算', () => {
   process.env.NEBULA_TRANSCRIPT_INDEX_TTL = '0'
   writeSession('ws-d', 'u6', [userLine('第一句', 0), userLine('第二句（更近）', 60000)].join(''))
   t.resetTranscriptIndex()
@@ -170,7 +177,7 @@ test('origin 取「写下这条记忆之前最近的那句话」，超时就不�
   assert.equal(t.originOfMemory({}), null)
 })
 
-test('长句只留 600 字，后面加省略号', () => {
+it('长句只留 600 字，后面加省略号', () => {
   const long = '很长'.repeat(400)
   writeSession('ws-e', 'u7', userLine(long, 0))
   t.resetTranscriptIndex()
@@ -179,7 +186,7 @@ test('长句只留 600 字，后面加省略号', () => {
   assert.ok(hit.text.endsWith('…'))
 })
 
-test('会话还不在索引里时不能把 null 记死（下一轮扫描要能找回来）', () => {
+it('会话还不在索引里时不能把 null 记死（下一轮扫描要能找回来）', () => {
   process.env.NEBULA_TRANSCRIPT_INDEX_TTL = '0'
   t.resetTranscriptIndex()
   assert.equal(t.originOfMemory({ sessionId: 'u8', createdAt: T0 + 100 }), null)
@@ -189,7 +196,7 @@ test('会话还不在索引里时不能把 null 记死（下一轮扫描要能�
   assert.equal(hit && hit.text, '刚刚才有的话')
 })
 
-test('转写文件被追加之后（mtime 变了）读到的是新内容', () => {
+it('转写文件被追加之后（mtime 变了）读到的是新内容', () => {
   const file = writeSession('ws-g', 'u9', userLine('旧的', 0))
   assert.deepEqual(
     t.readUserMessages(file).map((m) => m.text),
@@ -204,7 +211,7 @@ test('转写文件被追加之后（mtime 变了）读到的是新内容', () =>
   )
 })
 
-test('usageIndex 里用到的行也得能解析：tool/call 不是 user/message', () => {
+it('usageIndex 里用到的行也得能解析：tool/call 不是 user/message', () => {
   const file = writeSession('ws-h', 'u10', toolLine('memory_search', 100, '{"q":"x"}'))
   assert.deepEqual(t.readUserMessages(file), [])
 })

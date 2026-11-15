@@ -15,12 +15,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: ['22.13.0', '24']
+        node: ['22.15.0', '24']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
+      - name: Environment
+        run: |
+          node -v
+          node -e "console.log('zstd:', typeof require('node:zlib').zstdCompressSync, 'sqlite:', (() => { try { require('node:sqlite'); return 'ok' } catch (e) { return e.code || e.message } })())"
       - name: Unit tests
         run: npm test
       - name: Release checks

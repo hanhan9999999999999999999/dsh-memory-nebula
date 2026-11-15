@@ -2,6 +2,29 @@
 
 > 下面的数字都是**当时实测**的值，记录的是「这个结论被什么证据支撑过」，不是当前规模——记忆每天在长，规模类数字请以 `node scripts/smoke.mjs` 和界面顶栏为准。
 
+## 1.11.42（2026-11-15）
+
+打标签即建 Release：`.github/workflows/release.yml` → `npm pack` → `SHA256SUMS.txt` → `gh release create --verify-tag`。
+
+- 之前：Releases 停在 `v1.6.4`，1.11.x 没有可下的包。
+- 现在：`v*` 标签推送后自动出现 Release，附件为 tgz 与校验和。
+
+产物：dsh-memory-nebula-1.11.42.tgz · 95 个文件 · 3471277 字节 · sha256 fe044825dc7b30001c8c7be48177a56fefba2a9f99b8e26698d195bf9018fa62（包内记录的是上一刀的数字）。
+## 1.11.41（2026-11-15）
+
+CI 红了 1.11.39 / 1.11.40 两版，这一版修根因。
+
+| 项 | 改前 | 改后 |
+|---|---|---|
+| 干净克隆（158 个跟踪文件、无 dev/）里的 `release-check` | 红 | **通过** |
+| 干净克隆里的单测 | 22.13 崩 | **357/357 · 16.8s** |
+| `engines.node` | >=22.13.0 | **>=22.15.0** |
+| `npm test` | `node --test "test/*.test.mjs"` | **`node --test`** |
+| CI | 三作业红 | 待复核 |
+
+探针：`node dev/sim-clean-clone.mjs`（把 CI 的环境搬到本机）、`node scripts/release-check.mjs`。
+
+产物：dsh-memory-nebula-1.11.41.tgz · 95 个文件 · 3469995 字节 · sha256 b9f33652a53ae8a0ce0837748cab4476ee02c84741e17f1a2352526ecc3718f1（包内记录的是上一刀的数字）。
 ## 1.11.40（2026-11-15）
 
 被文件数上限截断的来源，现在会说出来。
