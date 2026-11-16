@@ -2491,6 +2491,36 @@ if (true) {
     if (!read('docs/benchmarks.md').includes('涉及家目录的测试要钉两个变量（1.11.67 更新）')) fail('benchmarks 缺 1.11.67 那段')
     else ok('1.11.67 benchmarks 有对照')
   }
+// 1.11.68 构件：推送里的坏条目要说清，一条没写成要报错
+{
+  const ing68 = read("lib/host/adapters/ingest.js")
+  const neb68 = read("lib/host/nebula.js")
+  const http68 = read("lib/host/http.js")
+  const idx68 = read("lib/index.js")
+  if (!ing68.includes("export function describeSkips")) fail("ingest.js 没有 describeSkips（丢了几条要说清）")
+  if (!ing68.includes("if (byUid.has(uid)) duplicates += 1")) fail("ingest.js 批内重复没有计数")
+  if (!/written: lines\.length/.test(ing68)) fail("ingest.js 的 written 不是按去重后的条数算的")
+  if (!ing68.includes("reasons.notObject += 1") || !ing68.includes("reasons.empty += 1")) {
+    fail("ingest.js 没有分别统计「不是对象」与「没有正文」")
+  }
+  if (!neb68.includes("describeSkips(res.reasons || {})")) fail("nebula.js 的 ingest 没有把原因拼出来")
+  if (!neb68.includes("res.written === 0")) fail("nebula.js 的 ingest 没有处理「一条也没写成」")
+  if (!http68.includes("if (out.error)")) fail("http.js 的 /ingest 没有把 error 变成 400")
+  if (!idx68.includes("if (res.error) return")) fail("nebula_ingest 工具没有报出「没有写成任何一条」")
+  if (!exists("test/ingest-skips.test.mjs")) fail("缺 test/ingest-skips.test.mjs")
+  const t68 = exists("test/ingest-skips.test.mjs") ? read("test/ingest-skips.test.mjs") : ""
+  if (!t68.includes("duplicates") || !t68.includes("skipped")) fail("test/ingest-skips.test.mjs 没钉住跳过与重复")
+  for (const [label, needle] of [
+    ["CHANGELOG.md", "三条坏数据换来一句"],
+    ["docs/verified.md", "## 1.11.68（2026-11-16）"],
+    ["docs/roadmap.md", "## 1.11.68"],
+    ["docs/release.md", "## 1.11.68 实测"],
+    ["docs/benchmarks.md", "推送写入的计数（1.11.68 更新）"],
+    ["docs/http-api.md", "1.11.68 起，写不成记忆的条目会如实回报"],
+  ]) {
+    if (!read(label).includes(needle)) fail(label + " 缺 1.11.68 的说明")
+  }
+}
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {
   console.log('\n全部通过。\n')

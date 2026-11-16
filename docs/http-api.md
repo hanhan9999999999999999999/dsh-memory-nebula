@@ -187,6 +187,12 @@ body：`{ v: 2, version, build, demo, nodes: [...], edges: [...], stats, builtAt
 `link`/`mute` 的端点不存在时返回 **404**（`missingNodes` 带 `status=404`）；`a`/`b` 缺失 400；
 `ingest` 缺 `provider`、`items` 非数组 400，单次上限 5000 条。
 
+1.11.68 起，写不成记忆的条目会如实回报，不再「200 + 已推入 0 条」：
+
+- 回答里带 `written`（真正写进去的条数）、`skipped`（被跳过的条数）、`duplicates`（批内 uid 重复的条数）、`reasons`（`{ notObject, empty }`）。
+- 有跳过或重复时多一个 `note`，写清原因（例如「跳过 2 条：1 条不是对象；1 条既没有 title 也没有 content」）。
+- 一条也没写成时回 **400**，`error` 点名原因；同一批里 uid 重复按后写的覆盖，`written` 只算一条。
+
 ### `GET /progress`（1.11.32 起）
 
 建图期间的进度。**它不等待建图**——`/ping` 与 `/graph` 在冷启动时都要等图建完才应答，

@@ -98,6 +98,14 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.68 实测
+
+- 坏条目：`["字符串", 42, null]` → 400「这些条目里没有可写入的内容：3 条不是对象」；`[{uid:'x'}]` → 400 点名「1 条既没有 title 也没有 content」。
+- 批内重复：两条同 uid → `written:1, duplicates:1`，文件里 1 行、内容是后写的那条。
+- 好坏混合：1 条好的 + 2 条坏的 → `written:1, skipped:2`，并带 `note`。
+- 单测 485 / 485；构件门全部通过。
+产物：96 个文件；字节数与 sha256 见发布页的 SHA256SUMS.txt（不写进包里，避免自指）。
+
 ## 1.11.67 实测
 
 - CI 复现：1.11.66 的 `CI #43793315219` 里 `Node 24 on ubuntu-latest` 的 Unit tests 与 `Package install` 的 Pack 双红；windows 那一半全绿。
@@ -751,7 +759,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.67.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.68.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：
