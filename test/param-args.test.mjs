@@ -214,3 +214,43 @@ test('HTTP：path / bridge / export 的参数同样不许静默回落', async ()
     safeRm(root)
   }
 })
+
+// 1.11.66：`/graph?limit=0` 曾经差一点被改成 400。它不是同一个坑——分页这一层
+// 从 1.9.0 起就把 0 定义成「交给服务端决定」，而 `/recall` 那种 0 是真实语义（不扩散）。
+// 所以这里钉住的是「0 与不传等价」，别再有人拿「0 一律报错」的直觉把它改坏。
+test('HTTP：graph 的 limit=0 与不传等价（这是写进文档的约定）', async () => {
+  const root = makeRoot()
+  try {
+    await withHome(async () => {
+      const nb = new Nebula({ roots: [root], log: () => {}, prewarmDelayMs: 10 ** 7, hygieneWarm: false })
+      await nb.refresh()
+      let handler = null
+      registerRoutes({ register: (def) => { handler = def.handler } }, nb, () => {}, { mode: 'standalone' })
+      const call = makeCaller(handler)
+
+      const plain = await call(P + '/graph')
+      const zero = await call(P + '/graph?limit=0')
+      assert.equal(plain.status, 200)
+      assert.equal(zero.status, 200, 'limit=0 是「交给服务端」，不是错')
+      assert.deepEqual(
+        (zero.json().nodes || []).map((n) => n.id),
+        (plain.json().nodes || []).map((n) => n.id),
+        'limit=0 与不传必须给同一页',
+      )
+
+      const abc = await call(P + '/graph?limit=abc')
+      assert.equal(abc.status, 400, '拼错还是要报错')
+      assert.match(abc.json().error, /limit 需要 0–50000 的整数/)
+
+      const big = await call(P + '/graph?limit=50001')
+      assert.equal(big.status, 400)
+      assert.match(big.json().error, /不能超过 50000/)
+
+      const one = await call(P + '/graph?limit=1')
+      assert.equal(one.status, 200, 'limit=1 要能跑')
+      assert.equal((one.json().nodes || []).length, 1, '一页就是一条')
+    })
+  } finally {
+    safeRm(root)
+  }
+})

@@ -98,6 +98,16 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.66 实测
+
+- 隔离探针（`dev/probe-sources-isolation.mjs`，`DSH_HOME` 与 `USERPROFILE` 都指向临时目录）：改前 meow 探针列出 8 个真实工作区，改后 0 个；`detect({})` 改后只扫到沙箱里那一个库。
+- 真实环境不动：`DSH_HOME=D:\dsh-home` 时 `defaultRoots()` 仍然是 `["D:\document"]`，探针仍是 9 个库（注册表 8 + 扫描 1）。
+- `scripts/verify-all.mjs` 的 `REPO` 从「包的上一层」改回包目录：改前 `dev/` 指到仓库外面的老副本，安全面与畸形参数两步跑的是别人的旧文件；改后指向包内 `dev/`，缺探针直接判失败（`dev/` 整个不在才跳过）。
+- `npm run verify:full` 实跑：6 通过 / 0 失败 / 0 跳过，合计 113.3s；其中安全探针 26 / 26、畸形参数 `fail = 0 / 34`。
+- 单测：481 / 481。
+
+产物：96 个文件 / 3,554,369 字节 / sha256 5fd1af6e… / sha1 9b78cbdb…（回填后重打，包内记录的是上一刀的数字）。
+
 ## 1.11.65 实测
 
 - 运行时六步（建图 → 人工连线 → 屏蔽 → 撤销屏蔽 → 取消连线 → 屏蔽一对没有边的）逐步核对：改前三步不一致，改后六步全一致。
@@ -732,7 +742,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.65.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.66.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：

@@ -61,6 +61,20 @@
 位置：`$DSH_HOME/memory-nebula/sources.json`（Windows 默认 `C:\Users\Administrator\.dsh\memory-nebula\sources.json`）。
 不存在也能跑：默认只用 meow-memory + 自动探测。文件坏了只记日志，不会让星图挂掉。
 
+### 自动探测扫哪里（1.11.66 起）
+
+探测根目录**只从环境推出来，不写死任何盘符**：
+
+1. `NEBULA_DEFAULT_ROOTS` 里列的路径（分号或逗号分隔，可以写多处）；
+2. `$DSH_HOME/../document`（紧跟 DSH 的布局，不假设盘符）；
+3. `~/Documents`、`~/document`（当前用户的家目录）。
+
+每个根目录只看**下一层**子目录，且只有存在 `.dsh-meow/memory.db` 的才算一个库。
+工作区注册表（`$DSH_HOME/storages/workspace.json`）里登记过的目录始终会认，不受上面几条影响。
+
+所以：工作区不在上面这几处，就在 `sources.json` 里写 `extraRoots`，或者设 `NEBULA_DEFAULT_ROOTS`；
+隔离测试（把 `DSH_HOME` 指到临时目录）时，探测不会再去碰真实机器上的库。
+
 ```json
 {
   "version": 1,

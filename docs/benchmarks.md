@@ -890,3 +890,11 @@ meow 库是 WAL 模式，写进去的记忆先进 `memory.db-wal`。真实库 70
 
 统计类数字最容易「改了一处、忘了另一处」：`{ ...stats }` 只是浅拷贝，嵌套的 `byType` 还是旧对象。1.11.65 把三个数字（edges / byType / avgDegree）收进一个私有方法 `#syncEdgeStats()`，谁改边谁调用它，测试直接断言「合计必须等于边数」。
 
+### 默认扫描根目录不写死盘符（1.11.66 更新）
+
+自动探测的候选根目录从「写死 `D:\document`」改成「按环境推」：`NEBULA_DEFAULT_ROOTS` → `$DSH_HOME/../document` → `~/Documents`、`~/document`，每个根只扫下一层，命中的判据仍是存在 `.dsh-meow/memory.db`。隔离 `DSH_HOME` 的测试与 200k 压测因此不再受本机布局影响。
+
+### 验证脚本的被测对象必须能被指出来（1.11.66 更新）
+
+`scripts/verify-all.mjs` 以前把仓库根算成包的上一层，`dev/security-probe.mjs` 与 `dev/fuzz-1.8.mjs` 因此长期跑的是仓库外面那份旧副本——报告上「26 项通过」，通过的却是别的文件。这类错误不会失败、不会跳过，只会换掉被测对象，所以 `REPO` 现在直接等于包目录，探针缺失（`dev/` 在、文件不在）判失败。一轮实跑：6 通过 / 0 失败 / 0 跳过，113.3s。
+

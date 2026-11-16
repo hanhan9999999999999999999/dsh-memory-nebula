@@ -522,6 +522,12 @@ axe 审计以前只跑离线快照和官网。把审计扩到 5 万条库的八�
   `items` 只列前 40 对，比 pair 集合其实是在比「谁先被遍历到」；改成 8 条（28 对）才真的在测签名稳定性。
 - 还没做：`tok` 587–630ms 仍是分词的硬成本；`stale` 953–1,210ms 现在成了第二大头（瓶颈是扫描倒排链本身）。
 
+## 1.11.66「隔离了 DSH_HOME，探针还是翻到了真实硬盘」（1.11.66 已交付）
+
+`defaultRoots()` 写死 `D:\document` 与 `C:\Users\Administrator\Documents`：换机器会扫别人的盘，隔离测试也扫不干净。改成只从 `NEBULA_DEFAULT_ROOTS`、`$DSH_HOME/../document`、`~/Documents` 推，`sources.js` 的 `dshHome` 也改成从 `adapters/util.js` 转出。
+
+同轮第二件：`scripts/verify-all.mjs` 的 `REPO` 指向了包的上一层，安全面与畸形参数两步跑的是仓库外面那份积灰的 `dev/`；`dev/` 在、探针不在时还记成「跳过」。改回 `REPO = PKG`，缺探针判失败，并按新的口径重建了 26 项安全探针与 34 项畸形参数。
+
 ## 1.11.65「图例上那几个数字，加起来比总数多一条」（1.11.65 已交付）
 
 屏蔽/撤销屏蔽/读盘恢复之后，`stats.byType` 停在建图那一刻，和总边数对不上。改成 `#syncEdgeStats()` 一处重算、四处调用。

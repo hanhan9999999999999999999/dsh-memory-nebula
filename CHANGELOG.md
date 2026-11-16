@@ -1,3 +1,58 @@
+## 1.11.66 — 2026-11-16
+
+**隔离了 DSH_HOME，探针还是翻到了真实硬盘。**
+
+排查「/sources 的报告准不准」时顺手做了一次隔离实验：把 `DSH_HOME` 指到一个空临时目录、`USERPROFILE` 也指到临时目录，再启动星图，`/sources` 里的 meow 探针仍然列出了本机 8 个真实工作区（DSH Live2D / Remote Connect DSH / Memory Universe / 数学网站 / Stellaris REA / Definitely Unity / Rustfare Mod Creator / Liberty Of Code）。
+
+根因是 `lib/host/adapters/meow.js` 的 `defaultRoots()` 里写死了两条：
+
+```js
+const candidates = [
+  'D:\\document',
+  join(process.env.USERPROFILE || 'C:\\Users\\Administrator', 'Documents'),
+  join(dshHome(), '..', 'document'),
+]
+```
+
+后果有三层：**换一台机器**它会去扫别人的 `D:\document`；**开着 meow 来源的用户**如果那个目录里恰好有别人的 `.dsh-meow/memory.db`，那些记忆会被当成自己的建进图里；**任何隔离测试**都扫不干净，报告在每台机器上都不一样。
+
+**改了什么**
+
+- `defaultRoots()` 只从环境推：`NEBULA_DEFAULT_ROOTS`（分号或逗号分隔，可选）→ `$DSH_HOME/../document` → `~/Documents`、`~/document`。去掉写死的 `D:\document` 与 `C:\Users\Administrator` 兜底。
+- 候选路径去重时同时去掉尾斜杠并按小写比较，同一条写两遍只算一处。
+- `lib/host/sources.js` 里原本又写了一遍 `dshHome()`，改成从 `lib/host/adapters/util.js` 转出——家目录只留一处定义。
+- `docs/adapters.md` 新增「自动探测扫哪里（1.11.66 起）」，`docs/troubleshooting.md` 的「自己的库没被扫到」补上这两句。
+- 新增 `test/meow-default-roots.test.mjs` 5 项：隔离环境只认家目录推出来的那几处；`~/Documents` 也认且兄弟目录在前；`NEBULA_DEFAULT_ROOTS` 多种分隔符与去重；`detect()` 在隔离环境里只扫到沙箱里那一个库；`sources.js` 与 `adapters/util.js` 的 `dshHome` 是同一个函数。
+- 探针 `dev/probe-sources-isolation.mjs` 复现并复核（改前 8 个真实工作区，改后 0 个）。
+
+**同一轮里撞见的第二件事：`verify:full` 一直在跑仓库外面那份积灰的探针**
+
+修完隔离问题想把 `npm run verify:full` 跑一遍，结果那两步「安全面」「畸形参数」显示的是**跳过**。查下去发现 `dev/security-probe.mjs` 与 `dev/fuzz-1.8.mjs` 在包里根本没有（`dev/` 被 `.gitignore` 隐藏，删掉不会出现在 `git status` 里），于是接着挖到更难受的一层：`scripts/verify-all.mjs` 里
+
+```js
+const PKG = resolve(HERE, '..')
+const REPO = resolve(PKG, '..')   // ← 以为仓库根在包的上一层
+const DEV = join(REPO, 'dev')
+```
+
+可 `git rev-parse --show-toplevel` 指的正是包目录本身。`..` 那一层恰好也有个 `dev/`（11 月 11 日的安全探针、11 月 14 日的 fuzz），所以这两步不但没跳，还**一直在跑别人的旧代码**：报告上写着「26 项通过」，通过的却是另一份文件——比跳过更糟。
+
+**改了什么（第二部分）**
+
+- `scripts/verify-all.mjs`：`REPO = PKG`（仓库根就是这个包），`DEV` 随之指回包内的 `dev/`；默认测试库 `.tmp-50k` 也回到包内（一直被 `gitignore` 覆盖）。
+- 同上：探针缺失分两种情形——`dev/` 整个不在（装好的副本）算跳过；`dev/` 在、探针却不在（仓库里被删了）算**失败**，并写明「仓库里应当有它」。
+- 顺手补回 `dev/security-probe.mjs`（26 项）与 `dev/fuzz-1.8.mjs`（34 项），都在包内重建，实跑 `26 / 26 通过` 与 `fail = 0 / 34`。
+- 一次负结果留档：我一度把 `/graph?limit=0` 也改成 400，撞红了 `test/graph-page-http.test.mjs`。分页这一层从 1.9.0 起就把 0 定义成「交给服务端决定」，与 `/recall?hops=0`（不扩散）这种真实语义不是一回事——改回 200，并补一条测试把这条约定钉住，免得下次又有人拿「0 一律报错」的直觉改坏它。
+- `docs/testing.md`：安全探针 25 → 26 项，新增「三之二、畸形参数（34 项）」，写明两步必须显示「通过」而不是「跳过」。
+
+**教训**
+
+- 写死路径不是「省事」，是把一台机器的布局偷偷写进所有人的程序里。
+- 「本机能跑」和「隔离了还能跑」是两件事：日志目录跟着 `DSH_HOME` 走了，扫描根目录没跟着走，这种半隔离最难发现。
+- 验证脚本指错目录时不会报错，它只是悄悄换了一份被测对象——「通过」这两个字应当能被追溯到具体那个文件。
+
+发布产物：96 个文件 / 3,554,369 字节 / sha256 5fd1af6e… / sha1 9b78cbdb…（回填后重打，包内记录的是上一刀的数字）。
+
 ## 1.11.65 — 2026-11-16
 
 **图例上那几个数字，加起来比总数多一条。**

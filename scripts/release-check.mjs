@@ -2330,31 +2330,146 @@ if (true) {
 
 }
 
+  // 1.11.65：边的统计只有一个来源（屏蔽/撤销屏蔽/读盘之后 byType 不许停在建图那一刻）
+  {
+    const neb65 = read('lib/host/nebula.js')
+    const need65 = [
+      ['#syncEdgeStats() 存在', neb65.includes('#syncEdgeStats()')],
+      ['重算 byType', neb65.includes('g.stats.byType = byType')],
+      ['对齐 stats.edges', neb65.includes('if (this.graph.stats) this.graph.stats.edges = this.graph.edges.length')],
+      ['重算 avgDegree', neb65.includes('g.stats.avgDegree = Math.round((g.edges.length * 2 * 100)')],
+      ['没有浅拷贝改 stats', !neb65.includes('g.stats = { ...g.stats, edges: d')],
+    ]
+    for (const [label, passed] of need65) {
+      if (passed) ok('1.11.65 ' + label)
+      else fail('1.11.65 ' + label)
+    }
+    const syncCalls = (neb65.match(/#syncEdgeStats\(\)/g) || []).length
+    if (syncCalls >= 4) ok('1.11.65 #syncEdgeStats 调用点 ' + syncCalls + ' 处')
+    else fail('1.11.65 #syncEdgeStats 调用点太少（' + syncCalls + ' 处）')
+
+    const ss65 = read('test/stats-sync.test.mjs')
+    if (!ss65) {
+      fail('缺 test/stats-sync.test.mjs（边的统计没有测试）')
+    } else {
+      for (const [label, passed] of [
+        ['断言 byType 合计等于边数', ss65.includes('byType 合计')],
+        ['覆盖撤销屏蔽', ss65.includes('撤销屏蔽后')],
+        ['覆盖屏蔽一对没有边的', ss65.includes('屏蔽一对没有边的')],
+      ]) {
+        if (passed) ok('1.11.65 ' + label)
+        else fail('1.11.65 ' + label)
+      }
+    }
+
+    noteDev('dev/probe-stats-drift.mjs')
+    if (existsReal('dev/probe-stats-drift.mjs') && !readDev('dev/probe-stats-drift.mjs').includes('byType 合计')) {
+      fail('dev/probe-stats-drift.mjs 缺 byType 合计那段')
+    }
+    if (!read('CHANGELOG.md').includes('图例上那几个数字，加起来比总数多一条')) fail('CHANGELOG 缺 1.11.65 的主题')
+    else ok('1.11.65 CHANGELOG 有说明')
+    if (!read('docs/verified.md').includes('## 1.11.65（2026-11-16）')) fail('verified 缺 1.11.65')
+    else ok('1.11.65 verified 有实测')
+    if (!read('docs/roadmap.md').includes('## 1.11.65「图例上那几个数字')) fail('roadmap 缺 1.11.65')
+    else ok('1.11.65 roadmap 有记录')
+    if (!read('docs/release.md').includes('## 1.11.65 实测')) fail('release 缺 1.11.65 实测')
+    else ok('1.11.65 release 有实测')
+    if (!read('docs/benchmarks.md').includes('边缘统计只有一个来源（1.11.65 更新）')) fail('benchmarks 缺 1.11.65 那段')
+    else ok('1.11.65 benchmarks 有对照')
+  }
+
+  // 1.11.66：探测根目录不写死盘符（隔离 DSH_HOME 之后不许再扫真实硬盘）
+  {
+    const meow66 = read('lib/host/adapters/meow.js')
+    const src66 = read('lib/host/sources.js')
+    const need66 = [
+      ['认 NEBULA_DEFAULT_ROOTS', meow66.includes("String(process.env.NEBULA_DEFAULT_ROOTS || '')")],
+      ['从 DSH_HOME 的兄弟目录推', meow66.includes("join(dshHome(), '..', 'document')")],
+      ['从家目录 Documents 推', meow66.includes("join(homedir(), 'Documents')")],
+      ['不再写死 D 盘 document', !meow66.includes("'D:\\\\document'")],
+      ['不再写死 C 盘 Administrator', !meow66.includes('C:\\\\Users\\\\Administrator')],
+      ['候选路径去重', meow66.includes('seen.has(key)')],
+      ['sources.js 从 util 转出 dshHome', src66.includes('export { dshHome }') && src66.includes('./adapters/util.js')],
+      ['sources.js 不再自己定义 dshHome', !src66.includes('process.env.DSH_HOME ||')],
+    ]
+    for (const [label, passed] of need66) {
+      if (passed) ok('1.11.66 ' + label)
+      else fail('1.11.66 ' + label)
+    }
+
+    const roots66 = read('test/meow-default-roots.test.mjs')
+    if (!roots66) {
+      fail('缺 test/meow-default-roots.test.mjs（默认扫描根没有测试）')
+    } else {
+      for (const [label, passed] of [
+        ['钉住 NEBULA_DEFAULT_ROOTS', roots66.includes('NEBULA_DEFAULT_ROOTS')],
+        ['钉住 detect 的隔离', roots66.includes('detect({})')],
+        ['钉住「不许写死盘符」', roots66.includes('不许出现写死的盘符根目录')],
+        ['钉住家目录只有一个定义', roots66.includes('sources.dshHome')],
+      ]) {
+        if (passed) ok('1.11.66 ' + label)
+        else fail('1.11.66 ' + label)
+      }
+    }
+
+    noteDev('dev/probe-sources-isolation.mjs')
+    if (existsReal('dev/probe-sources-isolation.mjs') && !readDev('dev/probe-sources-isolation.mjs').includes('扫到了本机真实工作区吗')) {
+      fail('dev/probe-sources-isolation.mjs 缺隔离核对那段')
+    }
+    if (!read('docs/adapters.md').includes('自动探测扫哪里（1.11.66 起）')) fail('adapters.md 缺「自动探测扫哪里」')
+    else ok('1.11.66 adapters.md 有扫描范围说明')
+    if (!read('docs/troubleshooting.md').includes('1.11.66 起不再写死盘符')) fail('troubleshooting 缺扫描范围那句')
+    else ok('1.11.66 troubleshooting 有排错指引')
+    if (!read('CHANGELOG.md').includes('隔离了 DSH_HOME，探针还是翻到了真实硬盘')) fail('CHANGELOG 缺 1.11.66 的主题')
+    else ok('1.11.66 CHANGELOG 有说明')
+    if (!read('docs/verified.md').includes('## 1.11.66（2026-11-16）')) fail('verified 缺 1.11.66')
+    else ok('1.11.66 verified 有实测')
+    if (!read('docs/roadmap.md').includes('## 1.11.66「')) fail('roadmap 缺 1.11.66')
+    else ok('1.11.66 roadmap 有记录')
+    if (!read('docs/release.md').includes('## 1.11.66 实测')) fail('release 缺 1.11.66 实测')
+    else ok('1.11.66 release 有实测')
+    if (!read('docs/benchmarks.md').includes('默认扫描根目录不写死盘符（1.11.66 更新）')) fail('benchmarks 缺 1.11.66 那段')
+    else ok('1.11.66 benchmarks 有对照')
+
+    // 第二段：验证脚本指错目录就会换掉被测对象——这件事必须钉住。
+    const va66 = read('scripts/verify-all.mjs')
+    for (const [label, passed] of [
+      ['1.11.66 的验证脚本指着包内 dev', va66.includes('const REPO = PKG')],
+      ['验证脚本不再指向上一层', !va66.includes('resolve(PKG, \'..\')')],
+      ['缺探针分跳过与失败两种', va66.includes("const probeState = (n) => (has(devFile(n)) ? 'ok' : has(DEV) ? 'fail' : 'skip')")],
+      ['缺探针时写明仓库里应当有它', va66.includes('仓库里应当有它')],
+    ]) {
+      if (passed) ok(label)
+      else fail(label)
+    }
+
+    noteDev('dev/security-probe.mjs')
+    if (existsReal('dev/security-probe.mjs') && !readDev('dev/security-probe.mjs').includes("security-probe · ")) {
+      fail('dev/security-probe.mjs 缺汇总那行（security-probe · N / M 通过）')
+    }
+    noteDev('dev/fuzz-1.8.mjs')
+    if (existsReal('dev/fuzz-1.8.mjs') && !readDev('dev/fuzz-1.8.mjs').includes('fail = ')) {
+      fail('dev/fuzz-1.8.mjs 缺汇总那行（fail = N / 34）')
+    }
+
+    const testing66 = read('docs/testing.md')
+    if (!testing66.includes('安全探针（26 项')) fail('testing.md 还写着旧的安全探针项数')
+    else ok('1.11.66 testing.md 安全探针 26 项')
+    if (!testing66.includes('畸形参数（34 项')) fail('testing.md 缺畸形参数那一节')
+    else ok('1.11.66 testing.md 畸形参数 34 项')
+
+    const page66 = read('lib/host/http.js')
+    if (!page66.includes("limit 需要 0–50000 的整数")) fail('分页的 limit 报错文案被改坏了（0 在这层是「交给服务端」）')
+    else ok('1.11.66 分页仍认 limit=0')
+    const pin66 = read('test/param-args.test.mjs')
+    if (!pin66.includes('limit=0 与不传等价')) fail('缺一条钉住 limit=0 是约定的测试')
+    else ok('1.11.66 有测试钉住 limit=0 的语义')
+  }
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {
   console.log('\n全部通过。\n')
   process.exit(0)
 
-  // 1.11.65：边的统计只有一个来源（屏蔽/撤销屏蔽/读盘之后 byType 不许停在建图那一刻）
-  ok("1.11.65 构件：边的统计只有一个来源")
-  const neb65 = read("lib/host/nebula.js")
-  if (!neb65.includes("#syncEdgeStats()")) fail("缺少 #syncEdgeStats()：统计没有统一入口")
-  if (!neb65.includes("g.stats.byType = byType")) fail("#syncEdgeStats 没有重算 byType")
-  if (!neb65.includes("if (this.graph.stats) this.graph.stats.edges = this.graph.edges.length")) fail("#syncEdgeStats 没有对齐 stats.edges")
-  if (!neb65.includes("g.stats.avgDegree = Math.round((g.edges.length * 2 * 100)")) fail("#syncEdgeStats 没有重算 avgDegree")
-  if (neb65.includes("g.stats = { ...g.stats, edges: d")) fail("还有地方用浅拷贝改 stats（byType 会停在旧值）")
-  const syncCalls = (neb65.match(/#syncEdgeStats\(\)/g) || []).length
-  if (syncCalls < 4) fail("调用点太少：读盘摘边、restamp、撤销屏蔽都要调 #syncEdgeStats()")
-  const ss65 = read("test/stats-sync.test.mjs")
-  if (!ss65.includes("byType 合计")) fail("test/stats-sync.test.mjs 没有断言 byType 合计等于边数")
-  if (!ss65.includes("撤销屏蔽后")) fail("test/stats-sync.test.mjs 没有覆盖撤销屏蔽")
-  if (!ss65.includes("屏蔽一对没有边的")) fail("test/stats-sync.test.mjs 没有覆盖「屏蔽一对本来没有边的」")
-  if (!readDev("../dev/probe-stats-drift.mjs").includes("byType 合计")) noteDev("../dev/probe-stats-drift.mjs")
-  if (!read("CHANGELOG.md").includes("图例上那几个数字，加起来比总数多一条")) fail("CHANGELOG 缺 1.11.65 的主题")
-  if (!read("docs/verified.md").includes("## 1.11.65（2026-11-16）")) fail("verified 缺 1.11.65")
-  if (!read("docs/roadmap.md").includes("## 1.11.65「图例上那几个数字")) fail("roadmap 缺 1.11.65")
-  if (!read("docs/release.md").includes("## 1.11.65 实测")) fail("release 缺 1.11.65 实测")
-  if (!read("docs/benchmarks.md").includes("边缘统计只有一个来源（1.11.65 更新）")) fail("benchmarks 缺 1.11.65 那段")
 }
 console.log('')
 for (const p of problems) console.log(`  ✖ ${p}`)

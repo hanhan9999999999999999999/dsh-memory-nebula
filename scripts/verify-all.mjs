@@ -23,7 +23,12 @@ import { setTimeout as sleep } from 'node:timers/promises'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const PKG = resolve(HERE, '..')
-const REPO = resolve(PKG, '..') // dev/ 与临时测试库都在仓库根，不在包里
+// 1.11.66：仓库根**就是**这个包目录（git rev-parse --show-toplevel 指到这里）。
+// 以前这里算的是包的上一层，于是 dev/ 与临时测试库全落在仓库外面：
+// 父目录恰好也有个老 dev/（11 月 11 日的安全探针、14 日的 fuzz），verify-all 一直
+// 跑的是那两份积灰的副本，而包里今天这份从来没被跑到过。跑外面那份还等于「验证了
+// 别人的代码」，比跳过更糟。
+const REPO = PKG
 const DEV = join(REPO, 'dev')
 const EDGE = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe'
 
@@ -64,6 +69,10 @@ function readMe() {
 
 const has = (p) => existsSync(p)
 const devFile = (n) => join(DEV, n)
+// 1.11.66：dev/ 整个不在 = 装好的副本（跳过是诚实的）；dev/ 在、这个探针却不在 = 仓库里被删了。
+// 以前两种都算跳过，于是安全探针与 fuzz 从仓库里消失之后，这一步一直「跳过」而没人发现。
+const probeState = (n) => (has(devFile(n)) ? 'ok' : has(DEV) ? 'fail' : 'skip')
+const probeWhy = (n) => (has(DEV) ? 'dev/' + n + ' 不见了（仓库里应当有它）' : '没有 dev/' + n + '（这个副本没带开发探针）')
 
 // ---- 每一步用自己的 DSH_HOME ----
 // 以前所有步骤共用一个 DSH_HOME：上一步留下的图缓存在下一步会被读盘恢复，
@@ -160,7 +169,7 @@ if (missingRepoOnly.length) {
     if (smoke.code !== 0) console.log(tail(smoke.out))
 
     for (const [label, file] of [['安全面（CORS / CSRF / 路径穿越）', 'security-probe.mjs'], ['畸形参数', 'fuzz-1.8.mjs']]) {
-      if (!has(devFile(file))) { note(label, 'skip', 0, '没有 dev/' + file + '（这个副本没带开发探针）'); continue }
+      if (probeState(file) !== 'ok') { note(label, probeState(file), 0, probeWhy(file)); continue }
       const r = await run(label, process.execPath, [devFile(file), srv.base], { timeoutMs: 300000 })
       note(label, r.code === 0 ? 'pass' : 'fail', r.ms, lastLine(r.out))
       if (r.code !== 0) console.log(tail(r.out))
@@ -206,7 +215,7 @@ if (FULL) {
     ['重建星图：不变就不建', 'verify-refresh-toast.mjs', [ROOT], { need: bigReady && haveEdge, why: !haveEdge ? '没有 Edge' : bigWhy, timeoutMs: 900000 }],
   ]
   for (const [label, file, args, o] of steps) {
-    if (!has(devFile(file))) { note(label, 'skip', 0, '没有 dev/' + file); continue }
+    if (probeState(file) !== 'ok') { note(label, probeState(file), 0, probeWhy(file)); continue }
     if (!o.need) { note(label, 'skip', 0, o.why); continue }
     const r = await run(label, process.execPath, [devFile(file), ...args], { timeoutMs: o.timeoutMs })
     note(label, r.code === 0 ? 'pass' : 'fail', r.ms, pickSummary(r.out))
@@ -216,7 +225,7 @@ if (FULL) {
 
 // ---- 10. 三维真 GPU（--gpu） ----
 if (GPU) {
-  if (!has(devFile('probe-3d-gpu.mjs'))) note('三维：真 GPU', 'skip', 0, '没有 dev/probe-3d-gpu.mjs')
+  if (probeState('probe-3d-gpu.mjs') !== 'ok') note('三维：真 GPU', probeState('probe-3d-gpu.mjs'), 0, probeWhy('probe-3d-gpu.mjs'))
   else if (!ready) note('三维：真 GPU', 'skip', 0, sizeWhy)
   else if (!has(EDGE)) note('三维：真 GPU', 'skip', 0, '没有 Edge')
   else {

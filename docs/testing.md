@@ -61,7 +61,7 @@ node scripts/smoke.mjs http://127.0.0.1:7890/api/memory-nebula
 | `/export` | `format=json` 结构完整；`format=md` 含 `# 记忆星图导出` 且有正文 |
 | `/ingest` | 缺 `provider` 时返回 400 |
 
-## 三、安全探针（25 项，开发机脚本，不进包）
+## 三、安全探针（26 项，开发机脚本，不进包）
 
 `dev/security-probe.mjs`，对运行中的实例验证本机服务边界：
 
@@ -71,7 +71,22 @@ node dev/security-probe.mjs http://127.0.0.1:7890
 
 断言：公网 Origin 读 `/ping` 不拿 `ACAO`；本机 Origin 回显并带 `Vary`；公网 Origin 写 `/refresh` 403；
 `Sec-Fetch-Site: cross-site` 写 403；公网 `OPTIONS` 403；本机 `OPTIONS` 204；本机 Origin 写 200；
-无 Origin 的脚本写 200；`/../package.json` 404；`nosniff / no-store / referrer-policy` 齐全。
+无 Origin 的脚本写 200；`/../package.json` 404（含 `%2e%2e`、双重编码、`..%5c` 三种变体）；
+`/app` 带 CSP 与 `SAMEORIGIN`；`HEAD /ping` 200 无正文、`PUT /ping` 404、`POST /share` 404；
+300 KB 请求体 413 且 `connection: close`；20k URL 431；`nosniff / no-store / referrer-policy` 齐全。
+
+## 三之二、畸形参数（34 项，开发机脚本，不进包）
+
+`dev/fuzz-1.8.mjs`，同一台实例上把每个数字参数写成乱码、0、越界、不存在的 id：
+
+```bash
+node dev/fuzz-1.8.mjs http://127.0.0.1:7890/api/memory-nebula
+```
+
+最后一行固定打印 `fail = N / 34`。这一份是 1.11.66 重建的——它和 `dev/security-probe.mjs`
+一度都不在磁盘上，于是 `npm run verify:full` 里对应的两步一直显示「跳过」而没人发现。
+现在 `scripts/verify-all.mjs` 分两种情形：`dev/` 整个不在（装好的副本）算跳过；`dev/` 在、
+这两个探针却不在（仓库里被删了）直接算**失败**。发布前请确认这两步显示的是「通过」而不是「跳过」。
 
 ## 四、发布静态检查：`scripts/release-check.mjs`
 

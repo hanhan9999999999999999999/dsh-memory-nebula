@@ -37,6 +37,8 @@ node scripts/doctor.mjs --profile <profile> --base http://127.0.0.1:7890/api/mem
 - 左栏「记忆来源」是否只有「示例」或 0 条？先写几条记忆，再点「重建星图」。
 - 想先看长什么样：空态里的「看示例」；示例是虚构数据，不读写你的库。
 - 自己的库没被扫到：看 `docs/adapters.md`，确认 `.dsh-meow/memory.db` 或笔记根目录在扫描范围内。
+  自动探测只认 `NEBULA_DEFAULT_ROOTS`、`$DSH_HOME/../document`、`~/Documents`（1.11.66 起不再写死盘符）；
+  工作区在别处就在 `sources.json` 里写 `extraRoots`，或设 `NEBULA_DEFAULT_ROOTS`。
 - 命令行可用 `--root` 指定目录；不要同时开多个实例抢同一个端口。
 - **某个工作区有库但显示 0 条**：1.10.1 起会直接点名。来源面板里出现红色的
   `proj 读不动`，或弹出「有来源读不动：proj」，就说明那个 `.dsh-meow/memory.db`
