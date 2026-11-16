@@ -160,6 +160,11 @@ body：`{ v: 2, version, build, demo, nodes: [...], edges: [...], stats, builtAt
 
 `{ found, nodes: [...], hops, score, edges: [...] }`；两点无边时 `found:false`。
 
+跳数参数叫 `maxHops`（1–8 的整数，默认 6）。老名字 `hops` 也收，两个都写时以 `maxHops` 为准；
+写错或越界回 400（`{ error: "maxHops 需要 1–8 的整数，收到的是「abc」" }`）。
+
+> 1.11.64 之前这里只认 `hops`，而文档写的是 `maxHops`：照文档调的调用方一律被静默当成 6 跳。
+
 ## `GET /overview`
 
 规模、工作区、层级、来源、会话数、体检计数等聚合数据，给左栏与看板用。

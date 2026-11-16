@@ -163,10 +163,13 @@ test('nebula_link：四种动作 + 两个错误分支', async () => {
     'id 不存在时要回「nebula_link 没做成：…」，而不是把异常丢给宿主',
   )
 
-  const ids = await idsFrom('门禁 dev 依赖')
-  const a = ids[0]
-  const b = ids[1] || ids[0]
-  assert.ok(a && b, '没拿到两条 id')
+  // 两条不同的 id：以前这里写的是 `ids[1] || ids[0]`，检索只带回一条时就成了「自己连自己」，
+  // 而 1.11.64 起自己配对会被拒——那条 fallback 其实一直在掩盖夹具不够。
+  const firstIds = await idsFrom('门禁 dev 依赖')
+  const moreIds = await idsFrom('记忆')
+  const a = firstIds[0] || moreIds[0]
+  const b = [...firstIds, ...moreIds].find((id) => id && id !== a)
+  assert.ok(a && b && a !== b, '需要两条不同的 id 才能验连边，实际拿到：' + JSON.stringify([...firstIds, ...moreIds]))
   assert.match(await call('nebula_link', { action: 'link', a, b, note: '同一条线索' }), /已固化连线/)
   assert.match(await call('nebula_link', { action: 'unlink', a, b }), /已断开/)
   assert.match(await call('nebula_link', { action: 'unlink', a, b }), /没有找到这条手工连线/)

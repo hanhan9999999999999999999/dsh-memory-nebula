@@ -2221,7 +2221,7 @@ if (true) {
       ['越界也报错', http63.includes('value < spec.min || value > spec.max')],
       ['recall 用 readIntArg', http63.includes("readIntArg(url.searchParams, 'limit', { min: 1, max: 50, fallback: 12 })")],
       ['recall hops 允许 0', http63.includes("readIntArg(url.searchParams, 'hops', { min: 0, max: 3, fallback: 2 })")],
-      ['path hops 用 readIntArg', http63.includes("readIntArg(url.searchParams, 'hops', { min: 1, max: 8, fallback: 6 })")],
+      ['path hops 用 readIntArg', http63.includes("readIntArg(url.searchParams, hopName, { min: 1, max: 8, fallback: 6 })") || http63.includes("readIntArg(url.searchParams, 'hops', { min: 1, max: 8, fallback: 6 })")],
       ['bridge min_weight 允许 0', http63.includes("readNumArg(url.searchParams, 'min_weight', { min: 0, max: 1, fallback: 0.45 })")],
       ['export hops 用 readIntArg', http63.includes("readIntArg(url.searchParams, 'hops', { min: 0, max: 5, fallback: 2 })")],
       ['recall 不再用 Number||默认值', !http63.includes("Math.min(50, Number(url.searchParams.get('limit')) || 12)")],
@@ -2265,6 +2265,67 @@ if (true) {
     const bench63 = read('docs/benchmarks.md')
     if (!bench63.includes('参数拼错时，服务该说什么')) fail('benchmarks 缺 1.11.63 段')
     else ok('1.11.63 benchmarks 有对照')
+  }
+
+  // 1.11.64 构件：自己配对与 maxHops
+  {
+    const neb64 = read('lib/host/nebula.js')
+    const http64 = read('lib/host/http.js')
+    const need64 = [
+      ['selfPair 帮助函数存在', neb64.includes('function selfPair(id)')],
+      ['自己配对带 400', neb64.includes('err.status = 400') && neb64.includes('不能把一条记忆和它自己配成一对：')],
+      ['link 拦自己连自己', neb64.includes('if (n[0].id === n[1].id) throw selfPair(n[0].id)')],
+      ['/path 优先认 maxHops', http64.includes("rawMaxHops !== '' ? 'maxHops' : 'hops'")],
+      ['/path 按选中的名字解析', http64.includes('readIntArg(url.searchParams, hopName, { min: 1, max: 8, fallback: 6 })')],
+      ['/path 不再写死 hops', !http64.includes("readIntArg(url.searchParams, 'hops', { min: 1, max: 8")],
+    ]
+    for (const [label, passed] of need64) {
+      if (passed) ok('1.11.64 ' + label)
+      else fail('1.11.64 ' + label)
+    }
+    let selfLinkGuards = 0
+    for (const line of neb64.split('\n')) if (line.includes('throw selfPair(n[0].id)')) selfLinkGuards += 1
+    if (selfLinkGuards >= 2) ok('1.11.64 link 与 mute 都拦自己配对')
+    else fail('1.11.64 link 与 mute 都拦自己配对（只找到 ' + selfLinkGuards + ' 处）')
+
+    const t64 = read('test/self-pair.test.mjs')
+    if (!t64) {
+      fail('缺 test/self-pair.test.mjs（自己配对与 maxHops 没有测试）')
+    } else {
+      for (const [label, passed] of [
+        ['测试钉住自己配对', t64.includes('不能把一条记忆和它自己配成一对')],
+        ['测试钉住 maxHops', t64.includes('maxHops')],
+        ['测试钉住老名字 hops', t64.includes('hops=abc')],
+        ['测试断言跳数真的变了', t64.includes('hops, 3')],
+      ]) {
+        if (passed) ok('1.11.64 ' + label)
+        else fail('1.11.64 ' + label)
+      }
+    }
+
+    const api64 = read('docs/http-api.md')
+    if (!api64.includes('1.11.64 之前这里只认')) fail('http-api 缺 maxHops 的那条说明')
+    else ok('1.11.64 http-api 写清了 maxHops')
+    const changelog64 = read('CHANGELOG.md')
+    if (!changelog64.includes('照文档写的参数，代码从来没读过')) fail('CHANGELOG 缺 1.11.64 的说明')
+    else ok('1.11.64 CHANGELOG 有说明')
+    const ver64 = read('docs/verified.md')
+    if (!ver64.includes('## 1.11.64（')) fail('verified 缺 1.11.64 实测')
+    else ok('1.11.64 verified 有实测')
+    const rel64 = read('docs/release.md')
+    if (!rel64.includes('## 1.11.64 实测')) fail('release 缺 1.11.64 实测')
+    else ok('1.11.64 release 有实测')
+    const road64 = read('docs/roadmap.md')
+    if (!road64.includes('## 1.11.64「')) fail('roadmap 缺 1.11.64')
+    else ok('1.11.64 roadmap 有记录')
+    const bench64 = read('docs/benchmarks.md')
+    if (!bench64.includes('（1.11.64 更新）')) fail('benchmarks 缺 1.11.64 段')
+    else ok('1.11.64 benchmarks 有对照')
+
+    noteDev('dev/probe-http-edges.mjs')
+    if (existsReal('dev/probe-http-edges.mjs') && !readDev('dev/probe-http-edges.mjs').includes('自己连自己')) {
+      fail('dev/probe-http-edges.mjs 缺自己连自己的那段')
+    }
   }
 
 }

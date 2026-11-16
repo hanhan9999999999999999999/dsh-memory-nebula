@@ -1,3 +1,18 @@
+## 1.11.64（2026-11-16）
+
+| 项 | 结果 |
+| --- | --- |
+| `nebula.link` / `nebula.mute` 自己配自己 | 抛 400，库里不留记录 |
+| `POST /link` a = b | 400「不能把一条记忆和它自己配成一对」 |
+| `GET /path?...&maxHops=1`（链 0 → 链 3 要三跳） | 200，`found: false` |
+| `GET /path?...&maxHops=8` | 200，`found: true`、`hops: 3` |
+| `GET /path?...&hops=8`（老名字） | 200，`found: true` |
+| `GET /path?...&maxHops=abc` | 400「maxHops 需要 1–8 的整数」 |
+| `GET /path?...&hops=abc` | 400「hops 需要 1–8 的整数」 |
+| 单测 | 470 / 470 |
+
+产物：第一刀：96 个文件 / 3,544,159 字节 / sha256 0f2ec0be90e1dbd5a4eb7f9f62b3b7cff68618e01cd06e4451fadea6168ed77f（回填后重打，包内记录的是上一刀的数字）。
+
 ## 1.11.63（2026-11-16）
 
 探针 `dev/probe-param-silent.mjs`（起一台 `--demo` 服务，逐个把参数拼错/写 0）：
