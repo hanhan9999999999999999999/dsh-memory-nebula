@@ -88,6 +88,14 @@ node dev/fuzz-1.8.mjs http://127.0.0.1:7890/api/memory-nebula
 现在 `scripts/verify-all.mjs` 分两种情形：`dev/` 整个不在（装好的副本）算跳过；`dev/` 在、
 这两个探针却不在（仓库里被删了）直接算**失败**。发布前请确认这两步显示的是「通过」而不是「跳过」。
 
+## 三之三、涉及家目录的测试要同时钉两个变量（1.11.67 起）
+
+`os.homedir()` 在 Windows 上读 `USERPROFILE`，在 Linux/macOS 上读 `HOME`。沙箱只改其中一个，
+另一套系统上就等于没隔离：断言会去翻 runner 自己的家目录，问到的不是同一个目录
+（1.11.66 的 `test/meow-default-roots.test.mjs` 就是这样：本机全绿，ubuntu 红）。
+写法照这份测试的 `KEYS`：`DSH_HOME`、`USERPROFILE`、`HOME`、`NEBULA_DEFAULT_ROOTS` 一起保存，
+`done()` 里按原值还原，原本不存在的就删掉。
+
 ## 四、发布静态检查：`scripts/release-check.mjs`
 
 ```bash

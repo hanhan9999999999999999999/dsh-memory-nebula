@@ -15,16 +15,22 @@ function sandbox() {
   const user = join(base, 'user')
   mkdirSync(home, { recursive: true })
   mkdirSync(user, { recursive: true })
-  const saved = { DSH_HOME: process.env.DSH_HOME, USERPROFILE: process.env.USERPROFILE, NEBULA_DEFAULT_ROOTS: process.env.NEBULA_DEFAULT_ROOTS }
+  // 家目录在 Windows 上读 USERPROFILE、在 Linux/macOS 上读 HOME。
+  // 只改 USERPROFILE 的话，CI 的 ubuntu 那一半仍然会去翻真实家目录——1.11.66 第一次
+  // 推送就是这么红的：本机绿、ubuntu 红，测试本身没跨平台。
+  const KEYS = ['DSH_HOME', 'USERPROFILE', 'HOME', 'NEBULA_DEFAULT_ROOTS']
+  const saved = {}
+  for (const key of KEYS) saved[key] = process.env[key]
   process.env.DSH_HOME = home
   process.env.USERPROFILE = user
+  process.env.HOME = user
   delete process.env.NEBULA_DEFAULT_ROOTS
   return {
     base,
     home,
     user,
     done() {
-      for (const key of ['DSH_HOME', 'USERPROFILE', 'NEBULA_DEFAULT_ROOTS']) {
+      for (const key of KEYS) {
         if (saved[key] === undefined) delete process.env[key]
         else process.env[key] = saved[key]
       }

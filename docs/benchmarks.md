@@ -890,6 +890,11 @@ meow 库是 WAL 模式，写进去的记忆先进 `memory.db-wal`。真实库 70
 
 统计类数字最容易「改了一处、忘了另一处」：`{ ...stats }` 只是浅拷贝，嵌套的 `byType` 还是旧对象。1.11.65 把三个数字（edges / byType / avgDegree）收进一个私有方法 `#syncEdgeStats()`，谁改边谁调用它，测试直接断言「合计必须等于边数」。
 
+### 涉及家目录的测试要钉两个变量（1.11.67 更新）
+
+`os.homedir()` 在 Windows 上读 `USERPROFILE`、在 Linux/macOS 上读 `HOME`。只改一个的沙箱在另一种系统上等于没隔离——测试会去翻真实家目录，断言问的也不是同一个目录。判据：沙箱的键表里必须同时出现这两个名字，并在 `done()` 里按原值还原。
+
+
 ### 默认扫描根目录不写死盘符（1.11.66 更新）
 
 自动探测的候选根目录从「写死 `D:\document`」改成「按环境推」：`NEBULA_DEFAULT_ROOTS` → `$DSH_HOME/../document` → `~/Documents`、`~/document`，每个根只扫下一层，命中的判据仍是存在 `.dsh-meow/memory.db`。隔离 `DSH_HOME` 的测试与 200k 压测因此不再受本机布局影响。

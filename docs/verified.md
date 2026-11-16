@@ -1,3 +1,17 @@
+## 1.11.67（2026-11-16）
+
+新加的默认扫描根测试只改了 `USERPROFILE`，在 Linux 上家目录读的是 `HOME`，于是 ubuntu 的 Unit tests 与 Pack 两个作业红。
+
+| 场景 | 改前 | 改后 |
+|---|---|---|
+| ubuntu 跑 `test/meow-default-roots.test.mjs` | 5 项里「`~/Documents` 也认」失败 | 5 项全过 ✔ |
+| windows 跑同一份 | 全过（读的是 `USERPROFILE`） | 全过 ✔ |
+| 沙箱还原 | 只还原 `USERPROFILE` | `HOME` 一起还原，原本没有就删 ✔ |
+| 单测 | — | 481 项全过 |
+
+产物：96 个文件 / 3,556,333 字节 / sha256 7f83e2ee… / sha1 8f68cb26…（回填后重打，包内记录的是上一刀的数字）。
+
+
 ## 1.11.66（2026-11-16）
 
 自动探测的根目录以前写死了 `D:\document` 与 `C:\Users\Administrator\Documents`，隔离 `DSH_HOME` 之后仍然去扫真实硬盘。

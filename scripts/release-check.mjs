@@ -2465,6 +2465,32 @@ if (true) {
     if (!pin66.includes('limit=0 与不传等价')) fail('缺一条钉住 limit=0 是约定的测试')
     else ok('1.11.66 有测试钉住 limit=0 的语义')
   }
+
+  // 1.11.67：家目录在 Windows 读 USERPROFILE、在 Linux 读 HOME —— 只改一个等于只测了一台机器。
+  {
+    const roots67 = read('test/meow-default-roots.test.mjs')
+    for (const [label, passed] of [
+      ['1.11.67 的沙箱同时钉 HOME', roots67.includes("'HOME', NEBULA_DEFAULT_ROOTS'") || roots67.includes("'HOME'")],
+      ['沙箱按原值还原 HOME', roots67.includes('for (const key of KEYS)')],
+      ['测试里写明两个变量都要钉', roots67.includes('Linux/macOS')],
+    ]) {
+      if (passed) ok(label)
+      else fail(label)
+    }
+
+    if (!read('docs/testing.md').includes('涉及家目录的测试要同时钉两个变量')) fail('testing.md 缺跨平台家目录那一节')
+    else ok('1.11.67 testing.md 有跨平台说明')
+    if (!read('CHANGELOG.md').includes('本机全绿，ubuntu 上那条测试连跑都没跑成')) fail('CHANGELOG 缺 1.11.67 主题')
+    else ok('1.11.67 CHANGELOG 有说明')
+    if (!read('docs/verified.md').includes('## 1.11.67（2026-11-16）')) fail('verified 缺 1.11.67')
+    else ok('1.11.67 verified 有实测')
+    if (!read('docs/roadmap.md').includes('## 1.11.67「')) fail('roadmap 缺 1.11.67')
+    else ok('1.11.67 roadmap 有记录')
+    if (!read('docs/release.md').includes('## 1.11.67 实测')) fail('release 缺 1.11.67 实测')
+    else ok('1.11.67 release 有实测')
+    if (!read('docs/benchmarks.md').includes('涉及家目录的测试要钉两个变量（1.11.67 更新）')) fail('benchmarks 缺 1.11.67 那段')
+    else ok('1.11.67 benchmarks 有对照')
+  }
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {
   console.log('\n全部通过。\n')

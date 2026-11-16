@@ -1,3 +1,29 @@
+## 1.11.67 — 2026-11-16
+
+**本机全绿，ubuntu 上那条测试连跑都没跑成。**
+
+1.11.66 推上去之后 CI 红了两个作业：ubuntu 的 Unit tests 与 Package install 的 Pack（pack 前会先跑 `npm run verify`）。失败的是这轮新加的 `test/meow-default-roots.test.mjs`：它的沙箱只把 `USERPROFILE` 指到临时目录。
+
+```js
+process.env.DSH_HOME = home
+process.env.USERPROFILE = user   // ← 只在 Windows 上等于「家目录」
+```
+
+而 `os.homedir()` 在 Linux/macOS 上读的是 `HOME`。于是那条「`~/Documents` 也该被扫到」的断言，在 ubuntu 上去找的是 runner 自己的家目录，临时建出来的 `user/Documents` 根本不在候选里。Windows 那一半一路绿，因为它读的正是 `USERPROFILE`——**同一份测试在两个平台上问的不是同一个问题**。
+
+**改了什么**
+
+- 沙箱同时改 `HOME` 与 `USERPROFILE`（`KEYS = ['DSH_HOME', 'USERPROFILE', 'HOME', 'NEBULA_DEFAULT_ROOTS']`），跑完按原样还原，哪一个原本不存在就删掉。
+- 顺手把这条写进 `docs/testing.md`：涉及家目录的测试必须同时钉 `HOME` 与 `USERPROFILE`，否则等于只测了 Windows。
+
+**教训**
+
+- 只在一种系统上跑过的测试，不能算跑过：它测的是「我这台机器」。
+- CI 红的时候先看它跑没跑——「没有断言被执行」和「断言失败」长得一样，但修法完全不同。
+
+发布产物：96 个文件 / 3,556,333 字节 / sha256 7f83e2ee… / sha1 8f68cb26…（回填后重打，包内记录的是上一刀的数字）。
+
+
 ## 1.11.66 — 2026-11-16
 
 **隔离了 DSH_HOME，探针还是翻到了真实硬盘。**
