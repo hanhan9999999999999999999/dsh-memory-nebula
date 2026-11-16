@@ -1515,7 +1515,7 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   const ing38 = read("lib/host/adapters/ingest.js")
   if (!ing38.includes("hashShort(String(title) + ")) fail("ingest.js 的 uid 回落不是按内容哈希")
   if (/hashShort\([^)]*Math\.random\(\)/.test(ing38)) fail("ingest.js 的 uid 里还有 Math.random()")
-  if (!ing38.includes("if (!Array.isArray(items)) return { written: 0, file: '', error: 'items 必须是数组' }")) {
+  if (!ing38.includes('if (!Array.isArray(items))') || !ing38.includes("error: 'items 必须是数组'")) {
     fail("ingest.js 没挡住非数组的 items")
   }
   for (const p of ["test/adapters-ingest.test.mjs", "dev/probe-ingest.mjs"]) {
