@@ -2334,6 +2334,27 @@ for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {
   console.log('\n全部通过。\n')
   process.exit(0)
+
+  // 1.11.65：边的统计只有一个来源（屏蔽/撤销屏蔽/读盘之后 byType 不许停在建图那一刻）
+  ok("1.11.65 构件：边的统计只有一个来源")
+  const neb65 = read("lib/host/nebula.js")
+  if (!neb65.includes("#syncEdgeStats()")) fail("缺少 #syncEdgeStats()：统计没有统一入口")
+  if (!neb65.includes("g.stats.byType = byType")) fail("#syncEdgeStats 没有重算 byType")
+  if (!neb65.includes("if (this.graph.stats) this.graph.stats.edges = this.graph.edges.length")) fail("#syncEdgeStats 没有对齐 stats.edges")
+  if (!neb65.includes("g.stats.avgDegree = Math.round((g.edges.length * 2 * 100)")) fail("#syncEdgeStats 没有重算 avgDegree")
+  if (neb65.includes("g.stats = { ...g.stats, edges: d")) fail("还有地方用浅拷贝改 stats（byType 会停在旧值）")
+  const syncCalls = (neb65.match(/#syncEdgeStats\(\)/g) || []).length
+  if (syncCalls < 4) fail("调用点太少：读盘摘边、restamp、撤销屏蔽都要调 #syncEdgeStats()")
+  const ss65 = read("test/stats-sync.test.mjs")
+  if (!ss65.includes("byType 合计")) fail("test/stats-sync.test.mjs 没有断言 byType 合计等于边数")
+  if (!ss65.includes("撤销屏蔽后")) fail("test/stats-sync.test.mjs 没有覆盖撤销屏蔽")
+  if (!ss65.includes("屏蔽一对没有边的")) fail("test/stats-sync.test.mjs 没有覆盖「屏蔽一对本来没有边的」")
+  if (!readDev("../dev/probe-stats-drift.mjs").includes("byType 合计")) noteDev("../dev/probe-stats-drift.mjs")
+  if (!read("CHANGELOG.md").includes("图例上那几个数字，加起来比总数多一条")) fail("CHANGELOG 缺 1.11.65 的主题")
+  if (!read("docs/verified.md").includes("## 1.11.65（2026-11-16）")) fail("verified 缺 1.11.65")
+  if (!read("docs/roadmap.md").includes("## 1.11.65「图例上那几个数字")) fail("roadmap 缺 1.11.65")
+  if (!read("docs/release.md").includes("## 1.11.65 实测")) fail("release 缺 1.11.65 实测")
+  if (!read("docs/benchmarks.md").includes("边缘统计只有一个来源（1.11.65 更新）")) fail("benchmarks 缺 1.11.65 那段")
 }
 console.log('')
 for (const p of problems) console.log(`  ✖ ${p}`)
