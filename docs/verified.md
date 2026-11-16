@@ -1,3 +1,24 @@
+## 1.11.63（2026-11-16）
+
+探针 `dev/probe-param-silent.mjs`（起一台 `--demo` 服务，逐个把参数拼错/写 0）：
+
+| 调用 | 改前 | 改后 |
+| --- | --- | --- |
+| `/recall?q=…&hops=abc` | 200 hits=12 | 400 `hops 需要 0–3 的整数，收到的是「abc」` |
+| `/recall?q=…&hops=0` | 200 hits=12（按 2 跳跑） | 200 hits=6（不扩散） |
+| `/recall?limit=0` | 200 hits=12 | 400 `limit 需要 1–50 的整数` |
+| `/path?a=…&b=…&hops=abc` | 200（按默认 6 跳） | 400 `hops 需要 1–8 的整数` |
+| `/bridge?hops=abc` | 200 items=2 | 400 |
+| `/bridge?hops=0` | 200 items=2（按 1 跳） | 200 items=0（只给直接邻居） |
+| `/export?hops=abc` | 200 出报告 | 400 `hops 需要 0–5 的整数` |
+| `/export?hops=0` | 200（按 2） | 200（按 0） |
+| `/graph?limit=abc` | 400（本来就对） | 400（不变） |
+
+单元测试 `test/param-args.test.mjs` 4 项：两个解析器的边界（0 有效、越界/小数/负号/科学计数法全部报错）、
+`/recall` 的 400 与「hops=0 没有扩散分」、`/path` `/bridge` `/export` 的 400 与 `min_weight=0` 有效；全量 465 项。
+
+产物：第一刀：96 个文件 / 3,541,682 字节 / sha256 727c83a9fe00f71e51ed41a97b08e0edbb90f990767ebb3f3fa40fd519b43d3a（回填后重打，包内记录的是上一刀的数字）。
+
 ## 1.11.62（2026-11-16）
 
 用真实库（`D:/document`，1,888 节点 / 9,479 连接）与临时 `DSH_HOME` 验的：

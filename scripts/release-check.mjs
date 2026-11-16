@@ -371,7 +371,13 @@ if (!read('lib/standalone.mjs').includes('--export <file>')) fail('standalone �
 if (!read('lib/standalone.mjs').includes("format !== 'md' && format !== 'json'")) fail('--export 没有格式校验')
 if (!read('lib/host/nebula.js').includes('exportReport(opts = {})')) fail('缺 exportReport')
 if (!read('lib/host/nebula.js').includes("scopeKind === 'focus'")) fail('exportReport 缺 focus 范围')
-if (!read('lib/host/http.js').includes("src.exportReport({ format, scope, hops })")) fail('/export 未透传 scope/hops')
+// 1.11.63 起 hops 先过解析器（写错报 400），所以这里认「透传 hops」的两种写法
+if (
+  !read('lib/host/http.js').includes("src.exportReport({ format, scope, hops })") &&
+  !read('lib/host/http.js').includes("src.exportReport({ format, scope, hops: hopsArg.value })")
+) {
+  fail('/export 未透传 scope/hops')
+}
 if (!read('README.md').includes('--export')) fail('README 未写 --export')
 if (!read('CHANGELOG.md').includes('## 1.5.0')) fail('CHANGELOG 缺 1.5.0')
 ok('1.5.0 构件：命令行导出 / 范围过滤 / HTTP 400 / 变更记录')
@@ -2203,6 +2209,63 @@ if (true) {
     if (!read(p).includes(needle)) fail("文档缺内容：" + p)
   }
 }
+
+  // 1.11.63 构件：参数拼错要报错
+  {
+    const http63 = read('lib/host/http.js')
+    const need63 = [
+      ['readIntArg 存在', http63.includes('export function readIntArg(')],
+      ['readNumArg 存在', http63.includes('export function readNumArg(')],
+      ['整数字面量校验', http63.includes("if (!/^\\d+$/.test(text)) return bad")],
+      ['小数字面量校验', http63.includes("if (!/^\\d+(\\.\\d+)?$/.test(text)) return bad")],
+      ['越界也报错', http63.includes('value < spec.min || value > spec.max')],
+      ['recall 用 readIntArg', http63.includes("readIntArg(url.searchParams, 'limit', { min: 1, max: 50, fallback: 12 })")],
+      ['recall hops 允许 0', http63.includes("readIntArg(url.searchParams, 'hops', { min: 0, max: 3, fallback: 2 })")],
+      ['path hops 用 readIntArg', http63.includes("readIntArg(url.searchParams, 'hops', { min: 1, max: 8, fallback: 6 })")],
+      ['bridge min_weight 允许 0', http63.includes("readNumArg(url.searchParams, 'min_weight', { min: 0, max: 1, fallback: 0.45 })")],
+      ['export hops 用 readIntArg', http63.includes("readIntArg(url.searchParams, 'hops', { min: 0, max: 5, fallback: 2 })")],
+      ['recall 不再用 Number||默认值', !http63.includes("Math.min(50, Number(url.searchParams.get('limit')) || 12)")],
+      ['export 不再用 Number||2', !http63.includes("Number(url.searchParams.get('hops')) || 2")],
+      ['bridge 不再用 num() 兜底', !http63.includes("num('limit', 6)")],
+    ]
+    for (const [label, passed] of need63) {
+      if (passed) ok('1.11.63 ' + label)
+      else fail('1.11.63 ' + label)
+    }
+
+    const t63 = read('test/param-args.test.mjs')
+    if (!t63) {
+      fail('缺 test/param-args.test.mjs（参数契约没有测试）')
+    } else {
+      for (const [label, passed] of [
+        ['测试覆盖 readIntArg', t63.includes('readIntArg')],
+        ['测试覆盖 readNumArg', t63.includes('readNumArg')],
+        ['测试钉住 0 有效', t63.includes('0 是合法值，不许被吞成默认值')],
+        ['测试钉住 recall 的 400', t63.includes('hops 需要 0–3 的整数')],
+        ['测试钉住 hops=0 不扩散', t63.includes('不许有任何扩散分')],
+        ['测试钉住 min_weight=0', t63.includes('min_weight=0 是「不过滤」')],
+      ]) {
+        if (passed) ok('1.11.63 ' + label)
+        else fail('1.11.63 ' + label)
+      }
+    }
+
+    const changelog63 = read('CHANGELOG.md')
+    if (!changelog63.includes('写错一个参数，服务照着默认值跑得很欢')) fail('CHANGELOG 缺 1.11.63 的说明')
+    else ok('1.11.63 CHANGELOG 有说明')
+    const ver63 = read('docs/verified.md')
+    if (!ver63.includes('## 1.11.63（')) fail('verified 缺 1.11.63 实测')
+    else ok('1.11.63 verified 有实测')
+    const rel63 = read('docs/release.md')
+    if (!rel63.includes('## 1.11.63 实测')) fail('release 缺 1.11.63 实测')
+    else ok('1.11.63 release 有实测')
+    const road63 = read('docs/roadmap.md')
+    if (!road63.includes('## 1.11.63「')) fail('roadmap 缺 1.11.63')
+    else ok('1.11.63 roadmap 有记录')
+    const bench63 = read('docs/benchmarks.md')
+    if (!bench63.includes('参数拼错时，服务该说什么')) fail('benchmarks 缺 1.11.63 段')
+    else ok('1.11.63 benchmarks 有对照')
+  }
 
 }
 

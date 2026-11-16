@@ -140,6 +140,22 @@ body：`{ v: 2, version, build, demo, nodes: [...], edges: [...], stats, builtAt
 
 `{ hits: [{ id, score, why, label, level, ws }], stats }`。`why` 是命中理由，不省略。
 
+## 数字参数写错会回 400（1.11.63 起）
+
+`limit` / `hops` / `chars` / `min_weight` 这类参数，以前是 `Number(raw) || 默认值`：
+拼错静默按默认值跑，而 `Number('0') || 默认值` 会把 **0 也吞掉**（`/recall?hops=0` 其实一直按 2 跳跑）。
+现在空值才用默认值，写错与越界一律 400，并说明期望范围：
+
+| 路由 | 参数与范围 | 默认值 |
+| --- | --- | --- |
+| `/recall` | `limit` 1–50、`hops` 0–3（0 = 只要命中、不扩散） | 12 / 2 |
+| `/path` | `hops` 1–8 | 6 |
+| `/bridge` | `limit` 1–20、`chars` 1–4000、`min_weight` 0–1、`hops` 0–3 | 6 / 1600 / 0.45 / 1 |
+| `/export` | `hops` 0–5 | 2 |
+| `/graph` | `limit` 0–50000、`offset` 非负整数（这两个一直就是这么做的） | — |
+
+错误体是 `{ error: "hops 需要 0–3 的整数，收到的是「abc」" }`。
+
 ## `GET /path?a=<id>&b=<id>&maxHops=<n>`
 
 `{ found, nodes: [...], hops, score, edges: [...] }`；两点无边时 `found:false`。

@@ -98,6 +98,18 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.63 实测
+
+| 项目 | 数字 |
+| --- | --- |
+| 参数解析 | `readIntArg` / `readNumArg`：空值取默认值，写错/越界 400 |
+| 受影响的四个路由 | recall（limit 1–50 / hops 0–3）、path（hops 1–8）、bridge（limit 1–20 / chars 1–4000 / min_weight 0–1 / hops 0–3）、export（hops 0–5） |
+| `recall?hops=0` | 改前按 2 跳跑（hits 12）→ 改后真的不扩散（hits 6） |
+| `bridge?hops=0` | 改前按 1 跳（items 2）→ 改后只给直接邻居（items 0） |
+| 单元测试 | 465 项（新增 `test/param-args.test.mjs` 4 项） |
+
+产物：第一刀：96 个文件 / 3,541,682 字节 / sha256 727c83a9…（回填后重打，包内记录的是上一刀的数字）。
+
 ## 1.11.62 实测
 
 | 项目 | 数字 |
@@ -698,7 +710,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.62.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.63.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：
