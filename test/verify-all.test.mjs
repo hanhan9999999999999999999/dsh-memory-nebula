@@ -3,9 +3,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { existingProbeDirs, pickFixtureRoot, probeDirs, probePlan } from '../scripts/probes.mjs'
 
 const PKG = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const SCRIPT = resolve(PKG, 'scripts/verify-all.mjs')
@@ -37,4 +39,63 @@ test('package.json 暴露了两个入口', () => {
   const pkg = JSON.parse(readFileSync(resolve(PKG, 'package.json'), 'utf8'))
   assert.equal(pkg.scripts['verify:all'], 'node scripts/verify-all.mjs')
   assert.equal(pkg.scripts['verify:full'], 'node scripts/verify-all.mjs --full')
+})
+
+// 1.11.69：探针住在包内 dev/ 还是上一层 dev/，不能靠猜——猜错的代价是六步全红，
+// 摘要里还写着「仓库里应当有它」，而它就在上面一层。
+test('探针目录：默认包内 dev 与上一层 dev，--dev 只认一份', () => {
+  const repo = resolve(PKG, 'some', 'pkg')
+  assert.deepEqual(probeDirs(repo), [join(repo, 'dev'), join(dirname(repo), 'dev')])
+  assert.deepEqual(probeDirs(repo, { dev: 'D:/only' }), [resolve('D:/only')])
+})
+
+test('探针判定：先按名字在候选目录里找，找到就用那份跑', () => {
+  const base = mkdtempSync(join(tmpdir(), 'nebula-probes-'))
+  try {
+    const repo = join(base, 'pkg')
+    const upDev = join(base, 'dev')
+    mkdirSync(join(repo, 'dev'), { recursive: true })
+    mkdirSync(upDev, { recursive: true })
+    writeFileSync(join(upDev, 'verify-page2.mjs'), '// here\n')
+    const dirs = existingProbeDirs(repo)
+    assert.deepEqual(dirs, [join(repo, 'dev'), upDev])
+
+    const found = probePlan('verify-page2.mjs', dirs)
+    assert.equal(found.state, 'ok')
+    assert.equal(found.file, join(upDev, 'verify-page2.mjs'))
+
+    // 一处都没有、但 dev/ 在 → 失败（探针被删了要红，不能悄悄跳过）
+    const gone = probePlan('verify-20k.mjs', dirs)
+    assert.equal(gone.state, 'fail')
+    assert.match(gone.why, /仓库里应当有它/)
+
+    // 连 dev/ 都没有 → 跳过（装好的副本没带开发探针）
+    const none = probePlan('verify-page2.mjs', existingProbeDirs(join(base, 'empty', 'pkg')))
+    assert.equal(none.state, 'skip')
+    assert.match(none.why, /这个副本没带开发探针/)
+  } finally {
+    rmSync(base, { recursive: true, force: true })
+  }
+})
+
+test('测试库默认位置：包内 .tmp-50k 优先，其次上一层，都没有时指向包内那个', () => {
+  const base = mkdtempSync(join(tmpdir(), 'nebula-root-'))
+  try {
+    const repo = join(base, 'pkg')
+    mkdirSync(repo, { recursive: true })
+    assert.equal(pickFixtureRoot(repo), join(repo, '.tmp-50k'))
+    mkdirSync(join(base, '.tmp-50k'))
+    assert.equal(pickFixtureRoot(repo), join(base, '.tmp-50k'))
+    mkdirSync(join(repo, '.tmp-50k'))
+    assert.equal(pickFixtureRoot(repo), join(repo, '.tmp-50k'))
+  } finally {
+    rmSync(base, { recursive: true, force: true })
+  }
+})
+
+test('编排脚本把探针目录打印出来，不再让人对着六个数字猜', () => {
+  const src = readFileSync(SCRIPT, 'utf8')
+  assert.match(src, /existingProbeDirs, findProbe, pickFixtureRoot, probePlan/)
+  assert.match(src, /'探针：' \+ \(PROBE_DIRS\.length/)
+  assert.match(src, /probes: PROBE_DIRS/)
 })

@@ -11,6 +11,7 @@
  *   node scripts/verify-all.mjs --full          # 再加 5 万条库与浏览器三步
  *   node scripts/verify-all.mjs --full --gpu    # 再加三维真 GPU 探针
  *   node scripts/verify-all.mjs --root <库目录> --json
+ *   node scripts/verify-all.mjs --dev <探针目录>  # 指定探针只从哪一份找
  *
  * 退出码: 0 全过；1 有失败；2 参数错误。
  */
@@ -20,6 +21,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { setTimeout as sleep } from 'node:timers/promises'
+import { existingProbeDirs, findProbe, pickFixtureRoot, probePlan } from './probes.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const PKG = resolve(HERE, '..')
@@ -29,7 +31,6 @@ const PKG = resolve(HERE, '..')
 // 跑的是那两份积灰的副本，而包里今天这份从来没被跑到过。跑外面那份还等于「验证了
 // 别人的代码」，比跳过更糟。
 const REPO = PKG
-const DEV = join(REPO, 'dev')
 const EDGE = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe'
 
 const argv = process.argv.slice(2)
@@ -47,9 +48,20 @@ if (flag('help') || flag('h')) {
 const FULL = flag('full') || flag('gpu')
 const GPU = flag('gpu')
 const JSON_OUT = flag('json')
-const ROOT = resolve(opt('root', join(REPO, '.tmp-50k')))
+// 1.11.69：探针可能住在包内 dev/，也可能住在工作区（包的上一级）dev/ 里。
+// 按名字逐个找，跑之前把实际用到的那份打出来——否则六个「仓库里应当有它」
+// 说的其实是同一件事：它不在 A，而在 B。
+const PROBE_DIRS = existingProbeDirs(REPO, { dev: opt('dev') })
+const ROOT = resolve(opt('root', pickFixtureRoot(REPO)))
 const EXPECT_NODES = Number(opt('nodes', 50000))
 const PORT = Number(opt('port', 0)) || freePortSeed()
+
+// 跑之前先说清用哪份尺子、量哪个库：这两件事猜错，整张表的结论就没有意义。
+if (!JSON_OUT) {
+  console.log('探针：' + (PROBE_DIRS.length ? PROBE_DIRS.join(' + ') : '（没有 dev/，开发探针这几步会标跳过）'))
+  if (FULL) console.log('测试库：' + ROOT + (existsSync(ROOT) ? '' : '（不存在）'))
+  console.log('')
+}
 
 function freePortSeed() {
   return 62900 + Math.floor(Math.random() * 60)
@@ -62,17 +74,19 @@ function readMe() {
     '  默认     单测 · 发行构件 · HTTP 冒烟 · 安全面 · 畸形参数',
     '  --full   再加 5 万条库验收 · 浏览器翻页 · 无障碍八状态 · 键盘 Tab 序列',
     '  --gpu    再加三维真 GPU 探针（--gpu 隐含 --full）',
-    '  --root   大库那一套用哪个目录（默认仓库根的 .tmp-50k）',
+    '  --root   大库那一套用哪个目录（默认包内 .tmp-50k，没有就用上一层工作区的同名目录）',
     '  --nodes  这个目录期望有多少条（默认 50000）；不够时那几步标「跳过」而不是「失败」',
+    '  --dev    探针只从这一份找（默认依次找包内 dev/ 与上一层 dev/，并在开头打印用到的目录）',
   ].join('\n')
 }
 
 const has = (p) => existsSync(p)
-const devFile = (n) => join(DEV, n)
+const devFile = (n) => findProbe(n, PROBE_DIRS) || join(REPO, 'dev', n)
 // 1.11.66：dev/ 整个不在 = 装好的副本（跳过是诚实的）；dev/ 在、这个探针却不在 = 仓库里被删了。
 // 以前两种都算跳过，于是安全探针与 fuzz 从仓库里消失之后，这一步一直「跳过」而没人发现。
-const probeState = (n) => (has(devFile(n)) ? 'ok' : has(DEV) ? 'fail' : 'skip')
-const probeWhy = (n) => (has(DEV) ? 'dev/' + n + ' 不见了（仓库里应当有它）' : '没有 dev/' + n + '（这个副本没带开发探针）')
+// 1.11.69：判定交给 scripts/probes.mjs——它会在候选目录里按名字找，并说清找过哪几处。
+const probeState = (n) => probePlan(n, PROBE_DIRS).state
+const probeWhy = (n) => probePlan(n, PROBE_DIRS).why
 
 // ---- 每一步用自己的 DSH_HOME ----
 // 以前所有步骤共用一个 DSH_HOME：上一步留下的图缓存在下一步会被读盘恢复，
@@ -242,7 +256,7 @@ const skip = results.filter((r) => r.state === 'skip').length
 const total = results.reduce((s, r) => s + r.ms, 0)
 
 if (JSON_OUT) {
-  console.log(JSON.stringify({ ok: fail === 0, pass, fail, skip, totalMs: total, steps: results }, null, 2))
+  console.log(JSON.stringify({ ok: fail === 0, pass, fail, skip, totalMs: total, probes: PROBE_DIRS, root: FULL ? ROOT : null, steps: results }, null, 2))
 } else {
   console.log('')
   for (const r of results) {

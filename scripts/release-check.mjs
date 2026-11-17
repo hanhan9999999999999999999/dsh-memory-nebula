@@ -2432,12 +2432,15 @@ if (true) {
     else ok('1.11.66 benchmarks 有对照')
 
     // 第二段：验证脚本指错目录就会换掉被测对象——这件事必须钉住。
+    // 1.11.69 起判定搬进 scripts/probes.mjs（包内 dev/ 与上一层 dev/ 都要找），
+    // 所以这里钉的是那套语义，而不是编排脚本里某一行长什么样。
     const va66 = read('scripts/verify-all.mjs')
+    const probes69 = exists('scripts/probes.mjs') ? read('scripts/probes.mjs') : ''
     for (const [label, passed] of [
       ['1.11.66 的验证脚本指着包内 dev', va66.includes('const REPO = PKG')],
-      ['验证脚本不再指向上一层', !va66.includes('resolve(PKG, \'..\')')],
-      ['缺探针分跳过与失败两种', va66.includes("const probeState = (n) => (has(devFile(n)) ? 'ok' : has(DEV) ? 'fail' : 'skip')")],
-      ['缺探针时写明仓库里应当有它', va66.includes('仓库里应当有它')],
+      ['验证脚本不再指向上一层', !va66.includes("resolve(PKG, '..')")],
+      ['缺探针分跳过与失败两种', probes69.includes("state: 'fail'") && probes69.includes("state: 'skip'")],
+      ['缺探针时写明仓库里应当有它', probes69.includes('仓库里应当有它')],
     ]) {
       if (passed) ok(label)
       else fail(label)
@@ -2519,6 +2522,30 @@ if (true) {
     ["docs/http-api.md", "1.11.68 起，写不成记忆的条目会如实回报"],
   ]) {
     if (!read(label).includes(needle)) fail(label + " 缺 1.11.68 的说明")
+  }
+}
+// 1.11.69 构件：探针在包内 dev/ 还是上一层 dev/，跑之前要说清用的是哪一份
+{
+  const pv69 = read('scripts/probes.mjs')
+  const va69 = read('scripts/verify-all.mjs')
+  if (!pv69.includes('export function probeDirs')) fail('probes.mjs 没有 probeDirs')
+  if (!pv69.includes('export function probePlan')) fail('probes.mjs 没有 probePlan')
+  if (!pv69.includes('export function pickFixtureRoot')) fail('probes.mjs 没有 pickFixtureRoot')
+  if (!pv69.includes("join(repo, 'dev'), join(dirname(repo), 'dev')")) fail('probes.mjs 的候选目录不是「包内 + 上一层」')
+  if (!va69.includes("from './probes.mjs'")) fail('verify-all 没接 probes.mjs')
+  if (!va69.includes("console.log('探针：'")) fail('verify-all 跑之前没打印用哪份探针')
+  if (!va69.includes('pickFixtureRoot(REPO)')) fail('verify-all 的默认测试库没按候选目录探')
+  if (!va69.includes('probes: PROBE_DIRS')) fail('verify-all 的 --json 里没写用了哪份探针')
+  if (!read('test/verify-all.test.mjs').includes('探针判定')) fail('缺钉住探针判定的单测')
+  for (const [label, needle] of [
+    ['CHANGELOG.md', '探针在上一层，脚本只看包内'],
+    ['docs/verified.md', '## 1.11.69（2026-11-17）'],
+    ['docs/roadmap.md', '## 1.11.69「'],
+    ['docs/release.md', '## 1.11.69 实测'],
+    ['docs/benchmarks.md', '探针与测试库的位置（1.11.69 更新）'],
+    ['docs/testing.md', '--dev'],
+  ]) {
+    if (!read(label).includes(needle)) fail(label + ' 缺 1.11.69 的说明')
   }
 }
 for (const n of notes) console.log(`  ✔ ${n}`)

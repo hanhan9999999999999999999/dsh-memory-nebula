@@ -28,6 +28,8 @@ node scripts/verify-all.mjs --gpu        # 再加三维真 GPU 探针
 没有测试库、没有 Edge、测试库条数不够时，那几步标「跳过」并写清原因。
 `--root` 换测试库、`--nodes` 改期望条数（默认 50000）；翻页与八状态两把尺子的断言按
 5 万条库写死，拿更小的库跑它们只会红，所以会被标成跳过。
+探针按名字在 `[包内 dev/, 上一层 dev/]` 里找（1.11.69 起），`--dev <目录>` 可以只认一份；
+开跑前打印「探针：…」「测试库：…」——红的如果是尺子而不是产品，这两行会先说出来。
 
 逐项检查（`verify:all` 覆盖的就是这些）：
 
@@ -98,6 +100,14 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.69 实测
+
+- 改前同一次 `--full`：**6 通过 / 6 失败 / 0 跳过 · 85.5s**，失败六步的摘要都是「`dev/verify-*.mjs` 不见了（仓库里应当有它）」——而它们就在上一层的工作区 `dev/` 里。
+- 改后：**12 通过 / 0 失败 / 0 跳过 · 合计 234.4s**；开跑前两行写明「探针：`<包内 dev>` + `<上一层 dev>`」与「测试库：`<路径>`」。
+- 判定语义未被放松：有 `dev/` 但名字找不到仍判失败（1.11.66 的规矩）；只有连 `dev/` 都没有的安装副本才跳过。
+- 单测 489 / 489；构件门全部通过。
+产物：97 个文件；字节数与 sha256 见发布页的 SHA256SUMS.txt（不写进包里，避免自指）。
+
 ## 1.11.68 实测
 
 - 坏条目：`["字符串", 42, null]` → 400「这些条目里没有可写入的内容：3 条不是对象」；`[{uid:'x'}]` → 400 点名「1 条既没有 title 也没有 content」。
@@ -759,7 +769,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.68.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.69.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：
