@@ -2548,6 +2548,34 @@ if (true) {
     if (!read(label).includes(needle)) fail(label + ' 缺 1.11.69 的说明')
   }
 }
+// 1.11.70 构件：发布正文从 CHANGELOG 取，别让 Release 页面只剩一行 compare 链接
+{
+  const rn70 = read('scripts/release-notes.mjs')
+  const wf70 = read('.github/workflows/release.yml')
+  if (!rn70.includes('export function extractSection')) fail('release-notes.mjs 没有 extractSection')
+  if (!rn70.includes('export function buildNotes')) fail('release-notes.mjs 没有 buildNotes')
+  if (!rn70.includes('export function repoSlug')) fail('release-notes.mjs 没有 repoSlug')
+  if (!rn70.includes('CHANGELOG.md 里没有 ')) fail('release-notes.mjs 取不到这一版时没有报错文案')
+  if (!wf70.includes('node scripts/release-notes.mjs --version "${GITHUB_REF_NAME#v}"')) {
+    fail('release.yml 没按 tag 取这一版的正文')
+  }
+  if (!wf70.includes('--notes-file notes.md')) fail('release.yml 没把正文交给 gh release create')
+  if (wf70.includes('--generate-notes')) fail('release.yml 又退回自动生成的一行 compare 链接了')
+  if (!exists('test/release-notes.test.mjs')) fail('缺 test/release-notes.test.mjs')
+  const t70 = exists('test/release-notes.test.mjs') ? read('test/release-notes.test.mjs') : ''
+  if (!t70.includes('版本号按字面匹配')) fail('test/release-notes.test.mjs 没钉住版本号的边界')
+  if (!t70.includes('--notes-file')) fail('test/release-notes.test.mjs 没钉住工作流用的是正文文件')
+  for (const [label, needle] of [
+    ['CHANGELOG.md', '发布页上只有一行链接'],
+    ['docs/verified.md', '## 1.11.70（2026-11-17）'],
+    ['docs/roadmap.md', '## 1.11.70「'],
+    ['docs/release.md', '## 1.11.70 实测'],
+    ['docs/release.md', 'scripts/release-notes.mjs --check'],
+    ['docs/benchmarks.md', '发布正文从 CHANGELOG 取（1.11.70 更新）'],
+  ]) {
+    if (!read(label).includes(needle)) fail(label + ' 缺 1.11.70 的说明')
+  }
+}
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {
   console.log('\n全部通过。\n')

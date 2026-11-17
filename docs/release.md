@@ -31,6 +31,10 @@ node scripts/verify-all.mjs --gpu        # 再加三维真 GPU 探针
 探针按名字在 `[包内 dev/, 上一层 dev/]` 里找（1.11.69 起），`--dev <目录>` 可以只认一份；
 开跑前打印「探针：…」「测试库：…」——红的如果是尺子而不是产品，这两行会先说出来。
 
+发布正文（1.11.70 起）由 `node scripts/release-notes.mjs --version <版本> --out notes.md`
+从 `CHANGELOG.md` 里取对应段落，取不到就以 1 退出；`node scripts/release-notes.mjs --check`
+可以先看一眼这一版的正文有没有、多长。发版前请确认 `CHANGELOG.md` 顶部已经写好这一版。
+
 逐项检查（`verify:all` 覆盖的就是这些）：
 
 ```bash
@@ -100,6 +104,15 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.70 实测
+
+- 发布正文改由 `node scripts/release-notes.mjs --version <v> --out notes.md` 生成，`release.yml` 用 `--notes-file notes.md` 交给 `gh release create`；`--generate-notes` 已从工作流里拿掉。
+- `--check`：✔ 1.11.70 的正文 1175 字符（CHANGELOG 段 1018 字符）。
+- 缺版本（`--version 0.0.0`）：退出码 1，提示「CHANGELOG.md 里没有 0.0.0 那一段（标题要写成「## 0.0.0 — 日期」）」——取不到正文时发布流程红在 `Release notes` 一步，不会发出只有链接的 Release。
+- 正文边界：版本号按字面匹配（`1.11.7` 不吃 `1.11.70`），`v` 前缀与 CRLF 都归一，标题里的日期不进正文。
+- `npm run verify:full`：**12 通过 / 0 失败 / 0 跳过 · 176.4s**；构件门全部通过。
+产物：98 个文件；字节数与 sha256 见发布页的 SHA256SUMS.txt（不写进包里，避免自指）。
+
 ## 1.11.69 实测
 
 - 改前同一次 `--full`：**6 通过 / 6 失败 / 0 跳过 · 85.5s**，失败六步的摘要都是「`dev/verify-*.mjs` 不见了（仓库里应当有它）」——而它们就在上一层的工作区 `dev/` 里。
@@ -769,7 +782,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.69.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.70.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：

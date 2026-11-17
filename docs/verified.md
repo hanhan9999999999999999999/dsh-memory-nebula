@@ -1,3 +1,31 @@
+## 1.11.70（2026-11-17）
+
+发布正文过去交给 `gh release create --generate-notes`，于是 v1.11.68 与 v1.11.69 的发布页上都只有一行 compare 链接。改成从 `CHANGELOG.md` 取对应版本的段落，取不到就红在发布流程里。
+
+| 检查 | 结果 |
+|---|---|
+| 新增单测 | 10 / 10 通过（`test/release-notes.test.mjs`）✔ |
+| 全部单测 | 499 项通过（`npm test`，47.9s）✔ |
+| `node scripts/release-notes.mjs --check` | ✔ 1.11.70 的正文 1175 字符（CHANGELOG 段 1018 字符） |
+| 缺版本（`--version 0.0.0`） | 退出码 1，提示「标题要写成「## 0.0.0 — 日期」」✔ |
+| `--out notes.md` 与 stdout | 两份内容逐字一致 ✔ |
+| Release 工作流 | `Release notes` → `--notes-file notes.md`；`--generate-notes` 不再出现 ✔ |
+| 构件门 | 全部通过（新增 1.11.70 一段）✔ |
+| `npm run verify:full` | 12 通过 / 0 失败 / 0 跳过 · 176.4s ✔ |
+
+装出来的正文长这样（节选，`node scripts/release-notes.mjs` 的真实输出）：
+
+```
+## 1.11.70
+
+**发布页上只有一行链接，而且不是给人看的**
+…
+---
+安装：`npm i dsh-memory-nebula@1.11.70` · [全部版本与逐版说明](https://github.com/hanhan9999999999999999999/dsh-memory-nebula/blob/main/CHANGELOG.md)
+```
+
+产物：98 个文件；字节数与 sha256 见发布页的 SHA256SUMS.txt。
+
 ## 1.11.69（2026-11-17）
 
 探针住在工作区（包的上一级）`dev/` 里，`verify-all` 只在包内 `dev/` 找，六个步骤全红、摘要各自写着「仓库里应当有它」。改成按名字在 `[包内 dev/, 上一层 dev/]` 里找，并在开跑前打印用的是哪一份。
