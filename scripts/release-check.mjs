@@ -2628,6 +2628,44 @@ if (true) {
     if (!read(label).includes(needle)) fail(label + ' 缺 1.11.72 的说明')
   }
 }
+// 1.11.73 构件：发布包里不许带没填的占位符
+{
+  const TEXT = /\.(md|mdx|js|mjs|cjs|json|yml|yaml|css|html|txt|ps1|sh)$/
+  // `__NEBULA_*` 是页面/快照读的全局变量名，属于正文的一部分；其余「双下划线 + 大写名 + 双下划线」是写文档时留下的占位符
+  const isGlobal = (name) => /^NEBULA_[A-Z0-9_]+$/.test(name)
+  const shipped = []
+  for (const f of pkg.files || []) {
+    const abs = join(ROOT, f)
+    if (!existsSync(abs)) continue
+    if (statSync(abs).isDirectory()) shipped.push(...list(abs))
+    else shipped.push(abs)
+  }
+  const hits = []
+  for (const abs of shipped) {
+    if (!TEXT.test(abs)) continue
+    let src
+    try {
+      src = readFileSync(abs, 'utf8')
+    } catch {
+      continue
+    }
+    for (const m of src.matchAll(/__[A-Z][A-Z0-9_]{2,}__/g)) {
+      const name = m[0].slice(2, -2)
+      if (!isGlobal(name)) hits.push(rel(abs) + ' → ' + m[0])
+    }
+  }
+  if (hits.length) fail('发布包里带着没填的占位符：' + hits.slice(0, 5).join('；') + (hits.length > 5 ? ` 等 ${hits.length} 处` : ''))
+  else ok(`发布文件里没有未填的占位符（扫了 ${shipped.length} 个）`)
+  for (const [label, needle] of [
+    ['CHANGELOG.md', '文档还带着没填的占位符'],
+    ['docs/verified.md', '## 1.11.73（2026-11-18）'],
+    ['docs/roadmap.md', '## 1.11.73「'],
+    ['docs/release.md', '## 1.11.73 实测'],
+    ['docs/benchmarks.md', '占位符扫一遍（1.11.73 更新）'],
+  ]) {
+    if (!read(label).includes(needle)) fail(label + ' 缺 1.11.73 的说明')
+  }
+}
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {
   console.log('\n全部通过。\n')

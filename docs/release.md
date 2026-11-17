@@ -84,6 +84,8 @@ bump 时**不要**把整个文件里的旧版本号一律替换掉：README 与 
 npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 ```
 
+顺序：**先把实测数字填进文档，最后才 `npm pack`；打完包之后不许再动文档**。1.11.72 就是打包在前、填数在后，于是发到 npm 的那份包里，`CHANGELOG.md` 与 `docs/verified.md` 还留着给自己看的占位符——而 `npm pack` 只报文件数与体积，它不会告诉你包里写了什么。现在 `release-check` 会展开 `package.json` 的 `files` 逐个读文本，命中就点名报出。
+
 1.1.2 实测：**72 个文件**，包 2.3 MB、解开 2.9 MB（`docs/assets/` 的预览图与基准脚本占大头）。
 干净目录安装后 `--version` = 1.1.2，导出 `apply,inject,name,version`；
 安装包起 7896 实测 `/share?scope=ws:DSHLive2D&hide=level:lesson` → 200、601,177 字节。
@@ -107,6 +109,15 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.73 实测
+
+- 改前：1.11.72 发到 npm 的 tgz 里，`CHANGELOG.md` 末行与 `docs/verified.md` 表格仍是占位符；同一版本本地 tgz 3,576,977 B、云端工作流重打的 3,576,757 B，差 220 B 无人比对。
+- 改后：`scripts/release-check.mjs` 展开 `package.json` 的 `files` 逐个读文本，命中「双下划线夹大写名」即点名报出；`__NEBULA_*` 全局变量名放行。当前 97 个文本文件扫描 0 命中。
+- 反向验证：临时在 `docs/release.md` 加一行占位符 → 门报「docs/release.md → 那一处」；撤掉 → 全绿。
+- 单测 503 项通过（46.1s）。
+- `npm run verify:full`：**12 通过 / 0 失败 / 0 跳过 · 195.8s**；构件门全部通过。
+- `npm pack`：98 个文件（字节数与 sha256 见发布页）。
+
 ## 1.11.72 实测
 
 - 改前：`docs/operations.md` 的「发布信息」写着「版本 `1.6.4`」（落后 6 版），`files` 比 `package.json` 少 `locale`、`market`、`SECURITY.md`、`SUPPORT.md`、`CONTRIBUTING.md` 五项。这份文档正是本手册「三、版本号」清单里点名要改的那一份。
@@ -804,7 +815,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.72.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.73.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：
