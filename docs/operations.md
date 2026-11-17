@@ -70,9 +70,11 @@ memory-nebula --help          # 装成 bin 之后
 
 ## 发布信息
 
-- 版本 `1.6.4`，`license: MIT`，无运行时依赖。
-- `files`：`lib/`、`cordis.patch.yml`、`README.md`、`README.en.md`、`docs/`、`CHANGELOG.md`、
-  `LICENSE`、`scripts/`、`sidecar.ps1`。
+- 版本以 `package.json` 为准（`npm view dsh-memory-nebula version` 与发布页同源），这里不抄版本号——
+  抄一份就多一处会过期的说法；`license: MIT`，无运行时依赖。
+- `files`（与 `package.json` 一致，`node scripts/release-check.mjs` 会逐项比对）：`lib`、`cordis.patch.yml`、
+  `README.md`、`README.en.md`、`docs`、`CHANGELOG.md`、`LICENSE`、`scripts`、`sidecar.ps1`、
+  `locale`、`market`、`SECURITY.md`、`SUPPORT.md`、`CONTRIBUTING.md`。
 - 装完先体检：`node scripts/doctor.mjs --profile <profile> [--root DIR] [--base URL] [--json]`；
   只读，warn 退出 0、fail 退出 1。
 - 发布前跑 `npm run check && npm test`，再按 `docs/release.md` 的清单验一遍独立引擎与冒烟。

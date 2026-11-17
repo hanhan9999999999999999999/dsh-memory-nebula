@@ -72,8 +72,9 @@ npm pack --dry-run
 
 1. `package.json` 的 `version`；
 2. `CHANGELOG.md` 顶部新增同版本小节（`npm run check` 会比对）；
-3. `docs/operations.md` 的「发布信息」；
-4. README 里的版本徽章/说明（如果有）。
+3. `market/index.json` 与 `APP_VERSION`（`scripts/release-check.mjs` 会比对）；
+4. README 的 unpkg 示例行、`npm i` 示例行与文末「当前版本」（`release-check` 会比对文末那句）；
+5. `docs/operations.md` **不用改**：那一版的发布信息已经不再抄版本号，写的是「以 `package.json` 为准」。若哪天它又被写成 `版本 \`x.y.z\``，`release-check` 会立刻红——这是 1.11.72 之前它落后六个版本没人发现的原因。
 
 bump 时**不要**把整个文件里的旧版本号一律替换掉：README 与 market 文档里还有 `（1.11.70 起）` 这种「这个能力从哪一版开始有」的历史标注，一次性替换会把它们全部改成本版，等于把功能的上线时间往后推。只改「当前版本」那几处（`package.json`、`market/index.json`、`APP_VERSION`、unpkg 与 `npm i` 的示例行、文末的「当前版本」），改完 `git diff` 逐行看一眼版本号。
 
@@ -106,6 +107,15 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.72 实测
+
+- 改前：`docs/operations.md` 的「发布信息」写着「版本 `1.6.4`」（落后 6 版），`files` 比 `package.json` 少 `locale`、`market`、`SECURITY.md`、`SUPPORT.md`、`CONTRIBUTING.md` 五项。这份文档正是本手册「三、版本号」清单里点名要改的那一份。
+- 改后：该段不再抄版本号，改指 `package.json`（`npm view dsh-memory-nebula version` 同源）；`files` 与 `package.json` 的 14 项逐项对齐。
+- 构件门新增：operations.md 出现 `版本 \`x.y.z\`` 硬写法即红、必须写明版本来源、`files` 逐项比对；README 的「当前版本」也必须与 `package.json` 一致。
+- 单测 503 项通过（47.2s）。
+- `npm run verify:full`：**12 通过 / 0 失败 / 0 跳过 · 157.2s**；构件门全部通过。
+- `npm pack`：98 个文件、3576977 字节。
+
 ## 1.11.71 实测
 
 文档里写死的「单测几条」「跑一遍几秒」与现实脱钩：同一份仓库里同时有 90 / 100 / 126 / 163 / 191 五个「单测总数」，实测 503；`verify:full` 标「约 90 秒」，实测 206.3s。
@@ -794,7 +804,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.71.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.72.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：

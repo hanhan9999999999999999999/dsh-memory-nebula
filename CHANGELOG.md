@@ -1,3 +1,31 @@
+## 1.11.72 — 2026-11-18
+
+**发布手册让你改的那份文档，六版没人改**
+
+`docs/release.md` 的「三、版本号」把清单列得很清楚：改 `package.json`、改 `market/index.json`、**改 `docs/operations.md` 的「发布信息」**、改 `APP_VERSION`……然后六个版本过去了，`docs/operations.md` 里那句还是：
+
+```text
+docs/operations.md:73   - 版本 `1.6.4`，`license: MIT`，无运行时依赖。
+```
+
+六版 bump 脚本谁都没碰它，`scripts/release-check.mjs` 也从来没读过这个文件——它一直在比 `package.json`、`CHANGELOG` 顶部、`APP_VERSION`、`market/index.json`、`docs/market.*.md`，唯独漏了手册点名要求维护的那一份。于是清单写着「要改」，门也没拦，实际结果是没人改。
+
+同一段的 `files` 列表也停在过去：包里早就有 `locale`、`market`、`SECURITY.md`、`SUPPORT.md`、`CONTRIBUTING.md`，文档还只列到 `sidecar.ps1`。读者照着这段去核对发布产物，会以为少了五个目录。
+
+**改了什么**
+
+- `docs/operations.md` 的「发布信息」不再抄版本号，改成「版本以 `package.json` 为准（`npm view dsh-memory-nebula version` 与发布页同源）」。版本号只该有一个来源，文档里每抄一次就多一个会烂的副本。
+- 同一段的 `files` 列表按 `package.json` 补全到 14 项，并注明 `node scripts/release-check.mjs` 会逐项比对。
+- `scripts/release-check.mjs` 新增一组检查：`docs/operations.md` 里再出现 `版本 \`x.y.z\`` 这种硬写法就红；必须写清版本从哪来；`files` 列表要能逐项匹配 `package.json` 的 `files`。顺带把 `README.md` 的「当前版本」也钉住——它同样一直没人管。
+- `scripts/release-check.mjs` 的 1.11.72 段就是这么写的：`for (const f of pkg.files || [])` 里逐个 `includes`，少一项就红，不靠人眼。
+
+**教训**
+
+- 「手册里写了要改」和「有门在查它」是两件事。清单管的是知情的人，门管的是所有人和所有以后的版本；只写清单不设门，等价于什么都没做。
+- 一份版本号抄了两遍，就必然有一遍开始说谎；能删掉的副本比能校验的副本更好，校验只是退而求其次。
+
+发布产物：98 个文件，3576977 字节。
+
 ## 1.11.71 — 2026-11-18
 
 **文档里的数字，是上一年的**

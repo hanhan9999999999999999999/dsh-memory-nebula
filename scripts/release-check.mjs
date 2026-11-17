@@ -2605,6 +2605,29 @@ if (true) {
     if (!read(label).includes(needle)) fail(label + ' 缺 1.11.71 的说明')
   }
 }
+// 1.11.72 构件：发布手册让你改的那份文档，得真的被管住
+{
+  const ops72 = read('docs/operations.md')
+  if (/版本\s*`\d+\.\d+\.\d+`/.test(ops72)) fail('operations.md 又开始抄死版本号了（版本以 package.json 为准）')
+  if (!ops72.includes('以 `package.json` 为准')) fail('operations.md 没写版本从哪来')
+  if (!ops72.includes('release-check.mjs` 会逐项比对')) fail('operations.md 没说 files 列表被门对过')
+  for (const f of pkg.files || []) {
+    const bare = f.replace(/\/$/, '')
+    if (!ops72.includes('`' + bare + '`')) fail(`operations.md 的 files 列表少了 ${bare}`)
+  }
+  if (!read('README.md').includes('当前版本 `' + pkg.version + '`')) {
+    fail(`README.md 的「当前版本」没跟上 ${pkg.version}`)
+  }
+  for (const [label, needle] of [
+    ['CHANGELOG.md', '发布手册让你改的那份文档，六版没人改'],
+    ['docs/verified.md', '## 1.11.72（2026-11-18）'],
+    ['docs/roadmap.md', '## 1.11.72「'],
+    ['docs/release.md', '## 1.11.72 实测'],
+    ['docs/benchmarks.md', '发布信息那段（1.11.72 更新）'],
+  ]) {
+    if (!read(label).includes(needle)) fail(label + ' 缺 1.11.72 的说明')
+  }
+}
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {
   console.log('\n全部通过。\n')
