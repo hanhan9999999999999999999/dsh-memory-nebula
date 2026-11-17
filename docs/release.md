@@ -18,8 +18,8 @@
 先跑一条命令看整体，红了再按下面逐项查：
 
 ```bash
-npm run verify:all        # 单测 + 发行构件 + HTTP 冒烟 + 安全面 + 畸形参数（约 10 秒）
-npm run verify:full       # 再加 5 万条库验收 + 浏览器翻页 + 无障碍八状态 + 键盘 Tab 序列（约 90 秒）
+npm run verify:all        # 单测 + 发行构件 + HTTP 冒烟 + 安全面 + 畸形参数（一分钟上下，随机器不同）
+npm run verify:full       # 再加 5 万条库验收 + 浏览器翻页 + 无障碍八状态 + 键盘 Tab 序列（几分钟，随机器与库大小变化）
 node scripts/verify-all.mjs --gpu        # 再加三维真 GPU 探针
 ```
 
@@ -43,15 +43,15 @@ cd <plugin>
 # 1. 语法与静态检查（版本一致、UTF-8、import、死文件、CORS、document.write…）
 npm run check
 
-# 2. 单元测试（191 项，纯函数 + 契约 + 结构门）
+# 2. 单元测试（纯函数 + 契约 + 结构门；条数由测试框架打印）
 npm test
 
-# 3. 起一个干净实例，跑接口契约（63 项）
+# 3. 起一个干净实例，跑接口契约（条数在结尾那行）
 node lib/standalone.mjs --port 7893 --root <一个包含记忆库的目录>
 node scripts/smoke.mjs http://127.0.0.1:7893/api/memory-nebula
 npm run verify          # 单测 + 静态发布检查；npm pack 会通过 prepack 自动再跑一遍
 
-# 4. 安全边界（25 项）
+# 4. 安全边界（探针自己打印条数）
 node dev/security-probe.mjs http://127.0.0.1:7893
 
 # 5. 打包清单：只带该带的
@@ -74,6 +74,8 @@ npm pack --dry-run
 2. `CHANGELOG.md` 顶部新增同版本小节（`npm run check` 会比对）；
 3. `docs/operations.md` 的「发布信息」；
 4. README 里的版本徽章/说明（如果有）。
+
+bump 时**不要**把整个文件里的旧版本号一律替换掉：README 与 market 文档里还有 `（1.11.70 起）` 这种「这个能力从哪一版开始有」的历史标注，一次性替换会把它们全部改成本版，等于把功能的上线时间往后推。只改「当前版本」那几处（`package.json`、`market/index.json`、`APP_VERSION`、unpkg 与 `npm i` 的示例行、文末的「当前版本」），改完 `git diff` 逐行看一眼版本号。
 
 ## 四、打包与安装
 
@@ -104,6 +106,16 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.71 实测
+
+文档里写死的「单测几条」「跑一遍几秒」与现实脱钩：同一份仓库里同时有 90 / 100 / 126 / 163 / 191 五个「单测总数」，实测 503；`verify:full` 标「约 90 秒」，实测 206.3s。
+
+- 单测 503 项通过（88.6s）；新增 `test/doc-numbers.test.mjs` 4 项钉住结构门。
+- `node scripts/smoke.mjs`：**全部通过（63 项）**（结尾自己打印条数）。
+- `npm run verify:full`：**12 通过 / 0 失败 / 0 跳过 · 206.3s**；构件门全部通过。
+- 结构门实跑：README.md / README.en.md / docs/testing.md / docs/accessibility.md / docs/release.md（`## x.y.z 实测` 以上）里「全量 N 项」「N 项单测 / 冒烟 / 安全探针」「约 N 秒」命中 0 处。
+- `npm pack`：98 个文件、3573466 字节。
+
 ## 1.11.70 实测
 
 - 发布正文改由 `node scripts/release-notes.mjs --version <v> --out notes.md` 生成，`release.yml` 用 `--notes-file notes.md` 交给 `gh release create`；`--generate-notes` 已从工作流里拿掉。
@@ -782,7 +794,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.70.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.71.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：

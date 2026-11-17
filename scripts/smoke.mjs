@@ -13,8 +13,9 @@ process.on('uncaughtException', die)
 process.on('unhandledRejection', die)
 
 let fails = 0
+let passed = 0
 const ok = (name, cond, extra) => {
-  if (cond) console.log('  ✓ ' + name + (extra ? '  ' + extra : ''))
+  if (cond) { passed++; console.log('  ✓ ' + name + (extra ? '  ' + extra : '')) }
   else { fails++; console.log('  ✗ ' + name + (extra ? '  ' + extra : '')) }
 }
 const get = async (p) => {
@@ -222,5 +223,5 @@ const demoDiag = await (await fetch(base + '/diagnostics?demo=1')).text()
 ok('示例诊断标记 demo', /mode: .*\(demo\)/.test(demoDiag) && /graph: 64 memories/.test(demoDiag),
   (demoDiag.match(/mode: .+/) || [''])[0])
 
-console.log(fails ? `\n失败 ${fails} 项` : '\n全部通过')
+console.log(fails ? `\n失败 ${fails} 项 / 共 ${passed + fails} 项` : `\n全部通过（${passed} 项）`)
 process.exit(fails ? 1 : 0)

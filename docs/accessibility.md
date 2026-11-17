@@ -76,7 +76,7 @@
 ```bash
 node --test test/nav.test.mjs     # 10 项几何
 node --test test/a11y.test.mjs    # 11 项结构门
-npm test                          # 全量 163 项
+npm test                          # 全量单测（条数见输出，别在文档里抄）
 ```
 
 分页条（1.9.2 起）单独有一条真机验证：`node dev/verify-1.9-ui.mjs` 会在 headless Edge 里

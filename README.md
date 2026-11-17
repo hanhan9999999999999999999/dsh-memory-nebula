@@ -92,7 +92,7 @@ dsh plugin --profile web add dsh-memory-nebula
 ```
 
 也可以在 DSH 的「插件 → 发现」里添加索引
-`https://unpkg.com/dsh-memory-nebula@1.11.70/market/index.json`，搜索「记忆星图」安装。
+`https://unpkg.com/dsh-memory-nebula@1.11.71/market/index.json`，搜索「记忆星图」安装。
 装完按下面的 2.5 跑一次 doctor。
 
 想先看看，不装进 DSH：
@@ -151,9 +151,9 @@ ebula.md --format md
 自检三条命令：
 
 ```bash
-npm test        # 126 项单元测试
+npm test        # 单元测试（条数由测试框架自己打印）
 npm run verify  # 单测 + 发布静态检查（npm pack 的 prepack 会自动再跑）
-node scripts/smoke.mjs   # 63 项接口契约（对运行中的实例）
+node scripts/smoke.mjs   # 接口契约（对运行中的实例，结尾打印条数）
 ```
 
 ### 接入一个新的记忆库（三步）
@@ -202,7 +202,7 @@ node scripts/smoke.mjs   # 63 项接口契约（对运行中的实例）
 | [SUPPORT.md](SUPPORT.md) | 提 issue 前先做什么、要带什么、绝不能贴什么 |
 | [docs/verified.md](docs/verified.md) | 每一条结论背后的实测证据 |
 | [docs/architecture.md](docs/architecture.md) | 模块分工、请求路径、不能破的不变量 |
-| [docs/testing.md](docs/testing.md) | 126 项单测、63 项冒烟、25 项安全探针、浏览器探针清单与手工验收 |
+| [docs/testing.md](docs/testing.md) | 单测、冒烟、安全探针、浏览器探针清单与手工验收（条数由脚本自己打印） |
 | [docs/roadmap.md](docs/roadmap.md) | 从 0.5 到 1.2：切片分享、首访引导、万条性能、国际化与发行支持 |
 | [CHANGELOG.md](CHANGELOG.md) | 版本变更 |
 
@@ -225,10 +225,10 @@ lib/
     app.js            状态、面板、筛选、命令面板、导出、时间轴
     render.js         2D 星云：力导向 + 区块点亮 + Path2D 批处理
     space3d.js        3D 星系 / 时间螺旋：WebGL 光点
-scripts/smoke.mjs     只读契约自查（63 项）
+scripts/smoke.mjs     只读契约自查
 scripts/release-check.mjs  发布静态检查
 scripts/bench.mjs     10k 性能基准（建图 / 检索 / 体检 / 快照 / 内存）
-test/                 node:test 单元测试（124 项）
+test/                 node:test 单元测试
 sidecar.ps1           Windows 独立引擎开关
 ```
 
@@ -248,6 +248,6 @@ sidecar.ps1           Windows 独立引擎开关
 
 ## 版本与许可
 
-- 当前版本 `1.11.70`，MIT。
+- 当前版本 `1.11.71`，MIT。
 - 打包内容：`lib/`、`scripts/`、`docs/`、`cordis.patch.yml`、`README.md` / `README.en.md`、`CHANGELOG.md`、`LICENSE`、`sidecar.ps1`（`test/` 与 `dev/` 不进包）。
 - 前端改动刷新页面即生效；`lib/host/` 下所有引擎文件（含 `adapters/`、`bridge.js`、`ledger.js`）由 LiveEngine 热载，`http.js` / `index.js` / `live.js` 改动要重启 DSH 或走独立引擎。

@@ -2576,6 +2576,35 @@ if (true) {
     if (!read(label).includes(needle)) fail(label + ' 缺 1.11.70 的说明')
   }
 }
+// 1.11.71 构件：文档不许写死整套条数，条数由被测的脚本自己报
+{
+  const dn71 = exists('test/doc-numbers.test.mjs') ? read('test/doc-numbers.test.mjs') : ''
+  if (!dn71) fail('缺 test/doc-numbers.test.mjs')
+  if (dn71) {
+    if (!dn71.includes('全量')) fail('doc-numbers 门没钉住「全量 N 项」这种写法')
+    if (!dn71.includes('unit tests')) fail('doc-numbers 门没钉住英文的「N unit tests」')
+    if (!dn71.includes('实测')) fail('doc-numbers 门没给 `## x.y.z 实测` 历史账本留豁免')
+  }
+  const sm71 = read('scripts/smoke.mjs')
+  if (!sm71.includes('passed++')) fail('smoke.mjs 没有统计通过条数')
+  if (!sm71.includes('全部通过（${passed} 项）')) fail('smoke.mjs 结尾没打印条数')
+  if (read('README.md').includes('126 项单元测试')) fail('README.md 又写死单测总数了')
+  if (read('docs/release.md').includes('单元测试（191 项')) fail('release.md 又写死单测总数了')
+  if (read('docs/accessibility.md').includes('全量 163 项')) fail('accessibility.md 又写死单测总数了')
+  if (!read('docs/testing.md').includes('全部通过（N 项）')) fail('testing.md 没告诉读者条数从哪看')
+  if (!read('docs/release.md').includes('把整个文件里的旧版本号一律替换掉')) {
+    fail('release.md 没写「bump 不许整文件替换版本号」这条规矩')
+  }
+  for (const [label, needle] of [
+    ['CHANGELOG.md', '文档里的数字，是上一年的'],
+    ['docs/verified.md', '## 1.11.71（2026-11-18）'],
+    ['docs/roadmap.md', '## 1.11.71「'],
+    ['docs/release.md', '## 1.11.71 实测'],
+    ['docs/benchmarks.md', '文档里的条数（1.11.71 更新）'],
+  ]) {
+    if (!read(label).includes(needle)) fail(label + ' 缺 1.11.71 的说明')
+  }
+}
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {
   console.log('\n全部通过。\n')

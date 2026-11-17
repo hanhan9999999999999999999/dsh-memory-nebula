@@ -69,7 +69,7 @@ dsh plugin --profile web add dsh-memory-nebula
 ```
 
 You can also add the index
-`https://unpkg.com/dsh-memory-nebula@1.11.70/market/index.json` under
+`https://unpkg.com/dsh-memory-nebula@1.11.71/market/index.json` under
 Plugins → Discover, search for “Memory Nebula”, and install. Run the doctor in step 2.5 afterwards.
 
 Want a look first, without installing into DSH?
@@ -123,9 +123,9 @@ The page probes `/ping` on both legs and picks the newer `build`; a banner expla
 Self-checks:
 
 ```bash
-npm test                 # 90 unit assertions
+npm test                 # unit suite (it prints its own count)
 npm run check            # static release check
-node scripts/smoke.mjs   # 63 contract assertions against a live instance
+node scripts/smoke.mjs   # contract assertions against a live instance (count printed at the end)
 ```
 
 ### Attaching a new memory store (three steps)
@@ -159,7 +159,7 @@ Adapter contract and every `sources.json` field: [docs/adapters.md](docs/adapter
 | [SECURITY.md](SECURITY.md) | Read-only boundary, HTTP protections and vulnerability reporting |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Local development, test commands and contribution rules |
 | [SUPPORT.md](SUPPORT.md) | what to run first, what to include, and what never to paste |
-| [docs/testing.md](docs/testing.md) | 126 unit tests, 63 smoke checks, 25 security probes, browser probes |
+| [docs/testing.md](docs/testing.md) | unit suite, smoke, security probes, browser probes and manual sign-off (counts are printed by the scripts) |
 | [docs/roadmap.md](docs/roadmap.md) | From 0.5 to 1.2: scoped sharing, first-run guidance, 10k-node performance, i18n and release support |
 | [CHANGELOG.md](CHANGELOG.md) | Version history |
 
@@ -178,10 +178,10 @@ lib/
     live.js           hot reload (recursive over lib/host, copy by mtime)
     http.js           routes (statically loaded)
   web/                front end (served from disk; refresh to apply)
-scripts/smoke.mjs     63 read-only contract checks
+scripts/smoke.mjs     read-only contract checks
 scripts/release-check.mjs  static release check
 scripts/bench.mjs     10k benchmark (build / recall / hygiene / snapshot / memory)
-test/                 node:test unit suite (100 assertions)
+test/                 node:test unit suite
 ```
 
 ## Privacy and security

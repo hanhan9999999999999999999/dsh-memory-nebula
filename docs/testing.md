@@ -34,9 +34,10 @@ node --test "test/*.test.mjs"
 
 > 注意：`node --test test` 会把 `test` 当模块解析并报 `MODULE_NOT_FOUND`，要带 glob 或用 `npm test`。
 
-## 二、接口契约：`scripts/smoke.mjs`（63 项）
+## 二、接口契约：`scripts/smoke.mjs`
 
 随包发布，对**正在运行的实例**做只读断言 + 一次幂等探测（`POST /ingest {}` 只验证参数校验）。
+条数不写在文档里：跑完最后一行会打印「全部通过（N 项）」，红了打印「失败 X 项 / 共 N 项」。
 
 ```bash
 node scripts/smoke.mjs
