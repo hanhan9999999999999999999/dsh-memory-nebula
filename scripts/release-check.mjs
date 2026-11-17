@@ -2666,6 +2666,31 @@ if (true) {
     if (!read(label).includes(needle)) fail(label + ' 缺 1.11.73 的说明')
   }
 }
+// 1.11.74 构件：连不上宿主时，冒烟要说人话
+{
+  const sm74 = read('scripts/smoke.mjs')
+  if (!sm74.includes('connectHint')) fail('smoke.mjs 没有连接失败的专用文案')
+  if (!sm74.includes('isConnectError')) fail('smoke.mjs 没有把连接失败单独归类')
+  if (!sm74.includes('node lib/standalone.mjs --port 7890')) fail('smoke.mjs 没给「起个引擎」那条路')
+  if (!sm74.includes('NEBULA_BASE')) fail('smoke.mjs 没提环境变量那条路')
+  const basePrints = (sm74.match(/console\.log\('base =', base\)/g) || []).length
+  if (basePrints !== 1) fail(`smoke.mjs 里 base 打印了 ${basePrints} 次（应当只有开头那一次）`)
+  if (!exists('test/smoke-connect.test.mjs')) fail('缺 test/smoke-connect.test.mjs')
+  else {
+    const t = read('test/smoke-connect.test.mjs')
+    if (!t.includes('smoke 自己出错了')) fail('smoke-connect 测试没钉住「不许把连接失败说成脚本 bug」')
+    if (!t.includes('127.0.0.1:9')) fail('smoke-connect 测试没对着一个真连不上的地址跑')
+  }
+  for (const [label, needle] of [
+    ['CHANGELOG.md', '连不上宿主时，它只说了'],
+    ['docs/verified.md', '## 1.11.74（2026-11-18）'],
+    ['docs/roadmap.md', '## 1.11.74「'],
+    ['docs/release.md', '## 1.11.74 实测'],
+    ['docs/benchmarks.md', '连不上时怎么说（1.11.74 更新）'],
+  ]) {
+    if (!read(label).includes(needle)) fail(label + ' 缺 1.11.74 的说明')
+  }
+}
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {
   console.log('\n全部通过。\n')

@@ -3,14 +3,40 @@
 // 退出码 0 = 全过；1 = 有失败（可直接挂到 CI / 发布前手跑）。
 const base = process.argv[2] || process.env.NEBULA_BASE || 'http://127.0.0.1:7891/api/memory-nebula'
 
+// 连不上时最难看的一种失败：`TypeError: fetch failed`，既不说连的是谁，也不说下一步做什么。
+// 这里把 base 和三条现成的起法一起打出来（1.11.74）。
+const connectHint = () =>
+  [
+    'smoke 连不上：' + base,
+    '  1) 起一个独立引擎，再把地址指过去：',
+    '       node lib/standalone.mjs --port 7890',
+    '       node scripts/smoke.mjs http://127.0.0.1:7890/api/memory-nebula',
+    '  2) 或者用环境变量：',
+    '       NEBULA_BASE=http://127.0.0.1:7890/api/memory-nebula node scripts/smoke.mjs',
+    '  3) 宿主插件默认就是 7891 那个地址，但它要 DSH 跑着才有；刚重启过 DSH 就直接跑本脚本。',
+    '  提示：起服务的那条命令行会打印自己的 base，照抄即可。',
+  ].join('\n')
+const isConnectError = (err) => {
+  const msg = String((err && err.message) || err)
+  if (/fetch failed|ECONNREFUSED|ECONNRESET|ENOTFOUND|EAI_AGAIN/i.test(msg)) return true
+  const code = err && err.cause && err.cause.code
+  return typeof code === 'string' && code.startsWith('E')
+}
+
 // 自己崩了也要说清楚是哪一行：未捕获异常直接 exit(1)，
 // 否则 Windows 上带在途 fetch 句柄的崩溃会以 0xC0000409 退出，把真错误盖掉。
 const die = (err) => {
+  if (isConnectError(err)) {
+    console.error(connectHint())
+    process.exit(1)
+  }
   console.error('smoke 自己出错了：' + ((err && err.stack) || err))
   process.exit(1)
 }
 process.on('uncaughtException', die)
 process.on('unhandledRejection', die)
+
+console.log('base =', base)
 
 let fails = 0
 let passed = 0
@@ -58,8 +84,6 @@ function checkGraph(tag, g, opts = {}) {
     `stats ${g.stats?.nodes}/${g.stats?.edges}`)
   return g
 }
-
-console.log('base =', base)
 
 // 1) ping
 const ping = await get('/ping')

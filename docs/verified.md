@@ -1,3 +1,18 @@
+## 1.11.74（2026-11-18）
+
+装完包第一次跑冒烟，最常见的情形是还没起服务；这一版之前它只打印「smoke 自己出错了：TypeError: fetch failed」加一段堆栈——不说是哪个地址，不提默认地址要 DSH 跑着才有，还把「环境没准备好」归成脚本 bug。这一版把连接失败单独归一类，并给出三条现成的起法。
+
+| 检查 | 结果 |
+|---|---|
+| 改前（`smoke.mjs http://127.0.0.1:9/...`） | stderr 只有「smoke 自己出错了：TypeError: fetch failed」✘ |
+| 改后 | stderr 首行「smoke 连不上：<base>」，随后三条起法 + 一句「照抄服务打印的 base」✔ |
+| 分类 | 连接类（fetch failed / ECONNREFUSED / ECONNRESET / ENOTFOUND / 带 E* code 的 cause）走新出口；其余异常保留堆栈 ✔ |
+| `base =` 打印次数 | 1 次（原先开头与中段各一次）✔ |
+| 新增单测 | 4 / 4 通过（`test/smoke-connect.test.mjs`，对真进程验）✔ |
+| 全部单测 | 507 项通过（`npm test`，44.5s）✔ |
+| `npm run verify:full` | 12 通过 / 0 失败 / 0 跳过 · 197.8s ✔ |
+| 打包 | 98 个文件（字节数见发布页）✔ |
+
 ## 1.11.73（2026-11-18）
 
 1.11.72 发到 npm 的那份 tgz 里，文档还带着没填的占位符：`CHANGELOG.md` 末行的文件数与字节数、`docs/verified.md` 表格里的单测条数与耗时。原因是打包在填数之前，而没有任何一步检查过包里有什么。这一版加了一道扫，并把发布顺序写进手册。
