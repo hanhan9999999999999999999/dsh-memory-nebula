@@ -109,6 +109,16 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.75 实测
+
+- 改前：`ctx.systemPrompt.context({ name: 'memory-nebula:neighbors', text: (context) => … })` 每轮返回「规则 + 本会话邻域补充」，而系统提示拼在整段对话最前面——邻居一变，整个前缀就是新内容，前缀缓存整段作废、此前所有 token 重算。
+- 改后：系统提示只放常量 `RULE`（689 字 / 8 行，注册名 `memory-nebula:rule`）；邻域补充改由 `tools/post-execute` 追加在本轮工具结果的尾部，首句点明「这不是上面那个工具的输出」。
+- 追加条件：结果成功 + `content` 是数组 + 工具名不以 `nebula_` 开头；节流只数 `searched`/`accessed`/`written`（`injected` 是自己写的，算进去会自己触发自己）。
+- 新增 `test/inject-tail.test.mjs` 4 项：`text` 必须是字符串、源码里不再有 neighbors 段、真跑一次 `post-execute` 看补充落在尾部且原输出未被改、四种该跳过的情形都跳过。
+- 单测 511 项通过（43.9s）。
+- `npm run verify:full`：12 通过 / 0 失败 / 0 跳过 · 152.1s；构件门全部通过。
+- `npm pack`：98 个文件（字节数与 sha256 见发布页）。
+
 ## 1.11.74 实测
 
 - 改前：`node scripts/smoke.mjs http://127.0.0.1:9/api/memory-nebula` 只打印「smoke 自己出错了：TypeError: fetch failed」加堆栈，不说地址、不给起法。
@@ -824,7 +834,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.74.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.75.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：

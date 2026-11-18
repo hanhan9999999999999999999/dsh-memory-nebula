@@ -69,7 +69,7 @@ dsh plugin --profile web add dsh-memory-nebula
 ```
 
 You can also add the index
-`https://unpkg.com/dsh-memory-nebula@1.11.74/market/index.json` under
+`https://unpkg.com/dsh-memory-nebula@1.11.75/market/index.json` under
 Plugins → Discover, search for “Memory Nebula”, and install. Run the doctor in step 2.5 afterwards.
 
 Want a look first, without installing into DSH?

@@ -2691,6 +2691,42 @@ if (true) {
     if (!read(label).includes(needle)) fail(label + ' 缺 1.11.74 的说明')
   }
 }
+// 1.11.75 构件：会变的东西不许进系统提示（那会把每轮的前缀缓存废掉）
+{
+  const idx75 = read('lib/index.js')
+  // 系统提示只能是常量：注册项的 text 若写成函数，宿主每轮都会重算出一段新文本
+  const reg = idx75.match(/ctx\.systemPrompt\.context\(\{([\s\S]*?)\n\s*\}\)/)
+  if (!reg) fail('lib/index.js 里找不到 systemPrompt.context 注册')
+  else {
+    const body = reg[1]
+    if (!/text:\s*RULE\b/.test(body)) fail('系统提示没有注册成常量 RULE（会打字面值以外的动态文本）')
+    if (/text:\s*(\(|function|async)/.test(body)) fail('系统提示的 text 又被写成了函数——每轮变一次，前缀缓存全废')
+    if (/res\.text|neighbor|neighbors/.test(body)) fail('系统提示里又拼了邻域补充')
+  }
+  if (idx75.includes("'memory-nebula:neighbors'")) fail('旧的 neighbors 段还注册着')
+  if (!idx75.includes('tools/post-execute')) fail('没有把邻域补充改到工具结果的尾巴上')
+  if (!idx75.includes('neighborTail')) fail('缺 neighborTail（邻域计算函数）')
+  // 节流只认外部读入：injected 是插件自己写的，算进去会自己触发自己
+  if (!/const GROWTH_KEYS = \['searched', 'accessed', 'written'\]/.test(idx75)) {
+    fail('节流口径不对：增长只能数 searched/accessed/written')
+  }
+  if (!exists('test/inject-tail.test.mjs')) fail('缺 test/inject-tail.test.mjs')
+  else {
+    const t = read('test/inject-tail.test.mjs')
+    if (!t.includes('这不是上面那个工具的输出')) fail('inject-tail 测试没钉住「补充要说明自己不是该工具的输出」')
+    if (!t.includes("typeof promptHandler.text, 'string'")) fail('inject-tail 测试没钉住「系统提示必须是字符串常量」')
+    if (!t.includes("'memory-nebula:neighbors'")) fail('inject-tail 测试没钉住「旧的双段注册不许回来」')
+  }
+  for (const [label, needle] of [
+    ['CHANGELOG.md', '每轮都把整个前缀缓存废掉一遍'],
+    ['docs/verified.md', '## 1.11.75（2026-11-18）'],
+    ['docs/roadmap.md', '## 1.11.75「'],
+    ['docs/release.md', '## 1.11.75 实测'],
+    ['docs/benchmarks.md', '每轮换 system prompt 的代价（1.11.75 更新）'],
+  ]) {
+    if (!read(label).includes(needle)) fail(label + ' 缺 1.11.75 的说明')
+  }
+}
 for (const n of notes) console.log(`  ✔ ${n}`)
 if (problems.length === 0) {
   console.log('\n全部通过。\n')

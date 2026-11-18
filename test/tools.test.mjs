@@ -57,6 +57,7 @@ const ctx = {
     return () => {}
   },
   systemPrompt: { context: (def) => { promptHandler = def; return () => {} } },
+  on: () => () => {},
   webServer: null,
   connection: null,
 }
@@ -229,12 +230,13 @@ test('nebula_ingest：缺参数说清楚，推成功说出条数与图规模', a
   assert.match(out, /hindsight\.jsonl/)
 })
 
-test('每轮注入：没有会话上下文时只给规则，不报错', () => {
+test('系统提示：不管有没有会话上下文，给的都是同一段常量', () => {
   assert.ok(promptHandler, 'systemPrompt.context 没注册')
-  const base = promptHandler.text({})
-  assert.equal(typeof base, 'string')
-  assert.ok(base.length > 20)
-  const withSession = promptHandler.text({ agent: { session: { header: { cwd: WS, id: 'session-tools-1' } } } })
-  assert.equal(typeof withSession, 'string')
-  assert.ok(withSession.length >= base.length)
+  assert.equal(typeof promptHandler.text, 'string', 'system prompt 必须是常量（动态内容会废掉前缀缓存）')
+  assert.ok(promptHandler.text.length > 200)
+  assert.match(promptHandler.text, /记忆星图 memory-nebula/)
+  // 常量就不再是「等长」而是「一字不差」：换上下文也不会多出任何东西
+  const a = promptHandler.text
+  const b = promptHandler.text
+  assert.equal(a, b)
 })
