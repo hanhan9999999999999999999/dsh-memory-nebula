@@ -16,7 +16,7 @@
  * 退出码: 0 全过；1 有失败；2 参数错误。
  */
 import { spawn } from 'node:child_process'
-import { mkdirSync, existsSync, readdirSync, statSync } from 'node:fs'
+import { mkdirSync, existsSync, readdirSync, rmSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -77,6 +77,7 @@ function readMe() {
     '  --root   大库那一套用哪个目录（默认包内 .tmp-50k，没有就用上一层工作区的同名目录）',
     '  --nodes  这个目录期望有多少条（默认 50000）；不够时那几步标「跳过」而不是「失败」',
     '  --dev    探针只从这一份找（默认依次找包内 dev/ 与上一层 dev/，并在开头打印用到的目录）',
+    '  --keep   跑完不删临时 DSH_HOME（默认全过就删；有失败会自动保留并打印路径）',
   ].join('\n')
 }
 
@@ -92,8 +93,28 @@ const probeWhy = (n) => probePlan(n, PROBE_DIRS).why
 // 以前所有步骤共用一个 DSH_HOME：上一步留下的图缓存在下一步会被读盘恢复，
 // 更进一步——签名对不上时会先端旧图再在后台重建，后台那轮和下一步的探针抢 CPU。
 // 1.11.48 起每步一个新家，避免跨步串味。
-const HOME_BASE = process.env.DSH_HOME || join(tmpdir(), 'nebula-verify-' + process.pid)
+//
+// 1.11.76：基址以前写成 `process.env.DSH_HOME || tmpdir()`。在 DSH 会话里跑时
+// DSH_HOME 就是 D:\dsh-home，于是 12 个临时家全建在宿主的数据目录顶层，跑完也不收，
+// 目录名还按序号复用（上一轮的 db-wal 留在原地）。临时家永远只住临时目录，且带
+// pid + 时间戳，保证这一轮绝不会读到上一轮。
+const KEEP_HOME = flag('keep') || process.env.NEBULA_VERIFY_KEEP === '1'
+const HOME_BASE = join(tmpdir(), 'nebula-verify-' + process.pid + '-' + Date.now())
 let stepSeq = 0
+// 先亮出这一轮的临时家在哪：它跑完就没了，但你知道它从没进过你的 DSH_HOME。
+if (!JSON_OUT) console.log('临时家：' + HOME_BASE + '\n')
+
+/** 跑完把临时家收掉。失败或 --keep 时留着，并把路径打出来——排查要证据，但证据不该留在宿主目录里。 */
+async function disposeHomes() {
+  if (KEEP_HOME) { console.error('\n临时家保留（--keep）：' + HOME_BASE); return }
+  if (fail > 0) { console.error('\n临时家保留（有失败，证据在这里）：' + HOME_BASE); return }
+  for (let i = 0; i < 3; i++) {
+    try { rmSync(HOME_BASE, { recursive: true, force: true }); return } catch {}
+    // Windows 上刚 kill 的子进程可能还捏着 sqlite 的 -shm/-wal，隔一会儿再试
+    await sleep(300)
+  }
+  console.error('\n临时家删不掉（子进程可能还没退干净）：' + HOME_BASE)
+}
 function stepHome(label) {
   stepSeq += 1
   const safe = String(label).replace(/[^\w\u4e00-\u9fa5]+/g, '-').slice(0, 24)
@@ -269,6 +290,7 @@ if (JSON_OUT) {
   if (skip) console.log('（跳过不是通过：上面写清了每一步为什么跳过）')
 }
 
+await disposeHomes()
 process.exit(fail === 0 ? 0 : 1)
 
 // ---- 小工具 ----

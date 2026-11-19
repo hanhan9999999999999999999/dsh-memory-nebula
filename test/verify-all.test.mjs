@@ -99,3 +99,17 @@ test('编排脚本把探针目录打印出来，不再让人对着六个数字�
   assert.match(src, /'探针：' \+ \(PROBE_DIRS\.length/)
   assert.match(src, /probes: PROBE_DIRS/)
 })
+
+// 1.11.76：临时家基址以前是 `process.env.DSH_HOME || tmpdir()`。在 DSH 会话里跑验收时
+// 那就是 D:\dsh-home，12 步的家全建在宿主数据目录顶层、跑完不删。这条契约钉住两件事：
+// 基址只认临时目录（带 pid + 时间戳），以及跑完有人收（失败/--keep 才留）。
+test('临时家：只住 tmpdir、带 pid 与时间戳、跑完就收', () => {
+  const src = readFileSync(SCRIPT, 'utf8')
+  assert.doesNotMatch(src, /process\.env\.DSH_HOME\s*\|\|\s*join\(tmpdir\(\)/)
+  assert.match(src, /join\(tmpdir\(\), 'nebula-verify-' \+ process\.pid \+ '-' \+ Date\.now\(\)\)/)
+  assert.match(src, /async function disposeHomes/)
+  assert.match(src, /rmSync\(HOME_BASE, \{ recursive: true, force: true \}\)/)
+  assert.match(src, /await disposeHomes\(\)\s*\n\s*process\.exit/)
+  assert.match(src, /flag\('keep'\)/)
+  assert.match(src, /--keep/)
+})

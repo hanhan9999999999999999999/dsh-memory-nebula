@@ -1744,8 +1744,9 @@ ok('1.11.28 构件：读盘缓存 / 原子写 / 压缩 / 单测与探针 / 文�
   ok('1.11.47 构件：缓存 v8 与 buildMs/cacheAgeMs 分家')
 
   // 1.11.48：验收的每一步用自己的 DSH_HOME；体检断言跟上 1.11.46 的新语义
+  // 1.11.76 起基址不再取 process.env.DSH_HOME（那会把临时家建进宿主的 D:\dsh-home）
   const va48 = read("scripts/verify-all.mjs")
-  if (!va48.includes("const HOME_BASE = process.env.DSH_HOME || join(tmpdir(), 'nebula-verify-' + process.pid)")) fail("verify-all 没给每步单独的家")
+  if (!va48.includes("const HOME_BASE = join(tmpdir(), 'nebula-verify-' + process.pid + '-' + Date.now())")) fail("verify-all 没给每步单独的家（或临时家基址又回到了 DSH_HOME）")
   if (!va48.includes("function stepHome(label)")) fail("verify-all 缺 stepHome")
   if (!va48.includes("const home = opts.env && opts.env.DSH_HOME ? opts.env.DSH_HOME : stepHome(label)")) fail("verify-all 的 run() 没按步取家")
   if (!va48.includes("env: { ...process.env, ...(opts.env || {}), DSH_HOME: home }")) fail("verify-all 没把 DSH_HOME 注入子进程")
@@ -2725,6 +2726,38 @@ if (true) {
     ['docs/benchmarks.md', '每轮换 system prompt 的代价（1.11.75 更新）'],
   ]) {
     if (!read(label).includes(needle)) fail(label + ' 缺 1.11.75 的说明')
+  }
+}
+// 1.11.76 构件：验证脚本的临时家不许落进宿主的 DSH_HOME，跑完要收
+{
+  const va76 = read('scripts/verify-all.mjs')
+  // 病灶原样：基址一旦又接回 process.env.DSH_HOME，在 DSH 会话里跑就会写进 D:\dsh-home
+  if (/process\.env\.DSH_HOME\s*\|\|\s*join\(tmpdir\(\)/.test(va76)) {
+    fail('临时家基址又接回 DSH_HOME 了——在 DSH 会话里跑 verify 会往宿主数据目录写')
+  }
+  if (!va76.includes("join(tmpdir(), 'nebula-verify-' + process.pid + '-' + Date.now())")) {
+    fail('临时家基址不是 tmpdir() + pid + 时间戳（这一轮会读到上一轮的库）')
+  }
+  if (!va76.includes('async function disposeHomes()')) fail('缺 disposeHomes（跑完没人收临时家）')
+  if (!va76.includes('rmSync(HOME_BASE, { recursive: true, force: true })')) fail('disposeHomes 没删临时家')
+  if (!/await disposeHomes\(\)\s*\n\s*process\.exit/.test(va76)) fail('disposeHomes 不在退出之前调用')
+  if (!va76.includes("flag('keep')")) fail('缺 --keep（要留证据时没法留）')
+  if (!exists('dev/probe-step-home.mjs')) fail('缺 dev/probe-step-home.mjs')
+  else if (existsReal('dev/probe-step-home.mjs')) {
+    const p76 = readDev('dev/probe-step-home.mjs')
+    if (!p76.includes('step-99-上一轮的垃圾')) fail('probe-step-home 没有「脏 DSH_HOME」这一手')
+    if (!p76.includes('临时家住在 tmpdir')) fail('probe-step-home 没断言家住在临时目录')
+    if (!p76.includes('宿主的 DSH_HOME 里步骤目录')) fail('probe-step-home 没断言宿主目录没被写')
+    if (!p76.includes('跑完临时家没删')) fail('probe-step-home 没断言跑完就收')
+  }
+  for (const [label, needle] of [
+    ['CHANGELOG.md', '十二个临时家安在了你家客厅'],
+    ['docs/verified.md', '## 1.11.76（2026-11-19）'],
+    ['docs/roadmap.md', '## 1.11.76「'],
+    ['docs/release.md', '## 1.11.76 实测'],
+    ['docs/benchmarks.md', '临时家跑完去哪了（1.11.76 更新）'],
+  ]) {
+    if (!read(label).includes(needle)) fail(label + ' 缺 1.11.76 的说明')
   }
 }
 for (const n of notes) console.log(`  ✔ ${n}`)

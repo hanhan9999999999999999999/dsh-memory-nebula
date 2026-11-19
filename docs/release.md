@@ -109,6 +109,16 @@ npm pack                       # 生成 dsh-memory-nebula-<version>.tgz
 `lib/web/nav.js` 与 `docs/accessibility.md` 都在包里；`test/`、`dev/` 不进包。
 axe-core 4.10.2：离线快照 / HTTP / 英文界面与官网首页 **0 违例**（官网弱文字 `#8a94a6`、截图条可聚焦、星图页 `<main>` 与滑杆 aria）。
 1.11.10 产物：`dsh-memory-nebula-1.11.10.tgz` · 93 文件 · 3,341,264 字节 · sha256 `db268d0d…`（包内记录的是上一刀的数字）。
+## 1.11.76 实测
+
+- 改前：`const HOME_BASE = process.env.DSH_HOME || join(tmpdir(), 'nebula-verify-' + process.pid)` —— 在 DSH 会话里跑 `verify:full` 时基址就是 `D:\dsh-home`，12 个 `step-XX-…` 落在宿主数据目录顶层、跑完不删（累计 44.3 MB），目录名按序号复用还会读到上一轮的 `nebula.db-wal`。
+- 改后：基址 `join(tmpdir(), 'nebula-verify-' + process.pid + '-' + Date.now())`；`disposeHomes()` 在汇总后、`process.exit` 前整棵删除，失败或 `--keep` 保留并打印路径；删不掉重试三次并说明；开头打印「临时家：<路径>」。
+- 探针 `dev/probe-step-home.mjs` 重写：脏 `DSH_HOME`（预置 `step-99-上一轮的垃圾`）跑 `--keep` 一轮 → 家都在 `tmpdir()`、宿主那 1 个没变；再跑不带 `--keep` 一轮 → 临时家已消失。
+- 单测 512 项通过（42.7s）。
+- `npm run verify:full`：12 通过 / 0 失败 / 0 跳过 · 167.5s；构件门全部通过。
+- `npm pack`：98 个文件（字节数与 sha256 见发布页）。
+- 现场：`D:\dsh-home` 顶层 12 个 `step-*` 目录（36 个文件、44.3 MB）已删除。
+
 ## 1.11.75 实测
 
 - 改前：`ctx.systemPrompt.context({ name: 'memory-nebula:neighbors', text: (context) => … })` 每轮返回「规则 + 本会话邻域补充」，而系统提示拼在整段对话最前面——邻居一变，整个前缀就是新内容，前缀缓存整段作废、此前所有 token 重算。
@@ -834,7 +844,7 @@ loader 行 id 前后一致）；引擎口径三处一致（宿主 `2.0.22-next`�
 New-Item -ItemType Junction -Path "<profile>\node_modules\dsh-memory-nebula" -Target "<plugin>"
 
 # 方式 B：tarball
-npm install <path>\dsh-memory-nebula-1.11.75.tgz --prefix <profile>
+npm install <path>\dsh-memory-nebula-1.11.76.tgz --prefix <profile>
 ```
 
 然后确认 profile `package.json` 里：
