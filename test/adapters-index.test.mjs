@@ -54,13 +54,14 @@ process.on('exit', () => {
 })
 
 // ── 清单 ────────────────────────────────────────────────
-test('清单：四个适配器都在，内置标记正确', () => {
+test('清单：五个适配器都在，内置标记正确', () => {
   const cat = adapterCatalog()
-  assert.equal(cat.length, 4, '四个内置适配器要都在清单里')
-  assert.deepEqual(cat.map((c) => c.id).sort(), ['ingest', 'meow', 'notes', 'sqlite'])
+  assert.equal(cat.length, 5, '五个内置适配器要都在清单里')
+  assert.deepEqual(cat.map((c) => c.id).sort(), ['ingest', 'meow', 'mnemon', 'notes', 'sqlite'])
   const meow = cat.find((c) => c.id === 'meow')
   assert.equal(meow.builtin, true, 'meow 是内置的')
   assert.equal(cat.find((c) => c.id === 'notes').builtin, false, 'notes 不是内置的')
+  assert.equal(cat.find((c) => c.id === 'mnemon').builtin, false, 'mnemon 不是内置的')
   for (const c of cat) {
     assert.equal(typeof c.description, 'string')
     assert.equal(typeof c.config, 'object')

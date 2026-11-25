@@ -112,7 +112,8 @@
 | 适配器 | 必填 | 常用可选 |
 | --- | --- | --- |
 | `meow` | — | `extraRoots`（额外父目录数组）、`dirName`（默认 `.dsh-meow`） |
-| `notes` | `path` | `title` `level` `levelField` `titleField` `keywordsField` `importanceField` `exts` `maxFiles` `maxDepth` |
+| `notes` | `path` | `title` `level` `levelField` `titleField` `keywordsField` `importanceField` `wsField` `wsMode` `deriveKeywords` `exts` `maxFiles` `maxDepth` |
+| `mnemon` | —（默认 `$DSH_HOME/.mnemon/documents/active`） | `path` `title` `level` `maxFiles` `maxDepth` `deriveKeywords` |
 | `sqlite` | `path` | `title` `tables` `table` `levelField` `defaultLevel` `columns` `where` |
 | `ingest` | —（自动读 `$DSH_HOME/memory-nebula/ingest/*.jsonl`） | — |
 
@@ -120,7 +121,33 @@
 `keywords/tags`、`importance/weight/score`、`created/created_at/ctime`……
 猜不到再写 `columns` 覆盖。
 
+`notes` 的两处约定：
+
+- **时间字段**认 `created` / `createdAt` / `created_at` / `date` / `ts` / `timestamp` / `ctime`，
+  更新字段认 `updated` / `updatedAt` / `updated_at` / `modified` / `mtime` / `last_modified`……
+  都认不出才回退文件 mtime —— 所以 frontmatter 写成 snake_case 也能拿到真实时间。
+- **工作区**默认整个来源算一个。要给同一目录里的文档分组，用 `wsField: "project"`
+  （按 frontmatter 字段取值）或 `wsMode: "dir"`（按相对路径第一段目录）。
+  不设则行为不变。跨工作区检索、每工作区配额都依赖这个划分。
+- **关键词**默认只认 frontmatter 里的 `tags` / `keywords`。只有正文、没有 tags 的库
+  （Obsidian、日记、mnemon 导出）可以设 `deriveKeywords: true`，从标题与一至三级标题里
+  抽几个词补空位；默认关，因为这是比原字段更弱的证据，收益很小（55 篇库实测多 3 条边）。
+
 ---
+
+### mnemon：dsh-mnemon 的项目档案
+
+装了 [dsh-mnemon](https://www.npmjs.com/package/dsh-mnemon) 的人不用配任何东西：
+`autoDetect` 打开时，星图会去 `$DSH_HOME/.mnemon/documents/active/` 看一眼，有档案就接。
+一篇 markdown 算一条记忆，层级是 `project`；`id` 用来做稳定的节点 uid
+（改写文档不会让它变成新的一条），`source_paths` 派生成关键词。
+
+想指定别的目录或关掉它：
+
+```json
+{ "sources": [{ "id": "mnemon", "adapter": "mnemon", "path": "D:\\notes\\archive" }] }
+{ "disabled": { "mnemon": true } }
+```
 
 ## 4. 写一个新适配器
 
