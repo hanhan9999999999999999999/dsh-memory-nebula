@@ -112,13 +112,22 @@
 | 适配器 | 必填 | 常用可选 |
 | --- | --- | --- |
 | `meow` | — | `extraRoots`（额外父目录数组）、`dirName`（默认 `.dsh-meow`） |
-| `notes` | `path` | `title` `level` `levelField` `titleField` `keywordsField` `importanceField` `exts` `maxFiles` `maxDepth` |
+| `notes` | `path` | `title` `level` `levelField` `titleField` `keywordsField` `importanceField` `wsField` `wsMode` `exts` `maxFiles` `maxDepth` |
 | `sqlite` | `path` | `title` `tables` `table` `levelField` `defaultLevel` `columns` `where` |
 | `ingest` | —（自动读 `$DSH_HOME/memory-nebula/ingest/*.jsonl`） | — |
 
 `sqlite` 会自己猜列名：`title/subject/name/heading`、`content/body/text/memo`、
 `keywords/tags`、`importance/weight/score`、`created/created_at/ctime`……
 猜不到再写 `columns` 覆盖。
+
+`notes` 的两处约定：
+
+- **时间字段**认 `created` / `createdAt` / `created_at` / `date` / `ts` / `timestamp` / `ctime`，
+  更新字段认 `updated` / `updatedAt` / `updated_at` / `modified` / `mtime` / `last_modified`……
+  都认不出才回退文件 mtime —— 所以 frontmatter 写成 snake_case 也能拿到真实时间。
+- **工作区**默认整个来源算一个。要给同一目录里的文档分组，用 `wsField: "project"`
+  （按 frontmatter 字段取值）或 `wsMode: "dir"`（按相对路径第一段目录）。
+  不设则行为不变。跨工作区检索、每工作区配额都依赖这个划分。
 
 ---
 
